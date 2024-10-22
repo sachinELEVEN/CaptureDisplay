@@ -178,8 +178,9 @@ for frame_num, position, speed in cursor_data:
 
             # Define zoom level and angle if needed
             #Zoom level should depend on the speed
-            #0 speed -> zoom in, more speed - zoom out
-            zoom_level = calculate_zoom_level(speed)  # 2x zoom
+            #0 speed -> zoom out, more speed - zoom in
+            # zoom_level = calculate_zoom_level(speed)  # 2x zoom
+            zoom_level = 1 if speed < 100 else 3
             angle = 0  # No rotation
 
             # Zoom into the frame at the cursor position
