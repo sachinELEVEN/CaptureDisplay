@@ -133,7 +133,7 @@ for frame_num, position, speed in cursor_data:
 
         # Set the zoom level and size of the zoomed area
         zoom_scale = 2  # Zoom factor
-        zoom_size = max(800 + speed/100))  # Size of the area around the cursor to zoom into
+        zoom_size = max(800 + speed/100)  # Size of the area around the cursor to zoom into
 
         # Set the frame position to the one where we want to zoom in
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
