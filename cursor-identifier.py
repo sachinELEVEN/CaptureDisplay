@@ -33,6 +33,7 @@ consecutive_cursor_miss_threshold = 150
 current_consecutive_cursor_misses = 0
 cursor_found = False
 show_cursor_identifier_preview = False
+show_processed_video_preview = False
 processed_frames = []
 
 # Variables for calculating speed
@@ -108,7 +109,7 @@ while True:
             current_consecutive_cursor_misses += 1
             print(f"Cursor cursor misses for template: {current_template_index} with count {current_consecutive_cursor_misses}")
         
-    if frame_count>100:#remove this later
+    if frame_count>500:#remove this later
         break
     frame_count += 1
 
@@ -185,13 +186,14 @@ for frame_num, position, speed in cursor_data:
             angle = 0  # No rotation
 
             # Smoothly interpolate zoom levels
-            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=10)
+            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=1)
 
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
                 zoomed_frame = zoom_at(frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
-                cv2.imshow("Zoomed Frame", zoomed_frame)
+                if show_processed_video_preview:
+                    cv2.imshow("Zoomed Frame", zoomed_frame)
 
                 # Write the zoomed frame to the output video
                 # output_video.write(zoomed_frame)
