@@ -132,6 +132,26 @@ def zoom_at(img, zoom=1, angle=0, coord=None):
     result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
     
     return result
+
+def calculate_zoom_level(speed, max_speed=5000):
+    """
+    Calculate zoom level based on speed.
+    
+    :param speed: The speed of the cursor in pixels/second.
+    :param max_speed: The maximum speed at which zoom level is at its minimum (1).
+    :return: A zoom level between 1 and 3.
+    """
+    # Ensure speed is not negative
+    speed = max(speed, 0)
+    
+    # Calculate zoom level inversely related to speed
+    # The formula ensures zoom level is between 1 and 3
+    zoom_level = 3 - (2 * (speed / max_speed))
+    
+    # Clamp the zoom level to be between 1 and 3
+    zoom_level = max(1, min(zoom_level, 3))
+    
+    return zoom_level
 # Define the speed threshold (adjust as needed)
 speed_threshold = 5000  # Pixels/second
 
@@ -144,8 +164,8 @@ for frame_num, position, speed in cursor_data:
         print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
 
         # Set the zoom level and size of the zoomed area
-        zoom_scale = 2  # Zoom factor zoom_size = max(800 + speed/100,2500)  # Size of 
-        zoom_size = 800  # Size of the area around the cursor to zoom into
+        # zoom_scale = 2  # Zoom factor zoom_size = max(800 + speed/100,2500)  # Size of 
+        # zoom_size = 800  # Size of the area around the cursor to zoom into
 
         # Set the frame position to the one where we want to zoom in
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
@@ -157,7 +177,9 @@ for frame_num, position, speed in cursor_data:
             cursor_x, cursor_y = position
 
             # Define zoom level and angle if needed
-            zoom_level = 2  # 2x zoom
+            #Zoom level should depend on the speed
+            #0 speed -> zoom in, more speed - zoom out
+            zoom_level = calculate_zoom_level(speed)  # 2x zoom
             angle = 0  # No rotation
 
             # Zoom into the frame at the cursor position
