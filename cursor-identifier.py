@@ -33,6 +33,7 @@ consecutive_cursor_miss_threshold = 150
 current_consecutive_cursor_misses = 0
 cursor_found = False
 show_cursor_identifier_preview = False
+processed_frames = []
 
 # Variables for calculating speed
 previous_position = None
@@ -107,7 +108,7 @@ while True:
             current_consecutive_cursor_misses += 1
             print(f"Cursor cursor misses for template: {current_template_index} with count {current_consecutive_cursor_misses}")
         
-    if frame_count>500:#remove this later
+    if frame_count>100:#remove this later
         break
     frame_count += 1
 
@@ -166,11 +167,6 @@ video = cv2.VideoCapture(video_path)
 # Initialize previous zoom level
 prev_zoom_level = 1
 
-# Set up VideoWriter to save the zoomed video
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4
-output_file_path = "zoomed_output.mp4"
-output_video = cv2.VideoWriter(output_file_path, fourcc, video_fps, (int(video.get(3)), int(video.get(4))))
-
 # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
 for frame_num, position, speed in cursor_data:
     if speed < speed_threshold:
@@ -198,7 +194,8 @@ for frame_num, position, speed in cursor_data:
                 cv2.imshow("Zoomed Frame", zoomed_frame)
 
                 # Write the zoomed frame to the output video
-                output_video.write(zoomed_frame)
+                # output_video.write(zoomed_frame)
+                processed_frames.append(zoomed_frame)
 
                 # Break on 'q' key
                 if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
@@ -212,7 +209,20 @@ for frame_num, position, speed in cursor_data:
 
 # Release the video capture and output writer
 video.release()
-output_video.release()
-cv2.destroyAllWindows()
 
-print(f"Zoomed video saved as: {output_file_path}")
+#Saving the output file locally
+# Setup VideoWriter to save the output video
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4
+output_file_path = "output_video.mp4"
+output_video = cv2.VideoWriter(output_file_path, fourcc, video_fps, (frame.shape[1], frame.shape[0]))
+
+# Write all processed frames to the output video
+for processed_frame in processed_frames:
+    output_vidwriteeo.(processed_frame)
+
+# Release the output writer
+output_video.release()
+print(f"Processed video saved as: {output_file_path}")
+
+# Cleanup
+cv2.destroyAllWindows()
