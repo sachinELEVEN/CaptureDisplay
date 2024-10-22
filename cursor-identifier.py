@@ -166,6 +166,11 @@ video = cv2.VideoCapture(video_path)
 # Initialize previous zoom level
 prev_zoom_level = 1
 
+# Set up VideoWriter to save the zoomed video
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4
+output_file_path = "zoomed_output.mp4"
+output_video = cv2.VideoWriter(output_file_path, fourcc, video_fps, (int(video.get(3)), int(video.get(4))))
+
 # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
 for frame_num, position, speed in cursor_data:
     if speed < speed_threshold:
@@ -180,17 +185,20 @@ for frame_num, position, speed in cursor_data:
             cursor_x, cursor_y = position
 
             # Calculate zoom level based on speed
-            target_zoom_level = zoom_level = 1 if speed < 100 else 3#calculate_zoom_level(speed)  # Dynamic zoom based on speed
+            target_zoom_level = zoom_level = 1 if speed < 100 else 3  # Dynamic zoom based on speed
             angle = 0  # No rotation
 
             # Smoothly interpolate zoom levels
             zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=10)
 
             # Apply zoom for each interpolated zoom level
-            #Need to do this only when when zoom level has changed
+            # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
                 zoomed_frame = zoom_at(frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
                 cv2.imshow("Zoomed Frame", zoomed_frame)
+
+                # Write the zoomed frame to the output video
+                output_video.write(zoomed_frame)
 
                 # Break on 'q' key
                 if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
@@ -200,8 +208,11 @@ for frame_num, position, speed in cursor_data:
             prev_zoom_level = target_zoom_level
 
         else:
-            print(f"Frame {frame_num} could not be read.")
+            print(f"Could not read frame {frame_num}")
 
-# Release the video capture
+# Release the video capture and output writer
 video.release()
+output_video.release()
 cv2.destroyAllWindows()
+
+print(f"Zoomed video saved as: {output_file_path}")
