@@ -218,7 +218,7 @@ output_video = cv2.VideoWriter(output_file_path, fourcc, video_fps, (frame.shape
 
 # Write all processed frames to the output video
 for processed_frame in processed_frames:
-    output_vidwriteeo.(processed_frame)
+    output_video.write(processed_frame)
 
 # Release the output writer
 output_video.release()
