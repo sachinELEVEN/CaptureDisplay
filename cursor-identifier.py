@@ -107,7 +107,8 @@ while True:
             current_consecutive_cursor_misses += 1
             print(f"Cursor cursor misses for template: {current_template_index} with count {current_consecutive_cursor_misses}")
         
-
+    if frame_count>500:#remove this later
+        break
     frame_count += 1
 
 # Release the video capture and close windows
@@ -132,7 +133,7 @@ for frame_num, position, speed in cursor_data:
 
         # Set the zoom level and size of the zoomed area
         zoom_scale = 2  # Zoom factor
-        zoom_size = 1000  # Size of the area around the cursor to zoom into
+        zoom_size = max(800 + speed/100))  # Size of the area around the cursor to zoom into
 
         # Set the frame position to the one where we want to zoom in
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
@@ -142,9 +143,6 @@ for frame_num, position, speed in cursor_data:
             org_frame_height, org_frame_width = frame.shape[:2] 
             aspect_ratio = org_frame_width / org_frame_height
             # print(org_frame_width,org_frame_height)
-            
-            # Define a zoom size
-            zoom_size = 100  # or whatever value makes sense for your application
 
             # Calculate the region of interest (ROI) for zooming
             cursor_x, cursor_y = position
