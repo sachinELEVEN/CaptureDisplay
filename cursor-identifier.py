@@ -194,9 +194,9 @@ for frame_num, position, speed in cursor_data:
             # Smoothly interpolate zoom levels via n no. of zoom steps
             #we only want smooth transition when zoom level has changed, since adding zoom steps increases video size, we dont want to increase the video size needlessly and increasing zoom steps also slows down the video between those frames
             #I think levels should maybe according to the cursor speed, so we should normalize it for cursor speed
-            #Assuming 300 is a good speed smooth and understandably cursor speed
-            good_cursor_speed = 100#in pixels per frame
-            zoom_steps = min(int(speed/good_cursor_speed),1)
+            #Assuming 200 is a good speed smooth and understandably cursor speed
+            good_cursor_speed = 400#in pixels per frame
+            zoom_steps = max(int(speed/good_cursor_speed),1)
             # zoom_steps = 3
             print("Zooming animation steps->",zoom_steps)
             # if prev_zoom_level != target_zoom_level:
