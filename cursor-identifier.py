@@ -114,8 +114,8 @@ while True:
     frame_count += 1
 
 # Release the video capture and close windows
-video.release()
-cv2.destroyAllWindows()
+# video.release()
+# cv2.destroyAllWindows()
 
 # Print cursor data
 for data in cursor_data:
@@ -163,10 +163,16 @@ def smooth_zoom(current_zoom, target_zoom, steps=10):
 speed_threshold = 5000  # Pixels/second
 
 # Open the video file again to extract the frames for visualization
-video = cv2.VideoCapture(video_path)
+# video = cv2.VideoCapture(video_path)
 
 # Initialize previous zoom level
 prev_zoom_level = 1
+
+#Saving the output file locally
+# Setup VideoWriter to save the output video
+fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4
+output_file_path = "output_video.mp4"
+output_video = cv2.VideoWriter(output_file_path, fourcc, video_fps, (frame.shape[1], frame.shape[0]))
 
 # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
 for frame_num, position, speed in cursor_data:
@@ -185,8 +191,14 @@ for frame_num, position, speed in cursor_data:
             target_zoom_level = zoom_level = 1 if speed < 100 else 3  # Dynamic zoom based on speed
             angle = 0  # No rotation
 
-            # Smoothly interpolate zoom levels
-            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=1)
+            # Smoothly interpolate zoom levels via n no. of zoom steps
+            #we only want smooth transition when zoom level has changed, since adding zoom steps increases video size, we dont want to increase the video size needlessly and increasing zoom steps also slows down the video between those frames
+            #I think levels should maybe according to the cursor speed, so we should normalize it for cursor speed
+            zoom_steps = 3
+            print("Zooming animation ->",speed/zoom_steps)
+            if prev_zoom_level != target_zoom_level:
+                zoom_steps = 10
+            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
 
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
@@ -197,7 +209,8 @@ for frame_num, position, speed in cursor_data:
 
                 # Write the zoomed frame to the output video
                 # output_video.write(zoomed_frame)
-                processed_frames.append(zoomed_frame)
+                output_video.write(zoomed_frame)
+                # processed_frames.append(zoomed_frame)
 
                 # Break on 'q' key
                 if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
@@ -212,15 +225,6 @@ for frame_num, position, speed in cursor_data:
 # Release the video capture and output writer
 video.release()
 
-#Saving the output file locally
-# Setup VideoWriter to save the output video
-fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4
-output_file_path = "output_video.mp4"
-output_video = cv2.VideoWriter(output_file_path, fourcc, video_fps, (frame.shape[1], frame.shape[0]))
-
-# Write all processed frames to the output video
-for processed_frame in processed_frames:
-    output_video.write(processed_frame)
 
 # Release the output writer
 output_video.release()
