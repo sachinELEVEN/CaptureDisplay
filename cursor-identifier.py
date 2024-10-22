@@ -32,6 +32,7 @@ next_template_index = 0
 consecutive_cursor_miss_threshold = 150
 current_consecutive_cursor_misses = 0
 cursor_found = False
+show_cursor_identifier_preview = False
 
 # Variables for calculating speed
 previous_position = None
@@ -90,9 +91,10 @@ while True:
                       (0, 255, 0), 2)
         
         # Show the frame with the detected cursor (for debugging)
-        cv2.imshow("Cursor Detection", frame)
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        if show_cursor_identifier_preview:
+            cv2.imshow("Cursor Detection", frame)
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
     else:
         # No match found, move to the next template
         if current_consecutive_cursor_misses > consecutive_cursor_miss_threshold:
@@ -116,8 +118,9 @@ cv2.destroyAllWindows()
 for data in cursor_data:
     print(f"Frame {data[0]}: Position {data[1]}, Speed {data[2]:.2f} pixels/second")
 
+#Zoomed video preview
 # Define the speed threshold (adjust as needed)
-speed_threshold = 50000  # Pixels/second
+speed_threshold = 5000  # Pixels/second
 
 # Open the video file again to extract the frames for visualization
 video = cv2.VideoCapture(video_path)
@@ -136,15 +139,33 @@ for frame_num, position, speed in cursor_data:
         ret, frame = video.read()
 
         if ret:
+            org_frame_height, org_frame_width = frame.shape[:2] 
+            aspect_ratio = org_frame_width / org_frame_height
+            # print(org_frame_width,org_frame_height)
+            
+            # Define a zoom size
+            zoom_size = 100  # or whatever value makes sense for your application
+
             # Calculate the region of interest (ROI) for zooming
             cursor_x, cursor_y = position
-            x1 = max(cursor_x - zoom_size // 2, 0)
-            y1 = max(cursor_y - zoom_size // 2, 0)
-            x2 = min(cursor_x + zoom_size // 2, frame.shape[1])
-            y2 = min(cursor_y + zoom_size // 2, frame.shape[0])
+            
+            # Define the zoom rectangle while maintaining aspect ratio
+            zoom_width = zoom_size  # or a specific width
+            zoom_height = int(zoom_size / aspect_ratio)  # adjusted height based on aspect ratio
+
+            # Ensure the indices are integers
+            x1 = max(int(cursor_x - zoom_width // 2), 0)
+            y1 = max(int(cursor_y - zoom_height // 2), 0)
+            x2 = min(int(cursor_x + zoom_width // 2), org_frame_width)
+            y2 = min(int(cursor_y + zoom_height // 2), org_frame_height)
+
+            # Now slice the frame using the calculated indices
+            roi = frame[y1:y2, x1:x2]
+
+
 
             # Extract the ROI
-            roi = frame[y1:y2, x1:x2]
+            # roi = frame[y1:y2, x1:x2]
 
             # Resize the ROI to create the zoom effect
             zoomed_frame = cv2.resize(roi, (roi.shape[1] * zoom_scale, roi.shape[0] * zoom_scale))
