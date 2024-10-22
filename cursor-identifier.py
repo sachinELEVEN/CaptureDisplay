@@ -171,7 +171,7 @@ prev_zoom_level = 1
 #Saving the output file locally
 # Setup VideoWriter to save the output video
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')  # Codec for .mp4
-output_file_path = "output_video.mp4"
+output_file_path = "processed_output_video.mp4"
 output_video = cv2.VideoWriter(output_file_path, fourcc, video_fps, (frame.shape[1], frame.shape[0]))
 
 # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
@@ -196,7 +196,7 @@ for frame_num, position, speed in cursor_data:
             #I think levels should maybe according to the cursor speed, so we should normalize it for cursor speed
             #Assuming 300 is a good speed smooth and understandably cursor speed
             good_cursor_speed = 100#in pixels per frame
-            zoom_steps = int(speed/good_cursor_speed)
+            zoom_steps = min(int(speed/good_cursor_speed),1)
             # zoom_steps = 3
             print("Zooming animation steps->",zoom_steps)
             # if prev_zoom_level != target_zoom_level:
