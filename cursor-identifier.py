@@ -119,8 +119,9 @@ cv2.destroyAllWindows()
 for data in cursor_data:
     print(f"Frame {data[0]}: Position {data[1]}, Speed {data[2]:.2f} pixels/second")
 
-#Zoomed video preview
-#Zooming logic picked from here - https://stackoverflow.com/questions/69050464/zoom-into-image-with-opencv
+####ZOOM PREVIEW HERE
+
+# Zoomed video preview
 def zoom_at(img, zoom=1, angle=0, coord=None):
     # Set the center of zoom to the center of the image if coord is None
     cy, cx = [i / 2 for i in img.shape[:-1]] if coord is None else coord[::-1]
@@ -133,7 +134,7 @@ def zoom_at(img, zoom=1, angle=0, coord=None):
     
     return result
 
-def calculate_zoom_level(speed, max_speed=5000):
+def DEPRECATED_calculate_zoom_level(speed, max_speed=5000):
     """
     Calculate zoom level based on speed.
     
@@ -145,53 +146,58 @@ def calculate_zoom_level(speed, max_speed=5000):
     speed = max(speed, 0)
     
     # Calculate zoom level inversely related to speed
-    # The formula ensures zoom level is between 1 and 3
     zoom_level = 3 - (2 * (speed / max_speed))
     
     # Clamp the zoom level to be between 1 and 3
     zoom_level = max(1, min(zoom_level, 3))
     
     return zoom_level
+
+# Function to smoothly transition the zoom level
+def smooth_zoom(current_zoom, target_zoom, steps=10):
+    return np.linspace(current_zoom, target_zoom, steps)
+
 # Define the speed threshold (adjust as needed)
 speed_threshold = 5000  # Pixels/second
 
 # Open the video file again to extract the frames for visualization
 video = cv2.VideoCapture(video_path)
 
+# Initialize previous zoom level
+prev_zoom_level = 1
+
 # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
 for frame_num, position, speed in cursor_data:
     if speed < speed_threshold:
         print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
 
-        # Set the zoom level and size of the zoomed area
-        # zoom_scale = 2  # Zoom factor zoom_size = max(800 + speed/100,2500)  # Size of 
-        # zoom_size = 800  # Size of the area around the cursor to zoom into
-
         # Set the frame position to the one where we want to zoom in
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
         ret, frame = video.read()
 
-        # Assuming you have your frame and cursor position
         if ret:
             # Assuming cursor_x and cursor_y are your cursor's position
             cursor_x, cursor_y = position
 
-            # Define zoom level and angle if needed
-            #Zoom level should depend on the speed
-            #0 speed -> zoom out, more speed - zoom in
-            # zoom_level = calculate_zoom_level(speed)  # 2x zoom
-            zoom_level = 1 if speed < 100 else 3
+            # Calculate zoom level based on speed
+            target_zoom_level = zoom_level = 1 if speed < 100 else 3#calculate_zoom_level(speed)  # Dynamic zoom based on speed
             angle = 0  # No rotation
 
-            # Zoom into the frame at the cursor position
-            zoomed_frame = zoom_at(frame, zoom=zoom_level, angle=angle, coord=(cursor_x, cursor_y))
+            # Smoothly interpolate zoom levels
+            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=10)
 
-            # Show the zoomed frame
-            cv2.imshow("Zoomed Frame", zoomed_frame)
+            # Apply zoom for each interpolated zoom level
+            #Need to do this only when when zoom level has changed
+            for zoom in zoom_levels:
+                zoomed_frame = zoom_at(frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
+                cv2.imshow("Zoomed Frame", zoomed_frame)
 
-            # Break on 'q' key
-            if cv2.waitKey(int(1000/60)) & 0xFF == ord('q'):
-                break
+                # Break on 'q' key
+                if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+                    break
+
+            # Update the previous zoom level for the next iteration
+            prev_zoom_level = target_zoom_level
 
         else:
             print(f"Frame {frame_num} could not be read.")
