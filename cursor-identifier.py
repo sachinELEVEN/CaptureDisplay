@@ -3,7 +3,10 @@ import os
 import numpy as np
 
 # Path to the input video and the folder containing cursor templates
-video_path = "/Users/sachinjeph/Desktop/CaptureDisplay/assets/cursor-movement-onscreen.mp4"
+standard_cursor_vid ="/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-cursor-movement.mp4"
+standard_and_type_cursor_vid ="/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-and-type-cursor-movement.mp4"
+
+video_path = standard_and_type_cursor_vid
 #Order of template in the cursor png folder should be from most likely to least likely, so standard cursor should be at the beginning
 template_folder = "./assets/mac-cursor-1x"
 
@@ -25,7 +28,7 @@ frame_count = 0
 current_template_index = 0
 next_template_index = 0
 #considering a 60fps video this means 1sec of consecutive cursor missing
-consecutive_cursor_miss_threshold = 60
+consecutive_cursor_miss_threshold = 150
 current_consecutive_cursor_misses = 0
 cursor_found = False
 
@@ -49,7 +52,7 @@ while True:
     min_val, max_val, min_loc, max_loc = cv2.minMaxLoc(result)
 
     # Set a threshold for detecting a match
-    threshold = 0.8
+    threshold = 0.7
     if max_val >= threshold:
         # Get the top-left corner of the matched area
         cursor_x, cursor_y = max_loc
@@ -58,7 +61,7 @@ while True:
         current_consecutive_cursor_misses = 0
         if not cursor_found:
             cursor_found = True
-            print(f"Frame {frame_count}: Cursor detected using template '{template_name}' at position ({cursor_x}, {cursor_y}) at current_template_index {current_template_index}")
+            print(f"Frame {frame_count}: Cursor detected using template '{template_name}' at position ({cursor_x}, {cursor_y}) at current_template_index {current_template_index} with confidence {max_val}")
         
         # Optionally, draw a rectangle around the detected cursor for visualization
         cv2.rectangle(frame, (cursor_x, cursor_y), 
