@@ -115,3 +115,49 @@ cv2.destroyAllWindows()
 # Print cursor data
 for data in cursor_data:
     print(f"Frame {data[0]}: Position {data[1]}, Speed {data[2]:.2f} pixels/second")
+
+# Define the speed threshold (adjust as needed)
+speed_threshold = 50000  # Pixels/second
+
+# Open the video file again to extract the frames for visualization
+video = cv2.VideoCapture(video_path)
+
+# Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
+for frame_num, position, speed in cursor_data:
+    if speed < speed_threshold:
+        print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
+
+        # Set the zoom level and size of the zoomed area
+        zoom_scale = 2  # Zoom factor
+        zoom_size = 1000  # Size of the area around the cursor to zoom into
+
+        # Set the frame position to the one where we want to zoom in
+        video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+        ret, frame = video.read()
+
+        if ret:
+            # Calculate the region of interest (ROI) for zooming
+            cursor_x, cursor_y = position
+            x1 = max(cursor_x - zoom_size // 2, 0)
+            y1 = max(cursor_y - zoom_size // 2, 0)
+            x2 = min(cursor_x + zoom_size // 2, frame.shape[1])
+            y2 = min(cursor_y + zoom_size // 2, frame.shape[0])
+
+            # Extract the ROI
+            roi = frame[y1:y2, x1:x2]
+
+            # Resize the ROI to create the zoom effect
+            zoomed_frame = cv2.resize(roi, (roi.shape[1] * zoom_scale, roi.shape[0] * zoom_scale))
+
+            # Display only the zoomed frame
+            cv2.imshow("Zoomed In Cursor", zoomed_frame)
+
+            # Wait for a short period to simulate normal playback speed
+            cv2.waitKey(int(1000 / 60))  # For a 60 FPS video
+
+        else:
+            print(f"Frame {frame_num} could not be read.")
+
+# Release the video capture
+video.release()
+cv2.destroyAllWindows()
