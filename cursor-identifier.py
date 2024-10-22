@@ -3,10 +3,10 @@ import os
 import numpy as np
 
 # Path to the input video and the folder containing cursor templates
-standard_cursor_vid ="/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-cursor-movement.mp4"
-standard_and_type_cursor_vid ="/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-and-type-cursor-movement.mp4"
+standard_cursor_vid = "/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-cursor-movement.mp4"
+standard_and_type_cursor_vid = "/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-and-type-cursor-movement.mp4"
 
-video_path = standard_and_type_cursor_vid
+video_path = standard_cursor_vid
 #Order of template in the cursor png folder should be from most likely to least likely, so standard cursor should be at the beginning
 template_folder = "./assets/mac-cursor-1x"
 
@@ -24,13 +24,18 @@ print(f"Loaded {len(templates)} templates.")
 
 # Open the video file
 video = cv2.VideoCapture(video_path)
+video_fps = 60
 frame_count = 0
 current_template_index = 0
 next_template_index = 0
-#considering a 60fps video this means 1sec of consecutive cursor missing
+#considering a 60fps video this means 1sec of consecutive cursor missing, we probably should determine it from the video
 consecutive_cursor_miss_threshold = 150
 current_consecutive_cursor_misses = 0
 cursor_found = False
+
+# Variables for calculating speed
+previous_position = None
+cursor_data = []  # List to hold frame number, cursor position, and speed
 
 # Iterate over the video frames
 while True:
@@ -56,14 +61,30 @@ while True:
     if max_val >= threshold:
         # Get the top-left corner of the matched area
         cursor_x, cursor_y = max_loc
-        #Resetting the next template we are going to check to the beginning of the template list
+        current_position = (cursor_x + template_width // 2, cursor_y + template_height // 2)  # Center of the cursor
+
+        # Resetting the next template to the beginning of the template list
         next_template_index = 0
         current_consecutive_cursor_misses = 0
         if not cursor_found:
             cursor_found = True
-            print(f"Frame {frame_count}: Cursor detected using template '{template_name}' at position ({cursor_x}, {cursor_y}) at current_template_index {current_template_index} with confidence {max_val}")
-        
-        # Optionally, draw a rectangle around the detected cursor for visualization
+            print(f"Frame {frame_count}: Cursor detected using template '{template_name}' at position {current_position} with confidence {max_val}")
+
+        # Calculate speed if previous_position exists
+        if previous_position is not None:
+            distance = np.sqrt((current_position[0] - previous_position[0]) ** 2 + (current_position[1] - previous_position[1]) ** 2)
+            time_between_frames = 1 / video_fps  # 60 fps
+            speed = distance / time_between_frames
+        else:
+            speed = -1
+
+        # Store frame data (frame number, position, speed)
+        cursor_data.append((frame_count, current_position, speed))
+
+        # Update previous_position for the next frame
+        previous_position = current_position
+
+        # Optionally, draw a rectangle around the detected cursor
         cv2.rectangle(frame, (cursor_x, cursor_y), 
                       (cursor_x + template_width, cursor_y + template_height), 
                       (0, 255, 0), 2)
@@ -90,3 +111,7 @@ while True:
 # Release the video capture and close windows
 video.release()
 cv2.destroyAllWindows()
+
+# Print cursor data
+for data in cursor_data:
+    print(f"Frame {data[0]}: Position {data[1]}, Speed {data[2]:.2f} pixels/second")
