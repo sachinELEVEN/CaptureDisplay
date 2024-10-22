@@ -24,8 +24,10 @@ video = cv2.VideoCapture(video_path)
 frame_count = 0
 current_template_index = 0
 next_template_index = 0
+#considering a 60fps video this means 1sec of consecutive cursor missing
 consecutive_cursor_miss_threshold = 60
 current_consecutive_cursor_misses = 0
+cursor_found = False
 
 # Iterate over the video frames
 while True:
@@ -53,7 +55,10 @@ while True:
         cursor_x, cursor_y = max_loc
         #Resetting the next template we are going to check to the beginning of the template list
         next_template_index = 0
-        print(f"Frame {frame_count}: Cursor detected using template '{template_name}' at position ({cursor_x}, {cursor_y}) at current_template_index {current_template_index}")
+        current_consecutive_cursor_misses = 0
+        if not cursor_found:
+            cursor_found = True
+            print(f"Frame {frame_count}: Cursor detected using template '{template_name}' at position ({cursor_x}, {cursor_y}) at current_template_index {current_template_index}")
         
         # Optionally, draw a rectangle around the detected cursor for visualization
         cv2.rectangle(frame, (cursor_x, cursor_y), 
@@ -68,11 +73,13 @@ while True:
         # No match found, move to the next template
         if current_consecutive_cursor_misses > consecutive_cursor_miss_threshold:
             current_consecutive_cursor_misses = 0
+            cursor_found = False
             next_template_index = (next_template_index + 1) % len(templates)
             print(f"Frame {frame_count}: No match found with template '{template_name}', with current_template_index {current_template_index}. Now going to check with template_index {next_template_index}")
             current_template_index = next_template_index
-        else:
+        else:   
             current_consecutive_cursor_misses += 1
+            print(f"Cursor cursor misses for template: {current_template_index} with count {current_consecutive_cursor_misses}")
         
 
     frame_count += 1
