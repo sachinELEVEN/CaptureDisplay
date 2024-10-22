@@ -120,6 +120,18 @@ for data in cursor_data:
     print(f"Frame {data[0]}: Position {data[1]}, Speed {data[2]:.2f} pixels/second")
 
 #Zoomed video preview
+#Zooming logic picked from here - https://stackoverflow.com/questions/69050464/zoom-into-image-with-opencv
+def zoom_at(img, zoom=1, angle=0, coord=None):
+    # Set the center of zoom to the center of the image if coord is None
+    cy, cx = [i / 2 for i in img.shape[:-1]] if coord is None else coord[::-1]
+    
+    # Create the rotation matrix
+    rot_mat = cv2.getRotationMatrix2D((cx, cy), angle, zoom)
+    
+    # Apply the warpAffine function to zoom the image
+    result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
+    
+    return result
 # Define the speed threshold (adjust as needed)
 speed_threshold = 5000  # Pixels/second
 
@@ -132,47 +144,31 @@ for frame_num, position, speed in cursor_data:
         print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
 
         # Set the zoom level and size of the zoomed area
-        zoom_scale = 2  # Zoom factor
-        zoom_size = max(800 + speed/100)  # Size of the area around the cursor to zoom into
+        zoom_scale = 2  # Zoom factor zoom_size = max(800 + speed/100,2500)  # Size of 
+        zoom_size = 800  # Size of the area around the cursor to zoom into
 
         # Set the frame position to the one where we want to zoom in
         video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
         ret, frame = video.read()
 
+        # Assuming you have your frame and cursor position
         if ret:
-            org_frame_height, org_frame_width = frame.shape[:2] 
-            aspect_ratio = org_frame_width / org_frame_height
-            # print(org_frame_width,org_frame_height)
-
-            # Calculate the region of interest (ROI) for zooming
+            # Assuming cursor_x and cursor_y are your cursor's position
             cursor_x, cursor_y = position
-            
-            # Define the zoom rectangle while maintaining aspect ratio
-            zoom_width = zoom_size  # or a specific width
-            zoom_height = int(zoom_size / aspect_ratio)  # adjusted height based on aspect ratio
 
-            # Ensure the indices are integers
-            x1 = max(int(cursor_x - zoom_width // 2), 0)
-            y1 = max(int(cursor_y - zoom_height // 2), 0)
-            x2 = min(int(cursor_x + zoom_width // 2), org_frame_width)
-            y2 = min(int(cursor_y + zoom_height // 2), org_frame_height)
+            # Define zoom level and angle if needed
+            zoom_level = 2  # 2x zoom
+            angle = 0  # No rotation
 
-            # Now slice the frame using the calculated indices
-            roi = frame[y1:y2, x1:x2]
+            # Zoom into the frame at the cursor position
+            zoomed_frame = zoom_at(frame, zoom=zoom_level, angle=angle, coord=(cursor_x, cursor_y))
 
+            # Show the zoomed frame
+            cv2.imshow("Zoomed Frame", zoomed_frame)
 
-
-            # Extract the ROI
-            # roi = frame[y1:y2, x1:x2]
-
-            # Resize the ROI to create the zoom effect
-            zoomed_frame = cv2.resize(roi, (roi.shape[1] * zoom_scale, roi.shape[0] * zoom_scale))
-
-            # Display only the zoomed frame
-            cv2.imshow("Zoomed In Cursor", zoomed_frame)
-
-            # Wait for a short period to simulate normal playback speed
-            cv2.waitKey(int(1000 / 60))  # For a 60 FPS video
+            # Break on 'q' key
+            if cv2.waitKey(int(1000/60)) & 0xFF == ord('q'):
+                break
 
         else:
             print(f"Frame {frame_num} could not be read.")
