@@ -309,11 +309,12 @@ def on_click(x, y, button, pressed):
             if time_diff < double_click_threshold:
                 # It's a double click, process it and clear the buffer
                 process_click("Double Click", click_position)
+                left_click_status = not left_click_status
                 click_buffer = None
             else:
                 # If the time difference exceeds the threshold, process as a single click
                 process_click("Left Click", click_position)
-                left_click_status = not left_click_status
+                # left_click_status = not left_click_status
                 click_buffer = (current_time, click_position)
     elif button == mouse.Button.right and not pressed:
         process_click( "Right Click", click_position)
@@ -331,7 +332,7 @@ def check_for_double_click():
     if click_buffer is not None:
         _, click_position = click_buffer
         process_click("Left Click", click_position)
-        left_click_status = not left_click_status
+        # left_click_status = not left_click_status
         click_buffer = None
 
 # Example usage
@@ -362,7 +363,7 @@ if __name__ == "__main__":
 
         #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
         #actually when we use left click based zoom, we want it to have high frequency, so changes are picked up quickly
-        if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
 
             
