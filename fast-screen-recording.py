@@ -117,10 +117,101 @@ class ScreenCapture:
         return final_output
 
 #Augments the frame by adjusting the zoom level about the cursor based on the cursor movement and returns a list of frames
-def zoom_augmented_stream(frame,cursor_info):
+    
+# Zoomed video preview
+def zoom_at(img, zoom=1, angle=0, coord=None):
+    # Set the center of zoom to the center of the image if coord is None
+    cy, cx = [i / 2 for i in img.shape[:-1]] if coord is None else coord[::-1]
+    
+    # Create the rotation matrix
+    rot_mat = cv2.getRotationMatrix2D((cx, cy), angle, zoom)
+    
+    # Apply the warpAffine function to zoom the image
+    result = cv2.warpAffine(img, rot_mat, img.shape[1::-1], flags=cv2.INTER_LINEAR)
+    
+    return result
+
+# Function to smoothly transition the zoom level
+def smooth_zoom(current_zoom, target_zoom, steps=10):
+    return np.linspace(current_zoom, target_zoom, steps)
+
+def perform_zoom_augmentation(frame,cursor_info,output_monitor_bounds):
     print("Hello")
+    # Define the speed threshold (adjust as needed)
+    speed_threshold = 5000  # Pixels/second
+
+    # Open the video file again to extract the frames for visualization
+    # video = cv2.VideoCapture(video_path)
+
+    # Initialize previous zoom level
+    prev_zoom_level = 1
+    # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
+    position = cursor_info["position"]
+    speed = cursor_info["speed"]
+    frame_num = -1
+    show_processed_video_preview = True
+    if speed < speed_threshold:
+        print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
+
+        # Set the frame position to the one where we want to zoom in
+        # video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
+        # ret, frame = video.read()
+
+        if frame is not None:
+            # Assuming cursor_x and cursor_y are your cursor's position
+            cursor_x, cursor_y = position
+
+            # Calculate zoom level based on speed
+            target_zoom_level = zoom_level = 1 if speed < 100 else 3  # Dynamic zoom based on speed
+            angle = 0  # No rotation
+
+            # Smoothly interpolate zoom levels via n no. of zoom steps
+            #we only want smooth transition when zoom level has changed, since adding zoom steps increases video size, we dont want to increase the video size needlessly and increasing zoom steps also slows down the video between those frames
+            #I think levels should maybe according to the cursor speed, so we should normalize it for cursor speed
+            #Assuming 200 is a good speed smooth and understandably cursor speed
+            # good_cursor_speed = 100#in pixels per frame
+            # zoom_steps = min(int(speed/good_cursor_speed),1)
+            zoom_steps = 1
+            print("Zooming animation steps->",zoom_steps)
+            if prev_zoom_level != target_zoom_level:
+                good_cursor_speed = 100#in pixels per frame
+                zoom_steps = max(int(speed/good_cursor_speed),1)
+            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
+
+            # Apply zoom for each interpolated zoom level
+            # Need to do this only when zoom level has changed
+            for zoom in zoom_levels:
+                zoomed_frame = zoom_at(frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
+                if show_processed_video_preview:
+                    display_frame_at_required_monitor(zoomed_frame,output_monitor_bounds)
+                    # cv2.imshow("Zoomed Frame", zoomed_frame)
+
+                # Write the zoomed frame to the output video
+                # output_video.write(zoomed_frame)
+                # output_video.write(zoomed_frame)
+                # processed_frames.append(zoomed_frame)
+
+                # Break on 'q' key
+                if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+                    break
+
+            # Update the previous zoom level for the next iteration
+            prev_zoom_level = target_zoom_level
+
+        else:
+            print(f"Received null frame while trying to augment the frame {frame_num}")
 
 
+#Displays the frame at the correct display
+def display_frame_at_required_monitor(frame,output_monitor_bounds):
+    # If you want to display the frame using OpenCV (for testing purposes):
+    window_name = "Screen Capture"
+    cv2.imshow(window_name, frame)
+    cv2.moveWindow(window_name,int(output_monitor_bounds.origin.x),int(output_monitor_bounds.origin.y))
+        
+    # Pause for FPS
+    if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+        print("key entered")
 
 
 
@@ -143,15 +234,10 @@ if __name__ == "__main__":
         #get cursor info
         cursor_info = get_cursor_info()
         print("Cursor info is",cursor_info)
-        augmented_frames = zoom_augmented_stream(frame,cursor_info)
+        perform_zoom_augmentation(frame,cursor_info,output_monitor_bounds)
 
-        # If you want to display the frame using OpenCV (for testing purposes):
-        window_name = "Screen Capture"
-        cv2.imshow(window_name, frame)
-        cv2.moveWindow(window_name,int(output_monitor_bounds.origin.x),int(output_monitor_bounds.origin.y))
-        
-        # Pause for FPS
-        if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+        if cv2.waitKey(1) & 0xFF == ord('q'):
             break
+
             
     cv2.destroyAllWindows()
