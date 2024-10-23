@@ -4,6 +4,10 @@ import cv2
 import time
 from Quartz import CGGetActiveDisplayList, CGGetOnlineDisplayList
 from CoreFoundation import CFPreferencesCopyAppValue
+import importlib
+
+one_time_cursor_info = importlib.import_module("one-time-cursor-info")
+get_cursor_info = one_time_cursor_info.get_cursor_info
 
 
 #This is slow in capturing the video-> each frame takes like 0.2-0.3s
@@ -112,6 +116,14 @@ class ScreenCapture:
 
         return final_output
 
+#Augments the frame by adjusting the zoom level about the cursor based on the cursor movement and returns a list of frames
+def zoom_augmented_stream(frame,cursor_info):
+    print("Hello")
+
+
+
+
+
 # Example usage
 if __name__ == "__main__":
     screen_capture = ScreenCapture()
@@ -126,6 +138,12 @@ if __name__ == "__main__":
         elapsed_time = time.time() - start_time
         print(f"FPS: {60 * 1 / elapsed_time:.4f}")
         print(output_monitor_bounds.origin)
+
+        #Augmentation of the frame
+        #get cursor info
+        cursor_info = get_cursor_info()
+        print("Cursor info is",cursor_info)
+        augmented_frames = zoom_augmented_stream(frame,cursor_info)
 
         # If you want to display the frame using OpenCV (for testing purposes):
         window_name = "Screen Capture"
