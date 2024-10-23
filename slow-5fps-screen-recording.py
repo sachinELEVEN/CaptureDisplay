@@ -1,6 +1,9 @@
 import numpy as np
 import Quartz as QZ
 import cv2
+import time
+
+#This is slow in capturing the video-> each frame takes like 0.2-0.3s
 
 class ScreenCapture:
 
@@ -49,9 +52,19 @@ class ScreenCapture:
 # Example usage
 if __name__ == "__main__":
     screen_capture = ScreenCapture()
-    frame = screen_capture.get_screen_image()
+    while True:
+        start_time = time.time()  # Start the timer
+        frame = screen_capture.get_screen_image()
 
-    # If you want to display the frame using OpenCV (for testing purposes):
-    cv2.imshow("Screen Capture", frame)
-    cv2.waitKey(1)  # Press any key to close the window
+        # Calculate the time taken to capture the frame
+        elapsed_time = time.time() - start_time
+        print(f"Time to capture frame: {elapsed_time:.4f} seconds")
+
+        # If you want to display the frame using OpenCV (for testing purposes):
+        cv2.imshow("Screen Capture", frame)
+        
+        # Pause for FPS
+        if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+            break
+            
     cv2.destroyAllWindows()
