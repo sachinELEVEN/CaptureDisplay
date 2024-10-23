@@ -164,7 +164,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
-
+    show_rectangle_overlay = True
     result = normalize_coordinate_to_0_0_origin(position,input_monitor_bounds)
     position = result[0]
     input_monitor_bounds = result[1]
@@ -216,7 +216,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 good_cursor_speed = 100#in pixels per frame
                 zoom_steps = max(int(speed/good_cursor_speed),1)
             print("Zooming animation steps->",zoom_steps)
-            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=1)
+            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
 
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
@@ -225,7 +225,8 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 if show_processed_video_preview:
                     # Optionally, draw a rectangle around the detected cursor
                     # cv2.rectangle(zoomed_frame, (int(0), int(0)), (int(0) + 50, int(0) + 50), (0, 255, 0), 2)
-                    cv2.rectangle(zoomed_frame, (int(cursor_x), int(cursor_y)), (int(cursor_x) + 50, int(cursor_y) + 50), (0, 255, 0), 2)
+                    if show_rectangle_overlay and cursor_in_bounds:
+                        cv2.rectangle(zoomed_frame, (int(cursor_x), int(cursor_y)), (int(cursor_x) + 50, int(cursor_y) + 50), (0, 255, 0), 2)
                     display_frame_at_required_monitor(zoomed_frame,output_monitor_bounds)
                     # cv2.imshow("Zoomed Frame", zoomed_frame)
 
