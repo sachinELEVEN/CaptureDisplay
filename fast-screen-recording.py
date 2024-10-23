@@ -145,11 +145,30 @@ def is_cursor_within_bounds(position,input_monitor_bounds):
     # print(bound_x1,bound_y1, "and", bound_x2,bound_y2)
     return bound_x1 <= cursor_x <= bound_x2 and bound_y1 <= cursor_y <= bound_y2
 
+#cursor position and input_monitor_bounds and normalizes them to 0,0 origin, this is done because zooming, drawing rectangles only works for positive coordinates
+def normalize_coordinate_to_0_0_origin(cursor_position,input_monitor_bounds):
+    x_offset = (0 - input_monitor_bounds.origin.x)
+    y_offset = (0 - input_monitor_bounds.origin.y)
+    input_monitor_bounds.origin.x = input_monitor_bounds.origin.x + x_offset
+    input_monitor_bounds.origin.y = input_monitor_bounds.origin.y + y_offset
+
+    print(cursor_position)
+    cursor_position = (cursor_position[0] + x_offset,
+                  cursor_position[1] + y_offset)
+   
+    return (cursor_position,input_monitor_bounds)
+
+
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
     
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
+
+    result = normalize_coordinate_to_0_0_origin(position,input_monitor_bounds)
+    position = result[0]
+    input_monitor_bounds = result[1]
+    # print("Normalised->",position,input_monitor_bounds)
     cursor_in_bounds = False
     #Validate cursor position- basically we need to check if cursor is on the same monitor as we are interested in or not
     if not is_cursor_within_bounds(position,input_monitor_bounds):
