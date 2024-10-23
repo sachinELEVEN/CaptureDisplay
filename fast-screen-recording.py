@@ -18,7 +18,7 @@ class ScreenCapture:
         self.screen_height = 0
 
     #Captures a particular monitor
-    def get_monitor_screen_image(self, monitor_index=0):
+    def get_monitor_screen_image(self, input_monitor_index=0,output_monitor_index=0):
         # maximum number of displays to return
         max_displays = 100
         # get active display list
@@ -30,12 +30,14 @@ class ScreenCapture:
             return False
         print(active_displays,number_of_active_displays)
         # Get the desired monitor's bounds
-        if monitor_index < number_of_active_displays:
-            monitor_id = active_displays[monitor_index]  # Choose which monitor to capture
+        if input_monitor_index < number_of_active_displays and output_monitor_index < number_of_active_displays:
+            input_monitor_id = active_displays[input_monitor_index]  # Choose which monitor to capture
+            output_monitor_id = active_displays[output_monitor_index] #monitor to which we will display the output- should ideally be the virtual monitor
         else:
             raise ValueError("Monitor index out of range.")
 
-        monitor_bounds = QZ.CGDisplayBounds(monitor_id)
+        monitor_bounds = QZ.CGDisplayBounds(input_monitor_id)
+        output_monitor_bounds = QZ.CGDisplayBounds(output_monitor_id)
 
         # Capture only the specified monitor using its bounds
         core_graphics_image = QZ.CGWindowListCreateImage(
@@ -70,7 +72,7 @@ class ScreenCapture:
 
         final_output = np.ascontiguousarray(numpy_data, dtype=np.uint8)
 
-        return final_output
+        return (final_output,output_monitor_bounds)
     
 
     #Captures the entire screen - across all the monitors
@@ -116,14 +118,19 @@ if __name__ == "__main__":
     while True:
         start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
-        frame = screen_capture.get_monitor_screen_image(1)
+        result = screen_capture.get_monitor_screen_image(1,2)
+        frame = result[0]
+        output_monitor_bounds = result[1]
 
         # Calculate the time taken to capture the frame
         elapsed_time = time.time() - start_time
         print(f"FPS: {60 * 1 / elapsed_time:.4f}")
+        print(output_monitor_bounds.origin)
 
         # If you want to display the frame using OpenCV (for testing purposes):
-        cv2.imshow("Screen Capture", frame)
+        window_name = "Screen Capture"
+        cv2.imshow(window_name, frame)
+        cv2.moveWindow(window_name,int(output_monitor_bounds.origin.x),int(output_monitor_bounds.origin.y))
         
         # Pause for FPS
         if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
