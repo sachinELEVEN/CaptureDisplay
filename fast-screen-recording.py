@@ -40,12 +40,12 @@ class ScreenCapture:
         else:
             raise ValueError("Monitor index out of range.")
 
-        monitor_bounds = QZ.CGDisplayBounds(input_monitor_id)
+        input_monitor_bounds = QZ.CGDisplayBounds(input_monitor_id)
         output_monitor_bounds = QZ.CGDisplayBounds(output_monitor_id)
 
         # Capture only the specified monitor using its bounds
         core_graphics_image = QZ.CGWindowListCreateImage(
-            monitor_bounds,  # Use the bounds of the specific monitor
+            input_monitor_bounds,  # Use the bounds of the specific monitor
             QZ.kCGWindowListOptionOnScreenOnly,  # Capture only visible screen elements
             QZ.kCGNullWindowID,  # Ignore specific windows and focus on the specified monitor
             QZ.kCGWindowImageDefault
@@ -76,7 +76,7 @@ class ScreenCapture:
 
         final_output = np.ascontiguousarray(numpy_data, dtype=np.uint8)
 
-        return (final_output,output_monitor_bounds)
+        return (final_output,input_monitor_bounds,output_monitor_bounds)
     
 
     #Captures the entire screen - across all the monitors
@@ -135,8 +135,29 @@ def zoom_at(img, zoom=1, angle=0, coord=None):
 def smooth_zoom(current_zoom, target_zoom, steps=10):
     return np.linspace(current_zoom, target_zoom, steps)
 
-def perform_zoom_augmentation(frame,cursor_info,output_monitor_bounds):
-    print("Hello")
+def is_cursor_within_bounds(position,input_monitor_bounds):
+    cursor_x, cursor_y = position
+    bound_x1 = input_monitor_bounds.origin.x
+    bound_y1 = input_monitor_bounds.origin.y
+    bound_x2 = input_monitor_bounds.origin.x + input_monitor_bounds.size.width
+    bound_y2 = input_monitor_bounds.origin.y + input_monitor_bounds.size.height
+    print(position)
+    print(bound_x1,bound_y1, "and", bound_x2,bound_y2)
+    return bound_x1 <= cursor_x <= bound_x2 and bound_y1 <= cursor_y <= bound_y2
+
+def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
+    
+    # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
+    position = cursor_info["position"]
+    speed = cursor_info["speed"]
+    
+    #Validate cursor position- basically we need to check if cursor is on the same monitor as we are interested in or not
+    if not is_cursor_within_bounds(position,input_monitor_bounds):
+        print("Cursor is not within bounds")
+        #Making speed 0 ensures we do not perform any zooming in the augmented frames, so input and output frame will be same with no additional frames being generated
+        speed = 0
+        # return
+
     # Define the speed threshold (adjust as needed)
     speed_threshold = 5000  # Pixels/second
 
@@ -145,9 +166,7 @@ def perform_zoom_augmentation(frame,cursor_info,output_monitor_bounds):
 
     # Initialize previous zoom level
     prev_zoom_level = 1
-    # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
-    position = cursor_info["position"]
-    speed = cursor_info["speed"]
+
     frame_num = -1
     show_processed_video_preview = True
     if speed < speed_threshold:
@@ -223,18 +242,19 @@ if __name__ == "__main__":
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
         result = screen_capture.get_monitor_screen_image(1,2)
         frame = result[0]
-        output_monitor_bounds = result[1]
+        input_monitor_bounds = result[1]
+        output_monitor_bounds = result[2]
 
         # Calculate the time taken to capture the frame
         elapsed_time = time.time() - start_time
         print(f"FPS: {60 * 1 / elapsed_time:.4f}")
-        print(output_monitor_bounds.origin)
+        print(input_monitor_bounds)
 
         #Augmentation of the frame
         #get cursor info
         cursor_info = get_cursor_info()
         print("Cursor info is",cursor_info)
-        perform_zoom_augmentation(frame,cursor_info,output_monitor_bounds)
+        perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
             break
