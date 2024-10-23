@@ -5,10 +5,18 @@ import time
 from Quartz import CGGetActiveDisplayList, CGGetOnlineDisplayList
 from CoreFoundation import CFPreferencesCopyAppValue
 import importlib
+from pynput import mouse
+from threading import Timer
 
 one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
 
+# To store the last click time and position for detecting double-clicks
+click_buffer = None
+double_click_threshold = 0.3  # Time in seconds to consider a double-click
+left_click_status = False #Press left click once to zoom, and left click again to reset zoom
+# Initialize previous zoom level
+prev_zoom_level = 1
 
 #This is slow in capturing the video-> each frame takes like 0.2-0.3s
 #Now when we just take 1 monitor frame -> we are getting like 2000FPS, But this is just input video, we still need to process it
@@ -160,7 +168,7 @@ def normalize_coordinate_to_0_0_origin(cursor_position,input_monitor_bounds):
 
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
-    
+    global left_click_status, prev_zoom_level
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -185,8 +193,6 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     # Open the video file again to extract the frames for visualization
     # video = cv2.VideoCapture(video_path)
 
-    # Initialize previous zoom level
-    prev_zoom_level = 1
 
     frame_num = -1
     show_processed_video_preview = True
@@ -201,8 +207,10 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             # Assuming cursor_x and cursor_y are your cursor's position
             cursor_x, cursor_y = position
 
+            #zoom level on basis of left click toggling
+            target_zoom_level = 3 if left_click_status else 1
             # Calculate zoom level based on speed
-            target_zoom_level = zoom_level = 3 if speed > 10 and speed < 5000 else 1  # Dynamic zoom based on speed
+            # target_zoom_level = zoom_level = 3 if speed > 10 and speed < 5000 else 1  # Dynamic zoom based on speed
             angle = 0  # No rotation
 
             # Smoothly interpolate zoom levels via n no. of zoom steps
@@ -213,11 +221,13 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             # zoom_steps = min(int(speed/good_cursor_speed),1)
             zoom_steps = 1
             if prev_zoom_level != target_zoom_level:
+                print("Compared zoomed level",prev_zoom_level, "and", target_zoom_level)
                 good_cursor_speed = 100#in pixels per frame
                 zoom_steps = max(int(speed/good_cursor_speed),1)
-            print("Zooming animation steps->",zoom_steps)
+                zoom_steps = 5 #when left click zoom is enabled
+            print("Zooming animation steps->",zoom_steps," zoom level",target_zoom_level)
             zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
-
+            # print(zoom_levels)
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
@@ -240,6 +250,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                     break
 
             # Update the previous zoom level for the next iteration
+            print("setting prev_zoom_level to ",target_zoom_level)
             prev_zoom_level = target_zoom_level
 
         else:
@@ -257,11 +268,79 @@ def display_frame_at_required_monitor(frame,output_monitor_bounds):
     if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
         print("key entered")
 
+#Cursor clicks methods
+        
+def process_click(click_type, position):
+    """
+    Process the detected click type and print the event.
+    
+    Args:
+        click_type (str): The type of click (e.g., "Left Click", "Double Click").
+        position (tuple): The position (x, y) of the click.
+    """
+    print(f"{click_type} at {position}")
 
+def on_click(x, y, button, pressed):
+    """
+    Callback function to handle mouse click events.
+    
+    Args:
+        x (int): The x-coordinate of the mouse event.
+        y (int): The y-coordinate of the mouse event.
+        button (Button): The mouse button that was clicked.
+        pressed (bool): True if the button is pressed, False if released.
+    """
+    global click_buffer, left_click_status
+    click_position = (x, y)
+
+    # Consider only left-clicks for double-click detection
+    if button == mouse.Button.left and pressed:
+        current_time = time.time()
+
+        if click_buffer is None:
+            # If no click is in the buffer, start a timer to wait for a possible second click
+            click_buffer = (current_time, click_position)
+            Timer(double_click_threshold, check_for_double_click).start()
+        else:
+            # If there is a click in the buffer, check the time difference for a double-click
+            previous_time, _ = click_buffer
+            time_diff = current_time - previous_time
+
+            if time_diff < double_click_threshold:
+                # It's a double click, process it and clear the buffer
+                process_click("Double Click", click_position)
+                click_buffer = None
+            else:
+                # If the time difference exceeds the threshold, process as a single click
+                process_click("Left Click", click_position)
+                left_click_status = not left_click_status
+                click_buffer = (current_time, click_position)
+    elif button == mouse.Button.right and not pressed:
+        process_click( "Right Click", click_position)
+    elif button != mouse.Button.right and button != mouse.Button.left:
+        if not pressed:
+            process_click("Other Click", click_position)
+
+
+def check_for_double_click():
+    """
+    Checks if the click buffer should be treated as a single click.
+    This function is called after the double_click_threshold time has passed.
+    """
+    global click_buffer, left_click_status
+    if click_buffer is not None:
+        _, click_position = click_buffer
+        process_click("Left Click", click_position)
+        left_click_status = not left_click_status
+        click_buffer = None
 
 # Example usage
 if __name__ == "__main__":
     screen_capture = ScreenCapture()
+
+    # Start listening for mouse events in a separate thread
+    listener = mouse.Listener(on_click=on_click)
+    listener.start()
     while True:
         start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
@@ -282,7 +361,8 @@ if __name__ == "__main__":
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
 
         #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
-        if cv2.waitKey(int(1000 / 3)) & 0xFF == ord('q'):
+        #actually when we use left click based zoom, we want it to have high frequency, so changes are picked up quickly
+        if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
             break
 
             
