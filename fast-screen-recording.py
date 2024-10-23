@@ -2,10 +2,12 @@ import numpy as np
 import Quartz as QZ
 import cv2
 import time
+from Quartz import CGGetActiveDisplayList, CGGetOnlineDisplayList
+from CoreFoundation import CFPreferencesCopyAppValue
 
-screens = QZ.CGDisplayCopyDisplayList()
-print(screens)
+
 #This is slow in capturing the video-> each frame takes like 0.2-0.3s
+#Now when we just take 1 monitor frame -> we are getting like 2000FPS, But this is just input video, we still need to process it
 
 class ScreenCapture:
 
@@ -17,13 +19,22 @@ class ScreenCapture:
 
     #Captures a particular monitor
     def get_monitor_screen_image(self, monitor_index=0):
-        # Get the list of all monitors
-        print("hello-1")
-        screens = QZ.CGDisplayCopyDisplayList()
-        print("hello-2")
-        print(screens)
+        # maximum number of displays to return
+        max_displays = 100
+        # get active display list
+        # CGGetActiveDisplayList:
+        #     Provides a list of displays that are active (or drawable).
+        (err, active_displays, number_of_active_displays) = CGGetActiveDisplayList(
+            max_displays, None, None)
+        if err:
+            return False
+        print(active_displays,number_of_active_displays)
         # Get the desired monitor's bounds
-        monitor_id = screens[monitor_index]  # Choose which monitor to capture
+        if monitor_index < number_of_active_displays:
+            monitor_id = active_displays[monitor_index]  # Choose which monitor to capture
+        else:
+            raise ValueError("Monitor index out of range.")
+
         monitor_bounds = QZ.CGDisplayBounds(monitor_id)
 
         # Capture only the specified monitor using its bounds
@@ -109,7 +120,7 @@ if __name__ == "__main__":
 
         # Calculate the time taken to capture the frame
         elapsed_time = time.time() - start_time
-        print(f"Time to capture frame: {elapsed_time:.4f} seconds")
+        print(f"FPS: {60 * 1 / elapsed_time:.4f}")
 
         # If you want to display the frame using OpenCV (for testing purposes):
         cv2.imshow("Screen Capture", frame)
