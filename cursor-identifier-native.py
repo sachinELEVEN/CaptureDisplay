@@ -2,13 +2,14 @@ import time
 import math
 from Quartz import CGEventCreate, CGEventGetLocation
 from pynput import mouse
+from threading import Timer
 
 # Store the previous cursor position and time for speed calculation
 previous_position = None
 previous_time = None
 
-# To store the last click time for detecting double-clicks
-last_click_time = 0
+# To store the last click time and position for detecting double-clicks
+click_buffer = None
 double_click_threshold = 0.3  # Time in seconds to consider a double-click
 
 def get_cursor_position():
@@ -37,6 +38,16 @@ def calculate_speed(pos1, pos2, time_diff):
     speed = distance / time_diff
     return speed
 
+def process_click(click_type, position):
+    """
+    Process the detected click type and print the event.
+    
+    Args:
+        click_type (str): The type of click (e.g., "Left Click", "Double Click").
+        position (tuple): The position (x, y) of the click.
+    """
+    print(f"{click_type} at {position}")
+
 def on_click(x, y, button, pressed):
     """
     Callback function to handle mouse click events.
@@ -47,27 +58,47 @@ def on_click(x, y, button, pressed):
         button (Button): The mouse button that was clicked.
         pressed (bool): True if the button is pressed, False if released.
     """
-    global last_click_time
-    current_time = time.time()
-    event_type = "Press" if pressed else "Release"
+    global click_buffer
+    click_position = (x, y)
 
-    # Identify the type of click
-    if button == mouse.Button.left:
-        click_type = "Left Click"
-    elif button == mouse.Button.right:
-        click_type = "Right Click"
-    else:
-        click_type = "Other Click"
+    # Consider only left-clicks for double-click detection
+    if button == mouse.Button.left and pressed:
+        current_time = time.time()
 
-    # Check for double-click
-    if event_type == "Release" and click_type == "Left Click":
-        time_since_last_click = current_time - last_click_time
-        if time_since_last_click < double_click_threshold:
-            click_type = "Double Click"
-        last_click_time = current_time
-    
-    if event_type == 'Release':
-        print(f"{click_type} at ({x}, {y}) - {event_type}")
+        if click_buffer is None:
+            # If no click is in the buffer, start a timer to wait for a possible second click
+            click_buffer = (current_time, click_position)
+            Timer(double_click_threshold, check_for_double_click).start()
+        else:
+            # If there is a click in the buffer, check the time difference for a double-click
+            previous_time, _ = click_buffer
+            time_diff = current_time - previous_time
+
+            if time_diff < double_click_threshold:
+                # It's a double click, process it and clear the buffer
+                process_click("Double Click", click_position)
+                click_buffer = None
+            else:
+                # If the time difference exceeds the threshold, process as a single click
+                process_click("Left Click", click_position)
+                click_buffer = (current_time, click_position)
+    elif button == mouse.Button.right and not pressed:
+        process_click( "Right Click", click_position)
+    elif button != mouse.Button.right and button != mouse.Button.left:
+        if not pressed:
+            process_click("Other Click", click_position)
+
+
+def check_for_double_click():
+    """
+    Checks if the click buffer should be treated as a single click.
+    This function is called after the double_click_threshold time has passed.
+    """
+    global click_buffer
+    if click_buffer is not None:
+        _, click_position = click_buffer
+        process_click("Left Click", click_position)
+        click_buffer = None
 
 def track_cursor():
     global previous_position, previous_time
