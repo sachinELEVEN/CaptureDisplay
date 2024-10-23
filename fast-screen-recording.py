@@ -141,8 +141,8 @@ def is_cursor_within_bounds(position,input_monitor_bounds):
     bound_y1 = input_monitor_bounds.origin.y
     bound_x2 = input_monitor_bounds.origin.x + input_monitor_bounds.size.width
     bound_y2 = input_monitor_bounds.origin.y + input_monitor_bounds.size.height
-    print(position)
-    print(bound_x1,bound_y1, "and", bound_x2,bound_y2)
+    # print(position)
+    # print(bound_x1,bound_y1, "and", bound_x2,bound_y2)
     return bound_x1 <= cursor_x <= bound_x2 and bound_y1 <= cursor_y <= bound_y2
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
@@ -191,10 +191,10 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             # good_cursor_speed = 100#in pixels per frame
             # zoom_steps = min(int(speed/good_cursor_speed),1)
             zoom_steps = 1
-            print("Zooming animation steps->",zoom_steps)
             if prev_zoom_level != target_zoom_level:
                 good_cursor_speed = 100#in pixels per frame
                 zoom_steps = max(int(speed/good_cursor_speed),1)
+            print("Zooming animation steps->",zoom_steps)
             zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
 
             # Apply zoom for each interpolated zoom level
