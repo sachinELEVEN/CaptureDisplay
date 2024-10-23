@@ -202,7 +202,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             cursor_x, cursor_y = position
 
             # Calculate zoom level based on speed
-            target_zoom_level = zoom_level = 1 if speed < 100 else 3  # Dynamic zoom based on speed
+            target_zoom_level = zoom_level = 3 if speed > 10 and speed < 5000 else 1  # Dynamic zoom based on speed
             angle = 0  # No rotation
 
             # Smoothly interpolate zoom levels via n no. of zoom steps
@@ -281,7 +281,8 @@ if __name__ == "__main__":
         # print("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
 
-        if cv2.waitKey(1) & 0xFF == ord('q'):
+        #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
+        if cv2.waitKey(int(1000 / 3)) & 0xFF == ord('q'):
             break
 
             
