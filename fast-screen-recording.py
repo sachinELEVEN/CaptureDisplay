@@ -150,14 +150,16 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
-    
+    cursor_in_bounds = False
     #Validate cursor position- basically we need to check if cursor is on the same monitor as we are interested in or not
     if not is_cursor_within_bounds(position,input_monitor_bounds):
         print("Cursor is not within bounds")
         #Making speed 0 ensures we do not perform any zooming in the augmented frames, so input and output frame will be same with no additional frames being generated
         speed = 0
         # return
-
+    else:
+        cursor_in_bounds = True
+    
     # Define the speed threshold (adjust as needed)
     speed_threshold = 5000  # Pixels/second
 
@@ -195,13 +197,16 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 good_cursor_speed = 100#in pixels per frame
                 zoom_steps = max(int(speed/good_cursor_speed),1)
             print("Zooming animation steps->",zoom_steps)
-            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
+            zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=1)
 
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
                 zoomed_frame = zoom_at(frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
                 if show_processed_video_preview:
+                    # Optionally, draw a rectangle around the detected cursor
+                    # cv2.rectangle(zoomed_frame, (int(0), int(0)), (int(0) + 50, int(0) + 50), (0, 255, 0), 2)
+                    cv2.rectangle(zoomed_frame, (int(cursor_x), int(cursor_y)), (int(cursor_x) + 50, int(cursor_y) + 50), (0, 255, 0), 2)
                     display_frame_at_required_monitor(zoomed_frame,output_monitor_bounds)
                     # cv2.imshow("Zoomed Frame", zoomed_frame)
 
@@ -248,12 +253,12 @@ if __name__ == "__main__":
         # Calculate the time taken to capture the frame
         elapsed_time = time.time() - start_time
         print(f"FPS: {60 * 1 / elapsed_time:.4f}")
-        print(input_monitor_bounds)
+        # print(input_monitor_bounds)
 
         #Augmentation of the frame
         #get cursor info
         cursor_info = get_cursor_info()
-        print("Cursor info is",cursor_info)
+        # print("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
 
         if cv2.waitKey(1) & 0xFF == ord('q'):
