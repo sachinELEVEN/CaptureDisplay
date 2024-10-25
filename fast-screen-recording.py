@@ -370,8 +370,8 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 # processed_frames.append(zoomed_frame)
 
                 # Break on 'q' key
-                if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
-                    break
+                # if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+                #     break
 
             # Update the previous zoom level for the next iteration
             # print("setting prev_zoom_level to ",target_zoom_level)
@@ -490,11 +490,12 @@ def screen_rec_and_mouse_click_listener():
         cursor_info = get_cursor_info()
         # print("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
+        # display_frame_at_required_monitor(frame,output_monitor_bounds)
 
         #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
         #actually when we use left click based zoom, we want it to have high frequency, so changes are picked up quickly
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        #     break
 
             
     cv2.destroyAllWindows()
