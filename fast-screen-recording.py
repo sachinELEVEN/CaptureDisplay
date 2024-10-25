@@ -461,6 +461,14 @@ def check_for_double_click():
         # left_click_status = not left_click_status
         click_buffer = None
 
+#Depends on the points on the screen and size of the frame
+def scaleAccordingToInputDisplayFactor(frame_size,input_monitor_bounds,point_to_scale):
+    x_scale_factor = frame_size[0]/input_monitor_bounds.size.width
+    y_scale_factor = frame_size[1]/input_monitor_bounds.size.height
+    point_to_scale = (point_to_scale[0] * int(x_scale_factor),point_to_scale[1] * int(y_scale_factor))
+    # print(point_to_scale)
+    return point_to_scale
+
 # Example usage
 def screen_rec_and_mouse_click_listener():
     screen_capture = ScreenCapture()
@@ -475,19 +483,25 @@ def screen_rec_and_mouse_click_listener():
         # print("hello")
         start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
-        result = screen_capture.get_monitor_screen_image(1,2)
+        result = screen_capture.get_monitor_screen_image(0,2)
         frame = result[0]
         input_monitor_bounds = result[1]
-        output_monitor_bounds = result[2]
 
+         #get cursor info
+        cursor_info = get_cursor_info()
+        cursor_info["position"] = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,cursor_info["position"])
+        input_monitor_bounds.size.width,input_monitor_bounds.size.height  = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,input_monitor_bounds.size)
+        #should we scale output display factor as well? - not doing it for not seeing any weird results there as of now
+        output_monitor_bounds = result[2]
+        # print("after scaling",input_monitor_bounds)
+        # break
         # Calculate the time taken to capture the frame
         
         # print(f"FPS: {60 * 1 / elapsed_time:.4f}")
         # print(input_monitor_bounds)
 
         #Augmentation of the frame
-        #get cursor info
-        cursor_info = get_cursor_info()
+       
         # print("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
         elapsed_time = time.time() - start_time
@@ -496,7 +510,7 @@ def screen_rec_and_mouse_click_listener():
 
         #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
         #actually when we use left click based zoom, we want it to have high frequency, so changes are picked up quickly
-        # if cv2.waitKey(1) & 0xFF == ord('q'):
+        # if cv2.waitKey(1000) & 0xFF == ord('q'):
         #     break
 
             
