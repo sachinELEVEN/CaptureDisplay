@@ -196,6 +196,51 @@ class ScreenCapture:
 
         return final_output
 
+def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
+    """
+    Overlays an image onto a given frame at specified coordinates.
+
+    :param frame: The background frame (numpy array).
+    :param image_path: Path to the image to overlay.
+    :param top_left_x: X-coordinate of the top-left corner where the image should be placed.
+    :param top_left_y: Y-coordinate of the top-left corner where the image should be placed.
+    :return: The frame with the image overlaid.
+    """
+    top_left_x = int(top_left_x)
+    top_left_y = int(top_left_y)
+    # Load the overlay image from the given path.
+    overlay = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+
+    # If the overlay image has an alpha channel, we need to split it.
+    if overlay.shape[2] == 4:
+        overlay_rgb = overlay[:, :, :3]  # Extract RGB channels.
+        alpha_channel = overlay[:, :, 3]  # Extract the alpha channel.
+    else:
+        overlay_rgb = overlay
+        alpha_channel = np.ones((overlay.shape[0], overlay.shape[1]), dtype=np.uint8) * 255
+
+    # Determine the region where the image will be placed.
+    h, w = overlay_rgb.shape[:2]
+    bottom_right_x = top_left_x + w
+    bottom_right_y = top_left_y + h
+
+    # Ensure that the coordinates are within the frame boundaries.
+    if top_left_x < 0 or top_left_y < 0 or bottom_right_x > frame.shape[1] or bottom_right_y > frame.shape[0]:
+        print("The overlay image is out of frame bounds. Not adding cursor")
+        return frame
+
+    # Extract the region of interest (ROI) from the frame.
+    roi = frame[top_left_y:bottom_right_y, top_left_x:bottom_right_x]
+
+    # Blend the overlay image with the ROI using the alpha channel as a mask.
+    alpha_channel = alpha_channel[:, :, np.newaxis] / 255.0
+    blended = (overlay_rgb * alpha_channel + roi * (1 - alpha_channel)).astype(np.uint8)
+
+    # Place the blended image back into the frame.
+    frame[top_left_y:bottom_right_y, top_left_x:bottom_right_x] = blended
+
+    return frame
+
 #Augments the frame by adjusting the zoom level about the cursor based on the cursor movement and returns a list of frames
     
 # Zoomed video preview
@@ -350,10 +395,12 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             # print(zoom_levels)
             #Frame needs to be processed here before we display it
             blurred_frame = blur_except_region(frame,input_monitor_bounds_unnormalized)
+            #Add cursor overlay on it
+            frame_with_cursor = overlay_image_on_frame(blurred_frame,"./assets/mac-cursor-4x/default@4x.png",cursor_x-20,cursor_y-20)
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
-                zoomed_frame = zoom_at(blurred_frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
+                zoomed_frame = zoom_at(frame_with_cursor, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
                 if show_processed_video_preview:
                     # Optionally, draw a rectangle around the detected cursor
                     # cv2.rectangle(zoomed_frame, (int(0), int(0)), (int(0) + 50, int(0) + 50), (0, 255, 0), 2)
@@ -483,7 +530,7 @@ def screen_rec_and_mouse_click_listener():
         # print("hello")
         start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
-        result = screen_capture.get_monitor_screen_image(0,2)
+        result = screen_capture.get_monitor_screen_image(1,2)
         frame = result[0]
         input_monitor_bounds = result[1]
 
