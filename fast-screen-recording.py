@@ -21,6 +21,36 @@ zoom_level_to_use = 3
 max_zoom_level = 10
 min_zoom_level = 1
 
+pt_top_left = -1 #-1 denotes uninitialized value
+pt_bottom_right = -1
+
+#####KEYBOARD SHORTCUT METHODS ABOVE
+
+#Methods to show only a particular section of the screen
+
+#First top left corner should be provided only then bottom right can be provided
+def window_show_everything():
+    global pt_top_left, pt_bottom_right
+    print("showing entire screen")
+    #resetting the points
+    pt_top_left = -1
+    pt_bottom_right = -1
+
+def window_pt_top_left():
+    print("window_pt_top_left")
+    cursor_x, cursor_y =  get_cursor_info()["position"]
+    print("window_pt_top_left is ",cursor_x,cursor_y)
+
+
+def window_pt_bottom_right():
+    if pt_top_left == -1:
+        print("pt_top_left needs to be set first")
+        return   
+    print("window_pt_bottom_right")
+    cursor_x, cursor_y =  get_cursor_info()["position"]
+    print("window_pt_bottom_right is ",cursor_x,cursor_y)
+
+
 #these need to check if zoom is supported via -left_click_status
 def zoom_increase():
     global zoom_level_to_use, left_click_status
@@ -47,6 +77,10 @@ def zoom_decrease():
         zoom_level_to_use -= 0.5
     else:
         print("min zoom level reached",zoom_level_to_use)
+
+
+
+#####KEYBOARD SHORTCUT METHODS ABOVE
 
 #This is slow in capturing the video-> each frame takes like 0.2-0.3s
 #Now when we just take 1 monitor frame -> we are getting like 2000FPS, But this is just input video, we still need to process it

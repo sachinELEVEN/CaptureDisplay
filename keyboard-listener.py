@@ -5,6 +5,9 @@ import importlib
 fast_screen_recording = importlib.import_module("fast-screen-recording")
 zoom_increase = fast_screen_recording.zoom_increase
 zoom_decrease = fast_screen_recording.zoom_decrease
+window_pt_top_left = fast_screen_recording.window_pt_top_left
+window_pt_bottom_right = fast_screen_recording.window_pt_bottom_right
+window_show_everything = fast_screen_recording.window_show_everything
 
 # Dictionary to store shortcut combinations and their corresponding functions.
 # For example: {('tab', 'z'): 'my_function'}
@@ -12,8 +15,11 @@ shortcut_actions = {
     ('tab', 'z'): 'my_function',
     ('opt', 'z'): 'my_function',
     ('ctrl', 'shift', 'a'): 'another_function',
-    ('tab', 'p'): 'zoom_increase',
-    ('tab', 'm'): 'zoom_decrease',
+    ('tab', '='): 'zoom_increase',
+    ('tab', '-'): 'zoom_decrease',
+    ('tab', '9'): 'window_pt_top_left',#window_pt_top_left window_pt_bottom_right represents the window we want to show the user
+    ('tab', '0'): 'window_pt_bottom_right',
+    ('9', '0'): 'window_show_everything',
 }
 
 # Track the currently pressed keys.
@@ -32,6 +38,9 @@ function_map = {
     'another_function': another_function,
     'zoom_decrease': zoom_decrease,
     'zoom_increase': zoom_increase,
+    'window_pt_top_left': window_pt_top_left,
+    'window_pt_bottom_right': window_pt_bottom_right,
+    'window_show_everything':window_show_everything
 
 }
 
