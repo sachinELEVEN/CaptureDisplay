@@ -18,7 +18,8 @@ double_click_threshold = 0.3  # Time in seconds to consider a double-click
 left_click_status = False #Press left click once to zoom, and left click again to reset zoom
 # Initialize previous zoom level
 prev_zoom_level = 1
-zoom_level_to_use = 3
+default_zoom_level = 3
+zoom_level_to_use = default_zoom_level
 max_zoom_level = 10
 min_zoom_level = 1
 
@@ -413,7 +414,7 @@ def on_click(x, y, button, pressed):
         button (Button): The mouse button that was clicked.
         pressed (bool): True if the button is pressed, False if released.
     """
-    global click_buffer, left_click_status
+    global click_buffer, left_click_status, zoom_level_to_use
     click_position = (x, y)
 
     # Consider only left-clicks for double-click detection
@@ -433,6 +434,8 @@ def on_click(x, y, button, pressed):
                 # It's a double click, process it and clear the buffer
                 process_click("Double Click", click_position)
                 left_click_status = not left_click_status
+                if left_click_status:
+                    zoom_level_to_use = default_zoom_level
                 click_buffer = None
             else:
                 # If the time difference exceeds the threshold, process as a single click
