@@ -388,8 +388,8 @@ def display_frame_at_required_monitor(frame,output_monitor_bounds):
     cv2.imshow(window_name, frame)
     cv2.moveWindow(window_name,int(output_monitor_bounds.origin.x),int(output_monitor_bounds.origin.y))
         
-    # Pause for FPS
-    if cv2.waitKey(int(1000 / 60)) & 0xFF == ord('q'):
+    
+    if cv2.waitKey(1) & 0xFF == ord('q'):
         print("key entered")
 
 #Cursor clicks methods
