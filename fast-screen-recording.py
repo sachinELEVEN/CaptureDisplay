@@ -25,6 +25,7 @@ min_zoom_level = 1
 pt_top_left = -1 #-1 denotes uninitialized value
 pt_bottom_right = -1
 blur_kernel_size = 51#should be an odd number
+last_in_bounds_cursor_position = (0,0)#default position is the origin
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
 
@@ -279,7 +280,7 @@ def blur_except_region(frame,input_monitor_bounds):
     return final_output
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
-    global left_click_status, prev_zoom_level
+    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -298,6 +299,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
         speed = 0
         # return
     else:
+        last_in_bounds_cursor_position = position
         cursor_in_bounds = True
     
     # Define the speed threshold (adjust as needed)
@@ -318,10 +320,14 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
 
         if frame is not None:
             # Assuming cursor_x and cursor_y are your cursor's position
-            cursor_x, cursor_y = position
+            cursor_x, cursor_y = last_in_bounds_cursor_position
 
             #zoom level on basis of left click toggling
-            target_zoom_level = zoom_level_to_use if left_click_status else 1
+            if cursor_in_bounds:
+                target_zoom_level = zoom_level_to_use if left_click_status else 1
+            else:
+                #you can't change the zoom state if cursor is not in bounds
+                target_zoom_level = prev_zoom_level
             # Calculate zoom level based on speed
             # target_zoom_level = zoom_level = 3 if speed > 10 and speed < 5000 else 1  # Dynamic zoom based on speed
             angle = 0  # No rotation
