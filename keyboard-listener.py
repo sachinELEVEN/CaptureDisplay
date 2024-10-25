@@ -1,11 +1,19 @@
 from pynput import keyboard
 import time
+import importlib
+
+fast_screen_recording = importlib.import_module("fast-screen-recording")
+zoom_increase = fast_screen_recording.zoom_increase
+zoom_decrease = fast_screen_recording.zoom_decrease
 
 # Dictionary to store shortcut combinations and their corresponding functions.
 # For example: {('tab', 'z'): 'my_function'}
 shortcut_actions = {
     ('tab', 'z'): 'my_function',
+    ('opt', 'z'): 'my_function',
     ('ctrl', 'shift', 'a'): 'another_function',
+    ('tab', 'p'): 'zoom_increase',
+    ('tab', 'm'): 'zoom_decrease',
 }
 
 # Track the currently pressed keys.
@@ -22,6 +30,9 @@ def another_function():
 function_map = {
     'my_function': my_function,
     'another_function': another_function,
+    'zoom_decrease': zoom_decrease,
+    'zoom_increase': zoom_increase,
+
 }
 
 # Function to check if a shortcut is triggered.

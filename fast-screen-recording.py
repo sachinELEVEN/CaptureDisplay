@@ -7,7 +7,6 @@ from CoreFoundation import CFPreferencesCopyAppValue
 import importlib
 from pynput import mouse
 from threading import Timer
-import threading
 
 one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
@@ -18,6 +17,36 @@ double_click_threshold = 0.3  # Time in seconds to consider a double-click
 left_click_status = False #Press left click once to zoom, and left click again to reset zoom
 # Initialize previous zoom level
 prev_zoom_level = 1
+zoom_level_to_use = 3
+max_zoom_level = 10
+min_zoom_level = 1
+
+#these need to check if zoom is supported via -left_click_status
+def zoom_increase():
+    global zoom_level_to_use, left_click_status
+
+    if not left_click_status:
+        print("Zoom mode is disabled- double click to enable it")
+        return
+   
+    if zoom_level_to_use < max_zoom_level:
+        print("zoom increased to",zoom_level_to_use)
+        zoom_level_to_use +=  0.5
+    else:
+        print("max zoom level reached",zoom_level_to_use)
+
+def zoom_decrease():
+    global zoom_level_to_use, left_click_status
+
+    if not left_click_status:
+        print("Zoom mode is disabled- double click to enable it")
+        return
+    
+    if zoom_level_to_use > min_zoom_level:
+        print("zoom decreased to",zoom_level_to_use)
+        zoom_level_to_use -= 0.5
+    else:
+        print("min zoom level reached",zoom_level_to_use)
 
 #This is slow in capturing the video-> each frame takes like 0.2-0.3s
 #Now when we just take 1 monitor frame -> we are getting like 2000FPS, But this is just input video, we still need to process it
@@ -209,7 +238,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             cursor_x, cursor_y = position
 
             #zoom level on basis of left click toggling
-            target_zoom_level = 3 if left_click_status else 1
+            target_zoom_level = zoom_level_to_use if left_click_status else 1
             # Calculate zoom level based on speed
             # target_zoom_level = zoom_level = 3 if speed > 10 and speed < 5000 else 1  # Dynamic zoom based on speed
             angle = 0  # No rotation
@@ -357,7 +386,7 @@ def screen_rec_and_mouse_click_listener():
 
         # Calculate the time taken to capture the frame
         elapsed_time = time.time() - start_time
-        print(f"FPS: {60 * 1 / elapsed_time:.4f}")
+        # print(f"FPS: {60 * 1 / elapsed_time:.4f}")
         # print(input_monitor_bounds)
 
         #Augmentation of the frame
