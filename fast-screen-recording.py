@@ -27,8 +27,14 @@ pt_top_left = -1 #-1 denotes uninitialized value
 pt_bottom_right = -1
 blur_kernel_size = 51#should be an odd number
 last_in_bounds_cursor_position = (0,0)#default position is the origin
+use_blur_effect = False
+dimming_factor = 0#0 - blackout, 1-everything visible
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
+
+def toggle_region_of_interest_hiding_approach():
+    global use_blur_effect
+    use_blur_effect = not use_blur_effect
 
 #Methods to show only a particular section of the screen aka window cropping methods
 
@@ -226,7 +232,7 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
 
     # Ensure that the coordinates are within the frame boundaries.
     if top_left_x < 0 or top_left_y < 0 or bottom_right_x > frame.shape[1] or bottom_right_y > frame.shape[0]:
-        print("The overlay image is out of frame bounds. Not adding cursor")
+        # print("The overlay image is out of frame bounds. Not adding cursor")
         return frame
 
     # Extract the region of interest (ROI) from the frame.
@@ -325,8 +331,61 @@ def blur_except_region(frame,input_monitor_bounds):
 
     return final_output
 
+
+def dim_except_region(frame, input_monitor_bounds):
+    global dimming_factor
+    """
+    Dims or blacks out all parts of the frame except a specified region.
+
+    Parameters:
+        frame (numpy.ndarray): The input image/frame.
+        input_monitor_bounds (tuple): Monitor bounds for normalization.
+        dimming_factor (float): A value between 0 (completely black) and 1 (no dimming).
+
+    Returns:
+        numpy.ndarray: The modified frame with dimmed regions.
+    """
+    global pt_top_left, pt_bottom_right
+
+    top_left = pt_top_left
+    bottom_right = pt_bottom_right
+
+    # Check if the frame needs to be dimmed.
+    if not (pt_bottom_right != -1 and pt_top_left != -1):
+        return frame
+
+    # Normalize the top_left and bottom_right coordinates.
+    result1 = normalize_coordinate_to_0_0_origin(top_left, copy.deepcopy(input_monitor_bounds))
+    top_left = result1[0]
+    result2 = normalize_coordinate_to_0_0_origin(bottom_right, input_monitor_bounds)
+    bottom_right = result2[0]
+
+    # Create a mask with the same dimensions as the frame, initialized to zeros (black).
+    mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+
+    # Define the region to keep (rectangle) with white color (255).
+    top_left = (int(top_left[0]), int(top_left[1]))  # (x, y) coordinates of the top-left corner.
+    bottom_right = (int(bottom_right[0]), int(bottom_right[1]))  # (x, y) coordinates of the bottom-right corner.
+    cv2.rectangle(mask, top_left, bottom_right, 255, thickness=cv2.FILLED)
+
+    # Create a dimmed version of the frame.
+    dimmed_frame = (frame * dimming_factor).astype(np.uint8)
+
+    # Use the mask to keep the original area where the mask is white.
+    original_area = cv2.bitwise_and(frame, frame, mask=mask)
+
+    # Use the inverse mask to apply the dimmed frame to the rest of the area.
+    inverse_mask = cv2.bitwise_not(mask)
+    dimmed_area = cv2.bitwise_and(dimmed_frame, dimmed_frame, mask=inverse_mask)
+
+    # Combine the original area and the dimmed area.
+    final_output = cv2.add(original_area, dimmed_area)
+
+    return final_output
+
+
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
-    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position
+    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -394,9 +453,12 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
             # print(zoom_levels)
             #Frame needs to be processed here before we display it
-            blurred_frame = blur_except_region(frame,input_monitor_bounds_unnormalized)
+            if use_blur_effect:
+                only_show_region_of_interest_frame = blur_except_region(frame,input_monitor_bounds_unnormalized)
+            else:
+                only_show_region_of_interest_frame = dim_except_region(frame,input_monitor_bounds_unnormalized)
             #Add cursor overlay on it
-            frame_with_cursor = overlay_image_on_frame(blurred_frame,"./assets/mac-cursor-4x/default@4x.png",cursor_x-20,cursor_y-20)
+            frame_with_cursor = overlay_image_on_frame(only_show_region_of_interest_frame,"./assets/mac-cursor-4x/default@4x.png",cursor_x-20,cursor_y-20)
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:

@@ -8,6 +8,7 @@ zoom_decrease = fast_screen_recording.zoom_decrease
 window_pt_top_left = fast_screen_recording.window_pt_top_left
 window_pt_bottom_right = fast_screen_recording.window_pt_bottom_right
 window_show_everything = fast_screen_recording.window_show_everything
+toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_of_interest_hiding_approach
 
 # Dictionary to store shortcut combinations and their corresponding functions.
 # For example: {('tab', 'z'): 'my_function'}
@@ -20,6 +21,7 @@ shortcut_actions = {
     ('tab', '9'): 'window_pt_top_left',#window_pt_top_left window_pt_bottom_right represents the window we want to show the user
     ('tab', '0'): 'window_pt_bottom_right',
     ('9', '0'): 'window_show_everything',
+    ('tab', 'b'): 'toggle_region_of_interest_hiding_approach',
 }
 
 # Track the currently pressed keys.
@@ -40,7 +42,8 @@ function_map = {
     'zoom_increase': zoom_increase,
     'window_pt_top_left': window_pt_top_left,
     'window_pt_bottom_right': window_pt_bottom_right,
-    'window_show_everything':window_show_everything
+    'window_show_everything':window_show_everything,
+    'toggle_region_of_interest_hiding_approach':toggle_region_of_interest_hiding_approach,
 
 }
 
