@@ -11,8 +11,6 @@ import threading
 
 one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
-keyboard_listener = importlib.import_module("keyboard-listener")
-listen_keyboard_events = keyboard_listener.listen_keyboard_events
 
 # To store the last click time and position for detecting double-clicks
 click_buffer = None
@@ -339,20 +337,15 @@ def check_for_double_click():
         click_buffer = None
 
 # Example usage
-if __name__ == "__main__":
+def screen_rec_and_mouse_click_listener():
     screen_capture = ScreenCapture()
 
     # Start listening for mouse events in a separate thread
     listener = mouse.Listener(on_click=on_click)
     listener.start()
 
-    #Listen keyboard events on a different thread
-    print("Starting keyboard_listener_thread thread")
-    keyboard_listener_thread = threading.Thread(target=listen_keyboard_events)
-    keyboard_listener_thread.daemon = True
-    keyboard_listener_thread.start()
     
-    print("Starting to screen frame loop")
+    print("Starting to screen screen recording loop")
     while True:
         # print("hello")
         start_time = time.time()  # Start the timer
