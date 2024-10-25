@@ -24,6 +24,7 @@ min_zoom_level = 1
 
 pt_top_left = -1 #-1 denotes uninitialized value
 pt_bottom_right = -1
+blur_kernel_size = 51#should be an odd number
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
 
@@ -236,7 +237,7 @@ def normalize_coordinate_to_0_0_origin(cursor_position,input_monitor_bounds):
     return (cursor_position,input_monitor_bounds)
 
 def blur_except_region(frame,input_monitor_bounds):
-    global pt_top_left,pt_bottom_right
+    global pt_top_left, pt_bottom_right, blur_kernel_size
 
     top_left = pt_top_left
     bottom_right = pt_bottom_right
@@ -261,7 +262,7 @@ def blur_except_region(frame,input_monitor_bounds):
     cv2.rectangle(mask, top_left, bottom_right, 255, thickness=cv2.FILLED)
 
     # Blur the entire frame
-    blurred_frame = cv2.GaussianBlur(frame, (21, 21), 0)
+    blurred_frame = cv2.GaussianBlur(frame, (blur_kernel_size, blur_kernel_size), 0)
 
     # Create an inverse mask to get the area to blur
     inverse_mask = cv2.bitwise_not(mask)
