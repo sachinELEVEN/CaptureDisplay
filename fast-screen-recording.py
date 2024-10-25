@@ -7,6 +7,7 @@ from CoreFoundation import CFPreferencesCopyAppValue
 import importlib
 from pynput import mouse
 from threading import Timer
+import copy
 
 one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
@@ -26,7 +27,7 @@ pt_bottom_right = -1
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
 
-#Methods to show only a particular section of the screen
+#Methods to show only a particular section of the screen aka window cropping methods
 
 #First top left corner should be provided only then bottom right can be provided
 def window_show_everything():
@@ -36,19 +37,23 @@ def window_show_everything():
     pt_top_left = -1
     pt_bottom_right = -1
 
+#Do we need to check if this points are in bounds or not?? i dont think so because our blur region will probably be not be on the frame
 def window_pt_top_left():
+    global pt_top_left,pt_bottom_right
     print("window_pt_top_left")
-    cursor_x, cursor_y =  get_cursor_info()["position"]
-    print("window_pt_top_left is ",cursor_x,cursor_y)
+    pt_top_left =  get_cursor_info()["position"]
+    print("window_pt_top_left is ",pt_top_left)
 
 
 def window_pt_bottom_right():
+    global pt_top_left,pt_bottom_right
     if pt_top_left == -1:
         print("pt_top_left needs to be set first")
         return   
     print("window_pt_bottom_right")
-    cursor_x, cursor_y =  get_cursor_info()["position"]
-    print("window_pt_bottom_right is ",cursor_x,cursor_y)
+    pt_bottom_right =  get_cursor_info()["position"]
+    print("window_pt_bottom_right is ",pt_bottom_right)
+    
 
 
 #these need to check if zoom is supported via -left_click_status
@@ -230,6 +235,47 @@ def normalize_coordinate_to_0_0_origin(cursor_position,input_monitor_bounds):
    
     return (cursor_position,input_monitor_bounds)
 
+def blur_except_region(frame,input_monitor_bounds):
+    global pt_top_left,pt_bottom_right
+
+    top_left = pt_top_left
+    bottom_right = pt_bottom_right
+    #check if frame needs to be blurred
+    if not (pt_bottom_right != -1 and pt_top_left != -1):
+        return frame
+
+    #Normalize the top_left and bottom_right coordinates
+    result1 = normalize_coordinate_to_0_0_origin(top_left,copy.deepcopy(input_monitor_bounds))
+    top_left = result1[0]
+    result2 = normalize_coordinate_to_0_0_origin(bottom_right,input_monitor_bounds)
+    bottom_right = result2[0]
+    # print("Normalized cropped section coordinates are",top_left,bottom_right)
+    # input_monitor_bounds = result[1]
+
+    # Create a mask with the same dimensions as the frame, initialized to zeros (black)
+    mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+
+    # Define the region to keep (rectangle) with white color (255)
+    top_left = (int(top_left[0]), int(top_left[1]))        # (x, y) coordinates of the top-left corner
+    bottom_right = (int(bottom_right[0]), int(bottom_right[1]))   # (x, y) coordinates of the bottom-right corner
+    cv2.rectangle(mask, top_left, bottom_right, 255, thickness=cv2.FILLED)
+
+    # Blur the entire frame
+    blurred_frame = cv2.GaussianBlur(frame, (21, 21), 0)
+
+    # Create an inverse mask to get the area to blur
+    inverse_mask = cv2.bitwise_not(mask)
+
+    # Use the inverse mask to keep only the blurred area
+    blurred_area = cv2.bitwise_and(blurred_frame, blurred_frame, mask=inverse_mask)
+
+    # Use the original frame where the mask is white (to keep the original region)
+    original_area = cv2.bitwise_and(frame, frame, mask=mask)
+
+    # Combine the original area and the blurred area
+    final_output = cv2.add(original_area, blurred_area)
+
+    return final_output
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
     global left_click_status, prev_zoom_level
@@ -237,9 +283,11 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     position = cursor_info["position"]
     speed = cursor_info["speed"]
     show_rectangle_overlay = True
+    input_monitor_bounds_unnormalized = copy.deepcopy(input_monitor_bounds)
     result = normalize_coordinate_to_0_0_origin(position,input_monitor_bounds)
     position = result[0]
     input_monitor_bounds = result[1]
+    # print("Normalised and unnormalised are",input_monitor_bounds,input_monitor_bounds_unnormalized)
     # print("Normalised->",position,input_monitor_bounds)
     cursor_in_bounds = False
     #Validate cursor position- basically we need to check if cursor is on the same monitor as we are interested in or not
@@ -292,15 +340,19 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             # print("Zooming animation steps->",zoom_steps," zoom level",target_zoom_level)
             zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
             # print(zoom_levels)
+            #Frame needs to be processed here before we display it
+            blurred_frame = blur_except_region(frame,input_monitor_bounds_unnormalized)
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
-                zoomed_frame = zoom_at(frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
+                zoomed_frame = zoom_at(blurred_frame, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
                 if show_processed_video_preview:
                     # Optionally, draw a rectangle around the detected cursor
                     # cv2.rectangle(zoomed_frame, (int(0), int(0)), (int(0) + 50, int(0) + 50), (0, 255, 0), 2)
                     if show_rectangle_overlay and cursor_in_bounds:
                         cv2.rectangle(zoomed_frame, (int(cursor_x), int(cursor_y)), (int(cursor_x) + 50, int(cursor_y) + 50), (0, 255, 0), 2)
+                    
+                    #Frame needs to be processed here before we display it
                     display_frame_at_required_monitor(zoomed_frame,output_monitor_bounds)
                     # cv2.imshow("Zoomed Frame", zoomed_frame)
 
