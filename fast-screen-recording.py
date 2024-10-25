@@ -481,7 +481,7 @@ def screen_rec_and_mouse_click_listener():
         output_monitor_bounds = result[2]
 
         # Calculate the time taken to capture the frame
-        elapsed_time = time.time() - start_time
+        
         # print(f"FPS: {60 * 1 / elapsed_time:.4f}")
         # print(input_monitor_bounds)
 
@@ -490,6 +490,8 @@ def screen_rec_and_mouse_click_listener():
         cursor_info = get_cursor_info()
         # print("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
+        elapsed_time = time.time() - start_time
+        print(f"FPS: {  1 / elapsed_time:.4f}")
         # display_frame_at_required_monitor(frame,output_monitor_bounds)
 
         #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
