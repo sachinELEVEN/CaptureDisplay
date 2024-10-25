@@ -7,9 +7,12 @@ from CoreFoundation import CFPreferencesCopyAppValue
 import importlib
 from pynput import mouse
 from threading import Timer
+import threading
 
 one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
+keyboard_listener = importlib.import_module("keyboard-listener")
+listen_keyboard_events = keyboard_listener.listen_keyboard_events
 
 # To store the last click time and position for detecting double-clicks
 click_buffer = None
@@ -40,7 +43,7 @@ class ScreenCapture:
             max_displays, None, None)
         if err:
             return False
-        print(active_displays,number_of_active_displays)
+        # print(active_displays,number_of_active_displays)
         # Get the desired monitor's bounds
         if input_monitor_index < number_of_active_displays and output_monitor_index < number_of_active_displays:
             input_monitor_id = active_displays[input_monitor_index]  # Choose which monitor to capture
@@ -160,7 +163,7 @@ def normalize_coordinate_to_0_0_origin(cursor_position,input_monitor_bounds):
     input_monitor_bounds.origin.x = input_monitor_bounds.origin.x + x_offset
     input_monitor_bounds.origin.y = input_monitor_bounds.origin.y + y_offset
 
-    print(cursor_position)
+    # print(cursor_position)
     cursor_position = (cursor_position[0] + x_offset,
                   cursor_position[1] + y_offset)
    
@@ -197,7 +200,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     frame_num = -1
     show_processed_video_preview = True
     if speed < speed_threshold:
-        print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
+        # print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
 
         # Set the frame position to the one where we want to zoom in
         # video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
@@ -225,7 +228,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 good_cursor_speed = 100#in pixels per frame
                 zoom_steps = max(int(speed/good_cursor_speed),1)
                 zoom_steps = 5 #when left click zoom is enabled
-            print("Zooming animation steps->",zoom_steps," zoom level",target_zoom_level)
+            # print("Zooming animation steps->",zoom_steps," zoom level",target_zoom_level)
             zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
             # print(zoom_levels)
             # Apply zoom for each interpolated zoom level
@@ -250,7 +253,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                     break
 
             # Update the previous zoom level for the next iteration
-            print("setting prev_zoom_level to ",target_zoom_level)
+            # print("setting prev_zoom_level to ",target_zoom_level)
             prev_zoom_level = target_zoom_level
 
         else:
@@ -342,7 +345,16 @@ if __name__ == "__main__":
     # Start listening for mouse events in a separate thread
     listener = mouse.Listener(on_click=on_click)
     listener.start()
+
+    #Listen keyboard events on a different thread
+    print("Starting keyboard_listener_thread thread")
+    keyboard_listener_thread = threading.Thread(target=listen_keyboard_events)
+    keyboard_listener_thread.daemon = True
+    keyboard_listener_thread.start()
+    
+    print("Starting to screen frame loop")
     while True:
+        # print("hello")
         start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
         result = screen_capture.get_monitor_screen_image(1,2)
