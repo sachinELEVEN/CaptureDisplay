@@ -76,19 +76,19 @@ class MonitorSelectorApp(rumps.App):
         # Add Shortcuts section
         shortcuts_menu = rumps.MenuItem("Shortcuts")
         shortcuts = {
-            'double click': 'Enable/disable zoom mode',
-            ('ctrl', '+'): 'Zoom in when in zoom mode',
-            ('ctrl', '-'): 'Zoom out when in zoom mode',
-            ('ctrl', '('): 'Top left corner of the screen section to be visible',
-            ('ctrl', ')'): 'Bottom right corner of the screen section to be visible',
-            ('(', ')'): 'Show entire screen',
-            ('ctrl', 'b'): 'Switch between blur and complete blackout',
-            ('ctrl', 'v'): 'Save copied text to a markdown file'
+            'Double\n d click': 'Enable/disable zoom mode',
+            ('ctrl', '+      '): 'Zoom in when in zoom mode',
+            ('ctrl', '-       '): 'Zoom out when in zoom mode',
+            ('ctrl', '(       '): 'Top left corner of the screen section to be visible',
+            ('ctrl', ')       '): 'Bottom right corner of the screen section to be visible',
+            ('(', ')           '): 'Show entire screen',
+            ('ctrl', 'b      '): 'Switch between blur and complete blackout',
+            ('ctrl', 'v      '): 'Save copied text to a markdown file'
         }
 
         for keys, description in shortcuts.items():
-            keys_display = " + ".join(keys) if isinstance(keys, tuple) else keys
-            shortcuts_menu.add(rumps.MenuItem(f"{keys_display}: {description}"))
+            keys_display = " ".join(keys) if isinstance(keys, tuple) else keys
+            shortcuts_menu.add(rumps.MenuItem(f"{keys_display}   {description}"))
 
         self.menu.add(shortcuts_menu)
 
