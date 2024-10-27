@@ -112,7 +112,7 @@ class MonitorSelectorApp(rumps.App):
 
     def show_monitor_selection_alert(self):
         if self.input_monitor is None or self.output_monitor is None:
-            rumps.alert(f"Select your Input and Output Display from the menu bar. \n\n\n Input Display- The screen where your content is.\n\nOutput Display- The screen you’ll need to share with others during the call.\n\n Capture Display will monitor the input display, apply enhancements, and present the final result on the output display. Simply share the output display screen with others during the call.")
+            rumps.alert(f"Capture Display\n\nSelect your Input and Output Display from the menu bar. \n\n\n Input Display- The screen where your content is.\n\nOutput Display- The screen you’ll need to share with others during the call.\n\n Capture Display will monitor the input display, apply enhancements, and present the final result on the output display. Simply share the output display screen with others during the call.")
 
     def refresh_menu(self):
         self.update_menu()  # Call to refresh the menu
