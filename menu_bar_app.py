@@ -1,5 +1,12 @@
 import rumps
 from Quartz import CGGetActiveDisplayList
+import importlib
+import time
+
+fast_screen_recording = importlib.import_module("fast-screen-recording")
+screen_rec_and_mouse_click_listener = fast_screen_recording.screen_rec_and_mouse_click_listener
+destroy_cv2_windows = fast_screen_recording.destroy_cv2_windows
+start_time = None
 
 class MonitorSelectorApp(rumps.App):
     def __init__(self):
@@ -8,6 +15,22 @@ class MonitorSelectorApp(rumps.App):
         self.output_monitor = None
         self.monitor_list = self.get_monitors()
         self.update_menu()  # Initialize the menu
+        self.start_loop_function_timer()
+
+    def start_loop_function_timer(self):
+        global start_time
+        """Start the infinite loop function timer"""
+        # screen_rec_and_mouse_click_listener()
+        start_time = time.time()
+        rumps.timer(0.001)(self.loop_function)()
+
+    def loop_function(self,*args):
+        global start_time
+        #This below screen recording method also needs to run on the main thread that is why we are running it using rumps.timer
+        screen_rec_and_mouse_click_listener()
+        elapsed_time = time.time() - start_time
+        print(f"FPS: {  1 / elapsed_time:.4f}")
+        start_time = time.time()
 
     def get_monitors(self):
         """Get a list of available monitors."""
@@ -74,7 +97,10 @@ class MonitorSelectorApp(rumps.App):
 
     # @rumps.clicked("Quit")
     def quit_app(self, _):
+        destroy_cv2_windows()
         rumps.quit_application()
 
-if __name__ == "__main__":
+#should be run on the main thread since its a ui event loop
+def menu_bar_app():
     MonitorSelectorApp().run()
+    

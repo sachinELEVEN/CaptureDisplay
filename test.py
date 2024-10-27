@@ -1,30 +1,37 @@
-from Quartz import (
-    CGGetActiveDisplayList,
-    CGDisplayVendorNumber,CGDisplayModelNumber,CGDisplaySerialNumber
-)
+import tkinter as tk
 
-def get_connected_monitors():
-    """Get a list of connected monitor names."""
-    max_displays = 10  # Maximum number of displays
-    (err, active_displays, number_of_active_displays) = CGGetActiveDisplayList(max_displays, None, None)
-    
-    if err:
-        print("Error retrieving monitor information.")
-        return []
+# Sample coordinates and their corresponding numbers
+coordinates = [
+    (50, 50, "1"),
+    (150, 50, "2"),
+    (50, 150, "3"),
+    (150, 150, "4"),
+    (100, 100, "5"),
+]
 
-    monitor_names = []
-    for display_id in active_displays:
-        # Get the display name
-        display_name = CGDisplayVendorNumber(display_id)
-        print(display_id)
-        print(CGDisplayModelNumber(display_id))
-        print(CGDisplaySerialNumber(display_id))
-        monitor_names.append(display_name if display_name else f"Display {display_id}")
+def create_number_box(x, y, number):
+    # Create a new window for each number
+    box_window = tk.Toplevel()
+    box_window.geometry("100x100")  # Size of the window
+    box_window.overrideredirect(True)  # Remove title bar
+    box_window.geometry(f"+{x}+{y}")  # Position at (x, y)
 
-    return monitor_names
+    # Create a box at the specified coordinates
+    box = tk.Frame(box_window, width=80, height=80, bg="lightblue", bd=2, relief="groove")
+    box.pack_propagate(False)  # Prevent the frame from resizing
+    box.pack()
 
-if __name__ == "__main__":
-    monitors = get_connected_monitors()
-    print("Connected Monitors:")
-    # for monitor in monitors:
-    #     print(f"- {monitor}")
+    # Create a label with the number
+    label = tk.Label(box, text=number, font=("Arial", 24))
+    label.pack(expand=True)
+
+# Create the main window
+root = tk.Tk()
+root.withdraw()  # Hide the main window
+
+# Create separate number boxes
+for x, y, number in coordinates:
+    create_number_box(x, y, number)
+
+# Start the Tkinter event loop
+root.mainloop()

@@ -29,6 +29,9 @@ blur_kernel_size = 51#should be an odd number
 last_in_bounds_cursor_position = (0,0)#default position is the origin
 use_blur_effect = False
 dimming_factor = 0#0 - blackout, 1-everything visible
+initialization_done = False
+screen_capture = None
+mouse_event_listener = False
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
 
@@ -578,8 +581,8 @@ def scaleAccordingToInputDisplayFactor(frame_size,input_monitor_bounds,point_to_
     # print(point_to_scale)
     return point_to_scale
 
-# Example usage
-def screen_rec_and_mouse_click_listener():
+# This is used if you want to run the screen recording by calling this function on the main thread, but this will occupy the main thread, preventing anyother even from getting executed. Hence when we now use the menu bar app we call the screen_rec_and_mouse_click_listener which is called multiple times and does not occupy the main thread because screen_rec_and_mouse_click_listener does not contain any infinite loop
+def screen_rec_and_mouse_click_listener_deprecated():
     screen_capture = ScreenCapture()
 
     # Start listening for mouse events in a separate thread
@@ -623,4 +626,66 @@ def screen_rec_and_mouse_click_listener():
         #     break
 
             
+    cv2.destroyAllWindows()
+
+
+def setup():
+    global screen_capture, mouse_event_listener,initialization_done
+
+    if initialization_done:
+        return
+    
+    print("initializing screen_rec_and_mouse_click_listener")
+    screen_capture = ScreenCapture()
+    # Start listening for mouse events in a separate thread
+    mouse_event_listener = mouse.Listener(on_click=on_click)
+    mouse_event_listener.start()
+    initialization_done = True
+
+def screen_rec_and_mouse_click_listener():
+    global screen_capture, mouse_event_listener
+
+    setup()
+
+    # print("Starting to screen screen recording loop")
+    if True:#replaced while True
+        # print("hello")
+        # start_time = time.time()  # Start the timer
+        #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
+        result = screen_capture.get_monitor_screen_image(1,2)
+        frame = result[0]
+        input_monitor_bounds = result[1]
+
+         #get cursor info
+        cursor_info = get_cursor_info()
+        cursor_info["position"] = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,cursor_info["position"])
+        input_monitor_bounds.size.width,input_monitor_bounds.size.height  = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,input_monitor_bounds.size)
+        #should we scale output display factor as well? - not doing it for not seeing any weird results there as of now
+        output_monitor_bounds = result[2]
+        # print("after scaling",input_monitor_bounds)
+        # break
+        # Calculate the time taken to capture the frame
+        
+        # print(f"FPS: {60 * 1 / elapsed_time:.4f}")
+        # print(input_monitor_bounds)
+
+        #Augmentation of the frame
+       
+        # print("Cursor info is",cursor_info)
+        perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
+        # elapsed_time = time.time() - start_time
+        # print(f"FPS: {  1 / elapsed_time:.4f}") Here FPS should be calculated from Menu bar app's event loop and not from here for this function
+        # display_frame_at_required_monitor(frame,output_monitor_bounds)
+
+        #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
+        #actually when we use left click based zoom, we want it to have high frequency, so changes are picked up quickly
+        # if cv2.waitKey(1000) & 0xFF == ord('q'):
+        #     break
+        # time.sleep(millisToSeconds(10)) - cannot put main thread to sleep
+
+            
+    # cv2.destroyAllWindows()
+
+def destroy_cv2_windows():
+    print("destroying cv2 windows")
     cv2.destroyAllWindows()
