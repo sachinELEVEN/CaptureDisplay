@@ -15,16 +15,16 @@ save_copied_text_to_file = save_copied_text_to_file.save_copied_text_to_file
 # Dictionary to store shortcut combinations and their corresponding functions.
 # For example: {('tab', 'z'): 'my_function'}
 shortcut_actions = {
-    ('tab', 'z'): 'my_function',
-    ('opt', 'z'): 'my_function',
+    ('ctrl', 'z'): 'my_function',
+    ('ctrl', 'z'): 'my_function',
     ('ctrl', 'shift', 'a'): 'another_function',
-    ('tab', '='): 'zoom_increase',
-    ('tab', '-'): 'zoom_decrease',
-    ('tab', '9'): 'window_pt_top_left',#window_pt_top_left window_pt_bottom_right represents the window we want to show the user
-    ('tab', '0'): 'window_pt_bottom_right',
+    ('ctrl', '='): 'zoom_increase',
+    ('ctrl', '-'): 'zoom_decrease',
+    ('ctrl', '9'): 'window_pt_top_left',#window_pt_top_left window_pt_bottom_right represents the window we want to show the user
+    ('ctrl', '0'): 'window_pt_bottom_right',
     ('9', '0'): 'window_show_everything',
-    ('tab', 'b'): 'toggle_region_of_interest_hiding_approach',
-    ('tab', 'c'): 'save_copied_text_to_file',
+    ('ctrl', 'b'): 'toggle_region_of_interest_hiding_approach',
+    ('ctrl', 'c'): 'save_copied_text_to_file',
 }
 
 # Track the currently pressed keys.
