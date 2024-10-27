@@ -1,38 +1,78 @@
-import pyperclip
-import os
-from datetime import datetime
+import sys
+import objc
+from Cocoa import NSApplication, NSStatusBar, NSMenu, NSMenuItem, NSApp
+from Quartz import CGGetActiveDisplayList
 
-# Keep track of the last used file name
-file_name_memory = None
+class MenuBarApp:
+    def __init__(self):
+        # Create the application instance
+        self.app = NSApplication.sharedApplication()
 
-def save_copied_text_to_file():
-    global file_name_memory
-    
-    # Get today's date and time
-    today_date = datetime.now().strftime("%Y-%m-%d")
-    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        # Create a status bar item
+        self.status_item = NSStatusBar.systemStatusBar().statusItemWithLength_(-1)
+        self.status_item.setTitle_("Monitor Selector")
 
-    # Determine the file name with today's date and a unique 3-digit number
-    if file_name_memory is None:
-        # Find an available unique file name
-        for i in range(1, 1000):
-            file_name = f"capture_display_notes-{today_date}-{i:03d}.txt"
-            if not os.path.exists(file_name):
-                file_name_memory = file_name
-                break
+        # Create a menu
+        self.menu = NSMenu.alloc().init()
 
-    # Get copied content from clipboard
-    copied_content = pyperclip.paste()
+        # Get the list of monitors
+        self.monitor_list = self.get_monitors()
+        
+        # Add input monitor selection
+        self.input_menu_item = NSMenuItem.alloc().initWithTitle("Select Input Monitor", action=None, keyEquivalent="")
+        self.menu.addItem(self.input_menu_item)
+        for idx, monitor in enumerate(self.monitor_list):
+            item = NSMenuItem.alloc().initWithTitle(monitor, action=self.select_input_monitor, keyEquivalent="")
+            item.setTag(idx)
+            self.menu.addItem(item)
 
-    # Append the copied content to the file in the specified format
-    with open(file_name_memory, 'a') as file:
-        file.write(f"//ENTRY STARTS\n")
-        file.write(f"//Time: {current_time}\n")
-        file.write(f"//Content:\n")
-        file.write(f"{copied_content}\n")
-        file.write(f"//ENTRY ENDS\n")
+        self.menu.addItem(NSMenuItem.separatorItem())
+        
+        # Add output monitor selection
+        self.output_menu_item = NSMenuItem.alloc().initWithTitle("Select Output Monitor", action=None, keyEquivalent="")
+        self.menu.addItem(self.output_menu_item)
+        for idx, monitor in enumerate(self.monitor_list):
+            item = NSMenuItem.alloc().initWithTitle(monitor, action=self.select_output_monitor, keyEquivalent="")
+            item.setTag(idx)
+            self.menu.addItem(item)
 
-    print(f"Content saved to {file_name_memory}")
+        self.menu.addItem(NSMenuItem.separatorItem())
+        
+        # Add quit option
+        quit_item = NSMenuItem.alloc().initWithTitle("Quit", action=self.quit_app, keyEquivalent="")
+        self.menu.addItem(quit_item)
 
-# Example usage
-save_copied_text_to_file()
+        # Set the menu to the status item
+        self.status_item.setMenu(self.menu)
+        
+    def get_monitors(self):
+        """Get a list of available monitors."""
+        max_displays = 10  # Maximum number of displays
+        (err, active_displays, number_of_active_displays) = CGGetActiveDisplayList(max_displays, None, None)
+        if err:
+            return []
+
+        monitor_names = []
+        for display_id in active_displays:
+            display_name = display_id #CGDisplayCopyDisplayName(display_id)
+            monitor_names.append(display_name)
+
+        return monitor_names
+
+    def select_input_monitor(self, sender):
+        """Handle input monitor selection."""
+        monitor_idx = sender.tag()
+        print(f"Input Monitor Selected: {self.monitor_list[monitor_idx]}")
+
+    def select_output_monitor(self, sender):
+        """Handle output monitor selection."""
+        monitor_idx = sender.tag()
+        print(f"Output Monitor Selected: {self.monitor_list[monitor_idx]}")
+
+    def quit_app(self, sender):
+        """Quit the application."""
+        NSApp.terminate_(self)
+
+if __name__ == "__main__":
+    app = MenuBarApp()
+    NSApp.run()
