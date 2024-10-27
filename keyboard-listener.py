@@ -1,7 +1,7 @@
 from pynput import keyboard
 import time
 import importlib
-import sys
+import os
 
 fast_screen_recording = importlib.import_module("fast-screen-recording")
 save_copied_text_to_file = importlib.import_module("save_copied_text_to_file")
@@ -37,12 +37,12 @@ def my_function():
 
 def quit_app():
     print("user quitted the app")
-    sys.exit(1)  # Exit with status 1 (you can change the status code if needed)
+    os._exit(0) #we need to terminate the main thread, and not the keyboard thread
 
 # Mapping from function name to actual function.
 function_map = {
     'my_function': my_function,
-    'another_function': quit_app,
+    'quit_app': quit_app,
     'zoom_decrease': zoom_decrease,
     'zoom_increase': zoom_increase,
     'window_pt_top_left': window_pt_top_left,
