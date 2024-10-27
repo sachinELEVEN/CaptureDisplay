@@ -33,6 +33,19 @@ initialization_done = False
 screen_capture = None
 mouse_event_listener = False
 
+input_monitor = None
+output_monitor = None
+
+def set_input_monitor(id):
+    global input_monitor
+    print("set_input_monitor to ",id)
+    input_monitor = id
+
+def set_output_monitor(id):
+    global output_monitor
+    print("set_output_monitor to ",id)
+    output_monitor = id
+
 #####KEYBOARD SHORTCUT METHODS ABOVE
 
 def toggle_region_of_interest_hiding_approach():
@@ -643,7 +656,7 @@ def setup():
     initialization_done = True
 
 def screen_rec_and_mouse_click_listener():
-    global screen_capture, mouse_event_listener
+    global screen_capture, mouse_event_listener, input_monitor, output_monitor
 
     setup()
 
@@ -652,7 +665,17 @@ def screen_rec_and_mouse_click_listener():
         # print("hello")
         # start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
-        result = screen_capture.get_monitor_screen_image(1,2)
+        if input_monitor is None:
+            print("Please select input monitor from the menu bar")
+            cv2.waitKey(1)
+            return
+
+        if output_monitor is None:
+            print("Please select output monitor from the menu bar")
+            cv2.waitKey(1)
+            return
+
+        result = screen_capture.get_monitor_screen_image(int(input_monitor),int(output_monitor))
         frame = result[0]
         input_monitor_bounds = result[1]
 

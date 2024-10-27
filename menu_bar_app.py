@@ -6,6 +6,8 @@ import time
 fast_screen_recording = importlib.import_module("fast-screen-recording")
 screen_rec_and_mouse_click_listener = fast_screen_recording.screen_rec_and_mouse_click_listener
 destroy_cv2_windows = fast_screen_recording.destroy_cv2_windows
+set_input_monitor = fast_screen_recording.set_input_monitor
+set_output_monitor = fast_screen_recording.set_output_monitor
 start_time = None
 
 class MonitorSelectorApp(rumps.App):
@@ -16,6 +18,7 @@ class MonitorSelectorApp(rumps.App):
         self.monitor_list = self.get_monitors()
         self.update_menu()  # Initialize the menu
         self.start_loop_function_timer()
+        self.show_monitor_selection_alert()
 
     def start_loop_function_timer(self):
         global start_time
@@ -81,16 +84,21 @@ class MonitorSelectorApp(rumps.App):
     def select_input_monitor(self, sender):
         print("Input monitor is", sender.title)
         self.input_monitor = sender.title.split(" ")[0]  # Get monitor name without (Selected)
+        set_input_monitor(self.input_monitor)
         self.refresh_menu()  # Refresh the menu after selection
-        rumps.alert(f"Input monitor set to: {self.input_monitor}")
+        # rumps.alert(f"Input monitor set to: {self.input_monitor}")
         
 
     def select_output_monitor(self, sender):
         print("Output monitor is", sender.title)
         self.output_monitor = sender.title.split(" ")[0]  # Get monitor name without (Selected)
+        set_output_monitor(self.output_monitor)
         self.refresh_menu()  # Refresh the menu after selection
-        rumps.alert(f"Output monitor set to: {self.output_monitor}")
+        # rumps.alert(f"Output monitor set to: {self.output_monitor}")
         
+    def show_monitor_selection_alert(self):
+        if self.input_monitor is None or self.output_monitor is None:
+            rumps.alert(f"Select your Input and Output Display from the menu bar. \n\n\n Input Display- The screen where your content is.\n\nOutput Display- The screen you’ll need to share with others during the call.\n\n Capture Display will monitor the input display, apply enhancements, and present the final result on the output display. Simply share the output display screen with others during the call.")
 
     def refresh_menu(self):
         self.update_menu()  # Call to refresh the menu
