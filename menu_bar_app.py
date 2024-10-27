@@ -76,7 +76,7 @@ class MonitorSelectorApp(rumps.App):
         # Add Shortcuts section
         shortcuts_menu = rumps.MenuItem("Shortcuts")
         shortcuts = {
-            'Double\n d click': 'Enable/disable zoom mode',
+            'Double click': 'Enable/disable zoom mode',
             ('ctrl', '+      '): 'Zoom in when in zoom mode',
             ('ctrl', '-       '): 'Zoom out when in zoom mode',
             ('ctrl', '(       '): 'Top left corner of the screen section to be visible',
