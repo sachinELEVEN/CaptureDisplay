@@ -1,6 +1,7 @@
 from pynput import keyboard
 import time
 import importlib
+import sys
 
 fast_screen_recording = importlib.import_module("fast-screen-recording")
 save_copied_text_to_file = importlib.import_module("save_copied_text_to_file")
@@ -17,7 +18,7 @@ save_copied_text_to_file = save_copied_text_to_file.save_copied_text_to_file
 shortcut_actions = {
     ('ctrl', 'z'): 'my_function',
     ('ctrl', 'z'): 'my_function',
-    ('ctrl', 'shift', 'a'): 'another_function',
+    ('ctrl', 'q'): 'quit_app',
     ('ctrl', '='): 'zoom_increase',
     ('ctrl', '-'): 'zoom_decrease',
     ('ctrl', '9'): 'window_pt_top_left',#window_pt_top_left window_pt_bottom_right represents the window we want to show the user
@@ -34,13 +35,14 @@ current_keys = set()
 def my_function():
     print("Tab+Z was pressed!")
 
-def another_function():
-    print("Ctrl+Shift+A was pressed!")
+def quit_app():
+    print("user quitted the app")
+    sys.exit(1)  # Exit with status 1 (you can change the status code if needed)
 
 # Mapping from function name to actual function.
 function_map = {
     'my_function': my_function,
-    'another_function': another_function,
+    'another_function': quit_app,
     'zoom_decrease': zoom_decrease,
     'zoom_increase': zoom_increase,
     'window_pt_top_left': window_pt_top_left,

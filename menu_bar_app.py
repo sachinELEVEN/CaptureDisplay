@@ -83,7 +83,8 @@ class MonitorSelectorApp(rumps.App):
             ('ctrl', ')       '): 'Bottom right corner of the screen section to be visible',
             ('(', ')           '): 'Show entire screen',
             ('ctrl', 'b      '): 'Switch between blur and complete blackout',
-            ('ctrl', 'v      '): 'Save copied text to a markdown file'
+            ('ctrl', 'v      '): 'Save copied text to a markdown file',
+            ('ctrl', 'q      '): 'Quit',
         }
 
         for keys, description in shortcuts.items():
