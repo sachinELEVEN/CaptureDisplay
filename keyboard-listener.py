@@ -24,7 +24,7 @@ shortcut_actions = {
     ('ctrl', '0'): 'window_pt_bottom_right',
     ('9', '0'): 'window_show_everything',
     ('ctrl', 'b'): 'toggle_region_of_interest_hiding_approach',
-    ('ctrl', 'c'): 'save_copied_text_to_file',
+    ('ctrl', 'v'): 'save_copied_text_to_file',
 }
 
 # Track the currently pressed keys.
