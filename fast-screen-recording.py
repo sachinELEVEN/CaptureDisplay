@@ -124,23 +124,30 @@ class ScreenCapture:
         self.screen_height = 0
 
     #Captures a particular monitor
-    def get_monitor_screen_image(self, input_monitor_index=0,output_monitor_index=0):
-        # maximum number of displays to return
-        max_displays = 100
-        # get active display list
-        # CGGetActiveDisplayList:
-        #     Provides a list of displays that are active (or drawable).
-        (err, active_displays, number_of_active_displays) = CGGetActiveDisplayList(
-            max_displays, None, None)
-        if err:
-            return False
-        # print(active_displays,number_of_active_displays)
-        # Get the desired monitor's bounds
-        if input_monitor_index < number_of_active_displays and output_monitor_index < number_of_active_displays:
-            input_monitor_id = active_displays[input_monitor_index]  # Choose which monitor to capture
-            output_monitor_id = active_displays[output_monitor_index] #monitor to which we will display the output- should ideally be the virtual monitor
+    #if display_ids_provided it means the input_monitor_index is actually input_monitor_id and same for output_monitor_index is output_monitor_id
+    def get_monitor_screen_image(self, input_monitor_index=0,output_monitor_index=0,display_ids_provided=False):
+
+        if display_ids_provided==False:
+            # maximum number of displays to return
+            max_displays = 100
+            # get active display list
+            # CGGetActiveDisplayList:
+            #     Provides a list of displays that are active (or drawable).
+            (err, active_displays, number_of_active_displays) = CGGetActiveDisplayList(
+                max_displays, None, None)
+            if err:
+                return False
+            # print(active_displays,number_of_active_displays)
+            # Get the desired monitor's bounds
+            # print("active displays",number_of_active_displays,"and",active_displays)
+            if input_monitor_index < number_of_active_displays and output_monitor_index < number_of_active_displays:
+                input_monitor_id = active_displays[input_monitor_index]  # Choose which monitor to capture
+                output_monitor_id = active_displays[output_monitor_index] #monitor to which we will display the output- should ideally be the virtual monitor
+            else:
+                raise ValueError("Monitor index out of range.")
         else:
-            raise ValueError("Monitor index out of range.")
+            input_monitor_id = input_monitor_index
+            output_monitor_id = output_monitor_index
 
         input_monitor_bounds = QZ.CGDisplayBounds(input_monitor_id)
         output_monitor_bounds = QZ.CGDisplayBounds(output_monitor_id)
@@ -675,7 +682,7 @@ def screen_rec_and_mouse_click_listener():
             cv2.waitKey(1)
             return
 
-        result = screen_capture.get_monitor_screen_image(int(input_monitor),int(output_monitor))
+        result = screen_capture.get_monitor_screen_image(int(input_monitor),int(output_monitor),display_ids_provided=True)
         frame = result[0]
         input_monitor_bounds = result[1]
 
