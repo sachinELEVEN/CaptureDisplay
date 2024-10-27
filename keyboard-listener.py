@@ -37,7 +37,13 @@ def my_function():
 
 def quit_app():
     print("user quitted the app")
+    #forceful termination without calling and exit handler, try-catch-finally, does not raise any exception, simply terminates
     os._exit(0) #we need to terminate the main thread, and not the keyboard thread
+    # Feature	sys.exit()	os._exit()
+    # Type of Exit	Raises SystemExit (graceful)	Exits immediately (forceful)
+    # Cleanup Execution	Runs cleanup handlers and finally blocks	Skips cleanup handlers and finally blocks
+    # Exception Handling	Can be caught with try-except	Cannot be caught
+    # Use Case	For normal program exits	For abrupt termination (e.g., child processes)
 
 # Mapping from function name to actual function.
 function_map = {
