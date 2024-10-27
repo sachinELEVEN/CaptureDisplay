@@ -1,0 +1,45 @@
+import pyperclip
+import os
+from datetime import datetime
+
+# Keep track of the last used file name
+file_name_memory = None
+
+def save_copied_text_to_file():
+    print("save_copied_text_to_file")
+    global file_name_memory
+    
+    # Get today's date and time
+    today_date = datetime.now().strftime("%Y-%m-%d")
+    current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Directory for saving the files
+    directory = 'notes'
+
+    # Ensure the 'sharable' folder exists
+    os.makedirs(directory, exist_ok=True)
+
+    # Determine the file name with today's date and a unique 3-digit number
+    if file_name_memory is None:
+        # Find an available unique file name within the 'sharable' folder
+        for i in range(1, 1000):
+            file_name = os.path.join(directory, f"capture_display_notes-{today_date}-{i:03d}.txt")
+            if not os.path.exists(file_name):
+                file_name_memory = file_name
+                break
+
+    # Get copied content from clipboard
+    copied_content = pyperclip.paste()
+
+    # Append the copied content to the file in the specified format
+    with open(file_name_memory, 'a') as file:
+        file.write(f"\n\n\n")
+        file.write(f"//Time: {current_time}\n")
+        file.write(f"//Content:\n")
+        file.write(f"{copied_content}\n")
+        file.write(f"\n")
+
+    print(f"Content saved to {file_name_memory}")
+
+# Example usage
+save_copied_text_to_file()
