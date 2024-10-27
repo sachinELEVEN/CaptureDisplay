@@ -3,7 +3,7 @@ from Quartz import CGGetActiveDisplayList
 
 class MonitorSelectorApp(rumps.App):
     def __init__(self):
-        super(MonitorSelectorApp, self).__init__("Monitor Selector", icon=None)
+        super(MonitorSelectorApp, self).__init__("Capture Display", icon=None)
         self.input_monitor = None
         self.output_monitor = None
         self.monitor_list = self.get_monitors()
