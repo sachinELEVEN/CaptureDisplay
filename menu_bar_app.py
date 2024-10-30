@@ -2,6 +2,8 @@ import rumps
 from Quartz import CGGetActiveDisplayList
 import importlib
 import time
+import os
+import subprocess
 
 fast_screen_recording = importlib.import_module("fast-screen-recording")
 screen_rec_and_mouse_click_listener = fast_screen_recording.screen_rec_and_mouse_click_listener
@@ -111,6 +113,8 @@ class MonitorSelectorApp(rumps.App):
 
         self.menu.add(shortcuts_menu)
 
+        self.menu.add(rumps.MenuItem("Notes", callback=self.open_notes_folder))
+
         # Add separator and quit option
         self.menu.add(rumps.separator)
 
@@ -150,6 +154,17 @@ class MonitorSelectorApp(rumps.App):
     def quit_app(self, _):
         destroy_cv2_windows()
         rumps.quit_application()
+
+    def open_notes_folder(self,sender):
+        # Get the path to the notes folder in the current directory
+        notes_path = os.path.join(os.getcwd(), 'notes')
+        
+        # Create the notes folder if it doesn't exist
+        if not os.path.exists(notes_path):
+            os.makedirs(notes_path)
+        
+        # Open the folder in Finder on macOS
+        subprocess.run(['open', notes_path])
 
 # should be run on the main thread since it's a UI event loop
 def menu_bar_app():
