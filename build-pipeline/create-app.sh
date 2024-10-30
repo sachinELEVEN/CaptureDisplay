@@ -1,42 +1,47 @@
-# # ---------------------------------------
-# # Step 1: Clear dist folder and create CaptureDisplay.app
-# # ---------------------------------------
-# #Use the below command to create the spec file, once that is ready use spec file with pyinstaller
-# #pyinstaller --onefile --windowed ../main.py --name "CaptureDisplay" --icon=../assets/capturedisplay.icns
-# rm -r dist
-# rm -r build
-# #create a bundle identifer from appstoreconnect and use that in the spec file
-# pyinstaller CaptureDisplay.spec
-# cd dist
-# find CaptureDisplay.app -name .DS_Store -delete
-# cd ..
+# ---------------------------------------
+# Step 1: Clear dist folder and create CaptureDisplay.app
+# ---------------------------------------
+#Use the below command to create the spec file, once that is ready use spec file with pyinstaller
+#pyinstaller --onefile --windowed ../main.py --name "CaptureDisplay" --icon=../assets/capturedisplay.icns
+rm -r dist
+rm -r build
+#create a bundle identifer from appstoreconnect and use that in the spec file
+pyinstaller CaptureDisplay.spec
+cd dist
+find CaptureDisplay.app -name .DS_Store -delete
+cd ..
 
-# # ---------------------------------------
-# # Step 2: Signing the CaptureDisplay.app
-# # ---------------------------------------
-# #-s hash, this hash is corresponding to the developer id application certificate, you see you current certificates and hashes using the command $security find-identity -p basic -v. We need a developer id application certificate to notarize the apps
-# #signing the .app
-# # codesign --deep --force --verbose -s "CaptureDisplay" "./dist/CaptureDisplay.app"
-# codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
+# ---------------------------------------
+# Step 2: Signing the CaptureDisplay.app
+# ---------------------------------------
+#Signing needs to happen with a certificate- if you use developer id certificate like the one here the notarization does not work, we need to use self signed certificate like 'CaptureDisplay'. Example developer application id certificate -> EC24DE91843FE9267B360FA70CAFAF873E92AC72 "Developer ID Application: sachin jeph (34XRA32US9)"
+#Use this command to show the list of available certificates -> security find-identity -p basic -v
+#-s hash, this hash is corresponding to the developer id application certificate, you see you current certificates and hashes using the command $security find-identity -p basic -v. We need a developer id application certificate to notarize the apps
+#signing the .app where -s denotes teh signture certificate we need to provide. Please use self signed certificate otherwise problems occur in notarization wher notarization fails
+#You can create a self signed certificate from Keychain access. Make sure to open the certiciate -> Trust section -> Set Code Signing as 'Always Trust'
+#Or okay i just realised you can use your developer certificate and open the certiciate -> Trust section -> Set Code Signing as 'Always Trust' as well, and that should work as well for code signing certificates
+#I am just thinkning the code signing using developer certificate might be better than self signed certicate no? i am not entirely sure about this for now, but for now using developer certiciate for code signing
+# codesign --deep --force --verbose -s "CaptureDisplay" "./dist/CaptureDisplay.app"
+codesign -s "CaptureDisplay" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
 
-# # ---------------------------------------
-# # Step 3: Convert the application bundle to a DMG (macOS disk image)
-# # ---------------------------------------
-# echo "Creating DMG installer..."
-# sleep 5
+# ---------------------------------------
+# Step 3: Convert the application bundle to a DMG (macOS disk image)
+# ---------------------------------------
+echo "Creating DMG installer..."
+sleep 5
 
-# #Visit https://github.com/create-dmg/create-dmg for more information on create-dmg
-# # Create the DMG
-# # Ensure you have 'create-dmg' installed. If not, install using 'brew install create-dmg'
-# create-dmg  --volname "CaptureDisplay" --volicon "/Users/sachinjeph/Desktop/CaptureDisplay/assets/capturedisplay.ico" --icon-size 100 --app-drop-link 425 120 "./dist/CaptureDisplay.dmg" "./dist/BrainSphere.app/"
-# # ---------------------------------------
-# # Step 4: Signing the CaptureDisplay.dmg
-# # ---------------------------------------
-# #Signing the dmg
-# echo "Signing DMG..."
-# codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
+#Visit https://github.com/create-dmg/create-dmg for more information on create-dmg
+# Create the DMG
+# Ensure you have 'create-dmg' installed. If not, install using 'brew install create-dmg'
+create-dmg  --volname "CaptureDisplay" --volicon "/Users/sachinjeph/Desktop/CaptureDisplay/assets/capturedisplay.ico" --icon-size 100 --app-drop-link 425 120 "./dist/CaptureDisplay.dmg" "./dist/BrainSphere.app/"
+# ---------------------------------------
+# Step 4: Signing the CaptureDisplay.dmg
+# ---------------------------------------
+#Signing the dmg
+echo "Signing DMG..."
+codesign -s "CaptureDisplay" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
 
-# echo "Packaging and signing complete. You can find the DMG installer in the dist/ directory."
+echo "Packaging and signing complete. You can find the DMG installer in the dist/ directory."
 
 # ---------------------------------------
 # Step 2: Notarising the DMG (macOS disk image)
