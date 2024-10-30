@@ -22,7 +22,8 @@ cd ..
 #Or okay i just realised you can use your developer certificate and open the certiciate -> Trust section -> Set Code Signing as 'Always Trust' as well, and that should work as well for code signing certificates
 #I am just thinkning the code signing using developer certificate might be better than self signed certicate no? i am not entirely sure about this for now, but for now using developer certiciate for code signing
 # codesign --deep --force --verbose -s "CaptureDisplay" "./dist/CaptureDisplay.app"
-codesign -s "CaptureDisplay" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
+#we must sign with Developer ID Application certificate in order to notarize the app
+codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
 
 # ---------------------------------------
 # Step 3: Convert the application bundle to a DMG (macOS disk image)
@@ -33,13 +34,13 @@ sleep 5
 #Visit https://github.com/create-dmg/create-dmg for more information on create-dmg
 # Create the DMG
 # Ensure you have 'create-dmg' installed. If not, install using 'brew install create-dmg'
-create-dmg  --volname "CaptureDisplay" --volicon "/Users/sachinjeph/Desktop/CaptureDisplay/assets/capturedisplay.ico" --icon-size 100 --app-drop-link 425 120 "./dist/CaptureDisplay.dmg" "./dist/BrainSphere.app/"
+create-dmg  --volname "CaptureDisplay" --volicon "/Users/sachinjeph/Desktop/CaptureDisplay/assets/capturedisplay.ico" --icon-size 100 --app-drop-link 425 120 "./dist/CaptureDisplay.dmg" "./dist/CaptureDisplay.app/"
 # ---------------------------------------
 # Step 4: Signing the CaptureDisplay.dmg
 # ---------------------------------------
 #Signing the dmg
 echo "Signing DMG..."
-codesign -s "CaptureDisplay" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
+codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
 
 echo "Packaging and signing complete. You can find the DMG installer in the dist/ directory."
 
@@ -63,6 +64,9 @@ xcrun stapler staple "./dist/CaptureDisplay.dmg"
 # xcrun notarytool history --keychain-profile "CaptureDisplay"
 #To get the detailed log of notarization step use the below commnad
 #xcrun notarytool log "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay"
+#you can see notary logs using the command where this id is the submission id which you would see when you run the initial notarization command
+#xcrun notarytool log ff574741-17b3-406d-bd07-9cb77d009978 --keychain-profile "CaptureDisplay"
+
 #To see the list of certificates
 #security find-identity -p basic -v
 #Maybe write some upload script here to upload dmg for customers
