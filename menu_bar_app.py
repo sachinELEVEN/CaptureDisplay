@@ -31,7 +31,7 @@ class MonitorSelectorApp(rumps.App):
         # This below screen recording method also needs to run on the main thread that is why we are running it using rumps.timer
         screen_rec_and_mouse_click_listener()
         elapsed_time = time.time() - start_time
-        print(f"FPS: {1 / elapsed_time:.4f}")
+        # print(f"FPS: {1 / elapsed_time:.4f}")
         start_time = time.time()
 
     def get_monitors(self):
@@ -84,6 +84,7 @@ class MonitorSelectorApp(rumps.App):
             ('(', ')           '): 'Show entire screen',
             ('ctrl', 'b      '): 'Switch between blur and complete blackout',
             ('ctrl', 'v      '): 'Save copied text to a markdown file',
+            ('ctrl', 'p      '): 'Start/restart screen monitoring',
             ('ctrl', 'q      '): 'Quit',
         }
 

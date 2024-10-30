@@ -10,6 +10,7 @@ zoom_decrease = fast_screen_recording.zoom_decrease
 window_pt_top_left = fast_screen_recording.window_pt_top_left
 window_pt_bottom_right = fast_screen_recording.window_pt_bottom_right
 window_show_everything = fast_screen_recording.window_show_everything
+start_stop_screen_augmentation = fast_screen_recording.start_stop_screen_augmentation
 toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_of_interest_hiding_approach
 save_copied_text_to_file = save_copied_text_to_file.save_copied_text_to_file
 
@@ -26,6 +27,7 @@ shortcut_actions = {
     ('9', '0'): 'window_show_everything',
     ('ctrl', 'b'): 'toggle_region_of_interest_hiding_approach',
     ('ctrl', 'v'): 'save_copied_text_to_file',
+    ('ctrl', 'p'): 'start_stop_screen_augmentation',
 }
 
 # Track the currently pressed keys.
@@ -55,7 +57,8 @@ function_map = {
     'window_pt_bottom_right': window_pt_bottom_right,
     'window_show_everything':window_show_everything,
     'toggle_region_of_interest_hiding_approach':toggle_region_of_interest_hiding_approach,
-    'save_copied_text_to_file':save_copied_text_to_file
+    'save_copied_text_to_file':save_copied_text_to_file,
+    'start_stop_screen_augmentation':start_stop_screen_augmentation
 
 }
 

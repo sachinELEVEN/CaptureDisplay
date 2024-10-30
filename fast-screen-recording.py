@@ -36,6 +36,11 @@ mouse_event_listener = False
 input_monitor = None
 output_monitor = None
 
+input_monitor_old = None
+output_monitor_old = None
+is_screen_augmentation_paused = False
+screen_destroyed = False
+
 def set_input_monitor(id):
     global input_monitor
     print("set_input_monitor to ",id)
@@ -47,6 +52,26 @@ def set_output_monitor(id):
     output_monitor = id
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
+    
+def start_stop_screen_augmentation():
+    global input_monitor, input_monitor_old, output_monitor, output_monitor_old, is_screen_augmentation_paused, screen_destroyed
+
+    if is_screen_augmentation_paused:
+        #we need to restart it
+        input_monitor = input_monitor_old
+        output_monitor = output_monitor_old
+        is_screen_augmentation_paused = False
+        screen_destroyed = False
+        print(f"restarting screen augmentation at input monitor {input_monitor}, and output monitor {output_monitor}")
+    else:
+        print("Pausing screen augmentation")
+        input_monitor_old = input_monitor
+        input_monitor = None
+        output_monitor_old = output_monitor
+        output_monitor = None
+        #we will destroy the screen from the main thread
+        is_screen_augmentation_paused = True
+
 
 def toggle_region_of_interest_hiding_approach():
     global use_blur_effect
@@ -663,22 +688,28 @@ def setup():
     initialization_done = True
 
 def screen_rec_and_mouse_click_listener():
-    global screen_capture, mouse_event_listener, input_monitor, output_monitor
+    global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed
 
     setup()
 
     # print("Starting to screen screen recording loop")
     if True:#replaced while True
+
+        if is_screen_augmentation_paused and screen_destroyed==False:
+            #we need to destroy the window from the main thread
+            destroy_cv2_windows()
+            screen_destroyed = True
+            return
         # print("hello")
         # start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
         if input_monitor is None:
-            print("Please select input monitor from the menu bar")
+            # print("Please select input monitor from the menu bar")
             cv2.waitKey(1)
             return
 
         if output_monitor is None:
-            print("Please select output monitor from the menu bar")
+            # print("Please select output monitor from the menu bar")
             cv2.waitKey(1)
             return
 
