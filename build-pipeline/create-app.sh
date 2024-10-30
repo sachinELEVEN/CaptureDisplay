@@ -50,10 +50,14 @@ echo "Notarising DMG..."
 xcrun notarytool submit "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay" --wait
 #Staple the dmg, this allows for app verification without internet access on user's side
 xcrun stapler staple "./dist/CaptureDisplay.dmg"
+#Validate stapler step
+#xcrun stapler validate "./dist/CaptureDisplay.dmg"
 #To verify if a dmg is notarised or not
 # spctl -a -vvv -t install "./dist/CaptureDisplay.dmg"
 #To see history of your notarization request run the below command
 # xcrun notarytool history --keychain-profile "CaptureDisplay"
+#To get the detailed log of notarization step use the below commnad
+#xcrun notarytool log "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay"
 #To see the list of certificates
 #security find-identity -p basic -v
 #Maybe write some upload script here to upload dmg for customers
