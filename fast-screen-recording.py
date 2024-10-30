@@ -53,7 +53,12 @@ def set_output_monitor(id):
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
     
-def start_stop_screen_augmentation():
+def sleep_status():
+    global is_screen_augmentation_paused
+    return is_screen_augmentation_paused
+    
+def sleep_awake_app():
+    #when in sleep mode- all keyboard shortcuts other than sleep shortcut will be turned off
     global input_monitor, input_monitor_old, output_monitor, output_monitor_old, is_screen_augmentation_paused, screen_destroyed
 
     if is_screen_augmentation_paused:
@@ -590,7 +595,10 @@ def on_click(x, y, button, pressed):
             if time_diff < double_click_threshold:
                 # It's a double click, process it and clear the buffer
                 process_click("Double Click", click_position)
-                left_click_status = not left_click_status
+                if not sleep_status():
+                    left_click_status = not left_click_status
+                else:
+                    print("zoom mode cannot be enabled/disabled in sleep mode")
                 if left_click_status:
                     zoom_level_to_use = default_zoom_level
                 click_buffer = None

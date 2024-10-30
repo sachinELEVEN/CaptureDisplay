@@ -10,7 +10,8 @@ zoom_decrease = fast_screen_recording.zoom_decrease
 window_pt_top_left = fast_screen_recording.window_pt_top_left
 window_pt_bottom_right = fast_screen_recording.window_pt_bottom_right
 window_show_everything = fast_screen_recording.window_show_everything
-start_stop_screen_augmentation = fast_screen_recording.start_stop_screen_augmentation
+sleep_awake_app = fast_screen_recording.sleep_awake_app
+sleep_status = fast_screen_recording.sleep_status
 toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_of_interest_hiding_approach
 save_copied_text_to_file = save_copied_text_to_file.save_copied_text_to_file
 
@@ -27,7 +28,7 @@ shortcut_actions = {
     ('9', '0'): 'window_show_everything',
     ('ctrl', 'b'): 'toggle_region_of_interest_hiding_approach',
     ('ctrl', 'v'): 'save_copied_text_to_file',
-    ('ctrl', 'p'): 'start_stop_screen_augmentation',
+    ('ctrl', 'p'): 'sleep_awake_app',
 }
 
 # Track the currently pressed keys.
@@ -58,7 +59,7 @@ function_map = {
     'window_show_everything':window_show_everything,
     'toggle_region_of_interest_hiding_approach':toggle_region_of_interest_hiding_approach,
     'save_copied_text_to_file':save_copied_text_to_file,
-    'start_stop_screen_augmentation':start_stop_screen_augmentation
+    'sleep_awake_app':sleep_awake_app
 
 }
 
@@ -78,8 +79,12 @@ def on_press(key):
         # If the keys in the shortcut match the currently pressed keys.
         if all(k in current_keys for k in shortcut):
             # Execute the corresponding function.
+            # when in sleep mode- all keyboard shortcuts other than sleep shortcut will be turned off
             if function_name in function_map:
-                function_map[function_name]()
+                if sleep_status() == False or function_name == 'sleep_awake_app':
+                    function_map[function_name]()
+                else:
+                    print("keyboard shortcut ignored because sleep mode is on",function_name)
 
 def on_release(key):
     try:
