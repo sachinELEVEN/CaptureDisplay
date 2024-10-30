@@ -11,7 +11,7 @@ pyinstaller CaptureDisplay.spec
 cd dist
 find CaptureDisplay.app -name .DS_Store -delete
 cd ..
-
+#If app is crashing on launch- try running the terminal version in the dist folder it will give you logs and you can see what's going wrong
 # ---------------------------------------
 # Step 2: Signing the CaptureDisplay.app
 # ---------------------------------------
