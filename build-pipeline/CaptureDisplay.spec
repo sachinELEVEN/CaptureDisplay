@@ -18,16 +18,13 @@ pyz = PYZ(a.pure)
 exe = EXE(
     pyz,
     a.scripts,
-    a.binaries,
-    a.datas,
     [],
+    exclude_binaries=True,
     name='CaptureDisplay',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
     upx=True,
-    upx_exclude=[],
-    runtime_tmpdir=None,
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
@@ -36,8 +33,17 @@ exe = EXE(
     entitlements_file=None,
     icon=['../assets/capturedisplay.icns'],
 )
-app = BUNDLE(
+coll = COLLECT(
     exe,
+    a.binaries,
+    a.datas,
+    strip=False,
+    upx=True,
+    upx_exclude=[],
+    name='CaptureDisplay',
+)
+app = BUNDLE(
+    coll,
     name='CaptureDisplay.app',
     icon='../assets/capturedisplay.icns',
     bundle_identifier='com.capturedisplay.macapp',
