@@ -6,6 +6,8 @@ import os
 import subprocess
 import sys
 
+utils = importlib.import_module("utils")
+get_resource_path = utils.get_resource_path
 fast_screen_recording = importlib.import_module("fast-screen-recording")
 screen_rec_and_mouse_click_listener = fast_screen_recording.screen_rec_and_mouse_click_listener
 destroy_cv2_windows = fast_screen_recording.destroy_cv2_windows
@@ -14,6 +16,7 @@ set_output_monitor = fast_screen_recording.set_output_monitor
 sleep_awake_app = fast_screen_recording.sleep_awake_app
 sleep_status = fast_screen_recording.sleep_status
 start_time = None
+
 
 class MonitorSelectorApp(rumps.App):
     def __init__(self):
@@ -155,22 +158,10 @@ class MonitorSelectorApp(rumps.App):
     def quit_app(self, _):
         destroy_cv2_windows()
         rumps.quit_application()
-
-    def get_resource_path(self, relative_path):
-        #Paths change after creating an artifact using pyinstaller.
-        # PyInstaller creates a temp folder and stores path in _MEIPASS
-        #This should be used in only dist, in dev mode return relative path
-        if getattr(sys, 'frozen', False):  # PyInstaller sets this attribute
-            base_path = sys._MEIPASS
-        else:
-            base_path = os.path.abspath(".")
-
-        # globalSpace.append_to_logs("IN PY_INSTALLER",sys._MEIPASS)
-        return os.path.join(base_path, relative_path)
     
     def open_notes_folder(self,sender):
         # Get the path to the notes folder in the current directory
-        notes_path = self.get_resource_path('notes')
+        notes_path = get_resource_path('./capture-display-notes')
         
         # Create the notes folder if it doesn't exist
         if not os.path.exists(notes_path):

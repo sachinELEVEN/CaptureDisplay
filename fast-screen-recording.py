@@ -11,6 +11,8 @@ import copy
 
 one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
+utils = importlib.import_module("utils")
+get_resource_path = utils.get_resource_path
 
 # To store the last click time and position for detecting double-clicks
 click_buffer = None
@@ -275,6 +277,8 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
     :param top_left_y: Y-coordinate of the top-left corner where the image should be placed.
     :return: The frame with the image overlaid.
     """
+    image_path = get_resource_path(image_path)
+    print("Image path is",image_path)
     top_left_x = int(top_left_x)
     top_left_y = int(top_left_y)
     # Load the overlay image from the given path.
