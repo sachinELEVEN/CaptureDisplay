@@ -1,9 +1,22 @@
 import pyperclip
 import os
 from datetime import datetime
+import sys
 
 # Keep track of the last used file name
 file_name_memory = None
+
+def get_resource_path(relative_path):
+        #Paths change after creating an artifact using pyinstaller.
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        #This should be used in only dist, in dev mode return relative path
+        if getattr(sys, 'frozen', False):  # PyInstaller sets this attribute
+            base_path = sys._MEIPASS
+        else:
+            base_path = os.path.abspath(".")
+
+        # globalSpace.append_to_logs("IN PY_INSTALLER",sys._MEIPASS)
+        return os.path.join(base_path, relative_path)
 
 def save_copied_text_to_file():
     print("save_copied_text_to_file")
@@ -14,7 +27,7 @@ def save_copied_text_to_file():
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Directory for saving the files
-    directory = 'notes'
+    directory = get_resource_path('notes')
 
     # Ensure the 'sharable' folder exists
     os.makedirs(directory, exist_ok=True)
