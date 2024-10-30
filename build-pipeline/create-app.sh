@@ -64,8 +64,8 @@ xcrun stapler staple "./dist/CaptureDisplay.dmg"
 # xcrun notarytool history --keychain-profile "CaptureDisplay"
 #To get the detailed log of notarization step use the below commnad
 #xcrun notarytool log "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay"
-#you can see notary logs using the command where this id is the submission id which you would see when you run the initial notarization command
-#xcrun notarytool log ff574741-17b3-406d-bd07-9cb77d009978 --keychain-profile "CaptureDisplay"
+#if notarization fails you can see notary logs which has the reasons for failure using the command where this id is the submission id which you would see when you run the initial notarization command
+#xcrun notarytool log 8e03c9e3-219f-48be-a22d-4ba4846490c3 --keychain-profile "CaptureDisplay"
 
 #To see the list of certificates
 #security find-identity -p basic -v
