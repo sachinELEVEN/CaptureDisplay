@@ -278,7 +278,6 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
     :return: The frame with the image overlaid.
     """
     image_path = get_resource_path(image_path)
-    print("Image path is",image_path)
     top_left_x = int(top_left_x)
     top_left_y = int(top_left_y)
     # Load the overlay image from the given path.

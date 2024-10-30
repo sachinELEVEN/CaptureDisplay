@@ -11,4 +11,7 @@ def get_resource_path(relative_path):
             base_path = os.path.abspath(".")
 
         # globalSpace.append_to_logs("IN PY_INSTALLER",sys._MEIPASS)
+        is_prod = True
+        #since prod builds are done from ./build-pipeline that is our base path, we need to go one level down from that so that we can access other resources in normal fashion from other files during development like the assets folder
+        relative_path = '../' + relative_path  if is_prod else relative_path
         return os.path.join(base_path, relative_path)
