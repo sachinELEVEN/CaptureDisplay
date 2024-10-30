@@ -84,7 +84,7 @@ class MonitorSelectorApp(rumps.App):
             ('(', ')           '): 'Show entire screen',
             ('ctrl', 'b      '): 'Switch between blur and complete blackout',
             ('ctrl', 'v      '): 'Save copied text to a markdown file',
-            ('ctrl', 'p      '): 'Start/restart screen monitoring',
+            ('ctrl', 'p      '): 'Sleep/awake',
             ('ctrl', 'q      '): 'Quit',
         }
 
