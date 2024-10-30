@@ -42,14 +42,24 @@ is_screen_augmentation_paused = False
 screen_destroyed = False
 
 def set_input_monitor(id):
-    global input_monitor
-    print("set_input_monitor to ",id)
-    input_monitor = id
+    global input_monitor, input_monitor_old
+    if sleep_status():
+        #if system is in sleep mode we cache the value of input_monitor in input_monitor_old, we probably could have made this whole thing a little better but its fine
+        print("system in sleep mode: set_input_monitor_old to ",id)
+        input_monitor_old = id
+    else:
+        print("set_input_monitor to ",id)
+        input_monitor = id
 
 def set_output_monitor(id):
-    global output_monitor
-    print("set_output_monitor to ",id)
-    output_monitor = id
+    global output_monitor, output_monitor_old
+    if sleep_status():
+        print("system in sleep mode: set_input_monitor_old to ",id)
+        output_monitor_old = id
+    else:
+        print("set_input_monitor to ",id)
+        output_monitor = id
+    
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
     
