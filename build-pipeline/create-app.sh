@@ -45,7 +45,7 @@ codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --times
 echo "Packaging and signing complete. You can find the DMG installer in the dist/ directory."
 
 # ---------------------------------------
-# Step 2: Notarising the DMG (macOS disk image)
+# Step 5: Notarising the DMG (macOS disk image)
 # ---------------------------------------
 #For performing notarization you will need a keychain profile, to create it you can run the below command and then on screen steps
 #xcrun notarytool store-credentials
