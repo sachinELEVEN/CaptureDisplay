@@ -4,7 +4,7 @@ a = Analysis(
     ['../main.py'],
     pathex=[],
     binaries=[],
-    datas=[],
+    datas=[('../assets/', 'assets')],
     hiddenimports=['keyboard-listener','save_copied_text_to_file','one-time-cursor-info','menu_bar_app','fast-screen-recording','utils'],  # Add dependencies here
     hookspath=[],
     hooksconfig={},
