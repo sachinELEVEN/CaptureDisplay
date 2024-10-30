@@ -3,6 +3,7 @@
 # ---------------------------------------
 #Use the below command to create the spec file, once that is ready use spec file with pyinstaller
 #pyinstaller --onefile --windowed ../main.py --name "CaptureDisplay" --icon=../assets/capturedisplay.icns
+cd build-pipeline
 rm -r dist
 rm -r build
 #create a bundle identifer from appstoreconnect and use that in the spec file
