@@ -55,11 +55,12 @@ echo "Packaging and signing complete. You can find the DMG installer in the dist
 #xcrun notarytool store-credentials
 #Here you will be asked to create an app specific password which you can generate from account.appleid.com, its simple
 #Once your keychain profile is ready it will be there in keychain
-echo "Notarising DMG..."
-#Notarisation step- takes some time so thats why they are commented
-xcrun notarytool submit "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay" --wait
-#Staple the dmg, this allows for app verification without internet access on user's side
-xcrun stapler staple "./dist/CaptureDisplay.dmg"
+#NOT NOTARIZING CAPTUREDISPALY BECAUSE I WAS ONLY ABLE TO NOTARIZE THE APP IN ONEFILE MODE WHICH IS SLOW ON EVERY LAUNCH DUE TO DECODING OF FILES ON LAUNCH
+# echo "Notarising DMG..."
+# #Notarisation step- takes some time so thats why they are commented
+# xcrun notarytool submit "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay" --wait
+# #Staple the dmg, this allows for app verification without internet access on user's side
+# xcrun stapler staple "./dist/CaptureDisplay.dmg"
 #Validate stapler step
 #xcrun stapler validate "./dist/CaptureDisplay.dmg"
 #To verify if a dmg is notarised or not
