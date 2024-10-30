@@ -2,8 +2,8 @@
 # Step 1: Clear dist folder and create CaptureDisplay.app
 # ---------------------------------------
 #Use the below command to create the spec file, once that is ready use spec file with pyinstaller
+#when onefile argument is given - extraction of app happens at every launch - which makes the launch slow, so keep that in mind, this simplicity of app file structure has a cost
 #pyinstaller --onefile --windowed ../main.py --name "CaptureDisplay" --icon=../assets/capturedisplay.icns
-cd build-pipeline
 rm -r dist
 rm -r build
 #create a bundle identifer from appstoreconnect and use that in the spec file
