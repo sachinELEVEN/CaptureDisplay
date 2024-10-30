@@ -8,6 +8,8 @@ screen_rec_and_mouse_click_listener = fast_screen_recording.screen_rec_and_mouse
 destroy_cv2_windows = fast_screen_recording.destroy_cv2_windows
 set_input_monitor = fast_screen_recording.set_input_monitor
 set_output_monitor = fast_screen_recording.set_output_monitor
+sleep_awake_app = fast_screen_recording.sleep_awake_app
+sleep_status = fast_screen_recording.sleep_status
 start_time = None
 
 class MonitorSelectorApp(rumps.App):
@@ -15,10 +17,22 @@ class MonitorSelectorApp(rumps.App):
         super(MonitorSelectorApp, self).__init__("Capture Display", icon=None)
         self.input_monitor = None
         self.output_monitor = None
+        self.last_sleep_awake_status = None
+        #setting self.quit_button to None which is the default quit button provided by rumps, because we will have our own quit button
+        self.quit_button = None 
         self.monitor_list = self.get_monitors()
         self.update_menu()  # Initialize the menu
         self.start_loop_function_timer()
         self.show_monitor_selection_alert()
+        self.update_menu()
+        
+        
+
+    def menu_update_pending(self):
+        
+        if self.last_sleep_awake_status != sleep_status():
+            self.last_sleep_awake_status = sleep_status()
+            return True
 
     def start_loop_function_timer(self):
         global start_time
@@ -30,6 +44,9 @@ class MonitorSelectorApp(rumps.App):
         global start_time
         # This below screen recording method also needs to run on the main thread that is why we are running it using rumps.timer
         screen_rec_and_mouse_click_listener()
+        if self.menu_update_pending():
+            print("refreshing menu because of a pending refresh")
+            self.refresh_menu()
         elapsed_time = time.time() - start_time
         # print(f"FPS: {1 / elapsed_time:.4f}")
         start_time = time.time()
@@ -96,9 +113,20 @@ class MonitorSelectorApp(rumps.App):
 
         # Add separator and quit option
         self.menu.add(rumps.separator)
+
+        sleep_awake_menu_label = "Awake" if sleep_status() else "Sleep"      
+        self.menu.add(rumps.MenuItem(sleep_awake_menu_label, callback=self.sleep_awake_action))
+
         #For some reason we get a default Quit button when using rumps to create menu bar app, which gets destroyed when we refresh the menu, so at the point we need to enable our own Quit option
-        if self.input_monitor is not None or self.output_monitor is not None:
-            self.menu.add(rumps.MenuItem("Quit", callback=self.quit_app))
+        #The above issue can be solved by setting the self.quit_button to None which is the default quit button provided by rumps
+        # if self.input_monitor is not None or self.output_monitor is not None or self.last_sleep_awake_status is not None:
+        self.menu.add(rumps.MenuItem("Quit", callback=self.quit_app))
+
+    def sleep_awake_action(self,sender):
+        print("Sleep awake action invoked from menu bar")
+        sleep_awake_app()
+        #Do not update the last_sleep_awake_status status here, we want the menu bar refresh logic to set that so it the menu bar refreshes
+        self.refresh_menu() 
 
     def select_input_monitor(self, sender):
         print("Input monitor is", sender.title)
