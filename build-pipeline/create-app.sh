@@ -24,6 +24,7 @@ cd ..
 #I am just thinkning the code signing using developer certificate might be better than self signed certicate no? i am not entirely sure about this for now, but for now using developer certiciate for code signing
 # codesign --deep --force --verbose -s "CaptureDisplay" "./dist/CaptureDisplay.app"
 #we must sign with Developer ID Application certificate in order to notarize the app
+#verify codesign -> codesign -vvv --deep --strict ./dist/CaptureDisplay.app
 codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
 
 # ---------------------------------------
