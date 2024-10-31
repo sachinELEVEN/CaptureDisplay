@@ -14,7 +14,7 @@ def get_resource_path(relative_path):
         # globalSpace.append_to_logs("IN PY_INSTALLER",sys._MEIPASS)
         is_prod = True
         #since prod builds are done from ./build-pipeline that is our base path, we need to remove build-pipeline so that we can access other resources in normal fashion from other files during development like the assets folder
-        base_path = modify_path(base_path,'build-pipeline')
+        # base_path = modify_path(base_path,'build-pipeline') if is
         return os.path.join(base_path, relative_path)
 
 def modify_path(path, part_to_remove):

@@ -1,10 +1,10 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 a = Analysis(
-    ['../main.py'],
+    ['main.py'],
     pathex=[],
     binaries=[],
-    datas=[('../assets/', 'assets')],
+    datas=[('./assets/', 'assets')],
     hiddenimports=['keyboard-listener','save_copied_text_to_file','one-time-cursor-info','menu_bar_app','fast-screen-recording','utils'],  # Add dependencies here
     hookspath=[],
     hooksconfig={},
@@ -44,6 +44,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='CaptureDisplay.app',
-    icon='../assets/capturedisplay.icns',
+    icon='./assets/capturedisplay.icns',
     bundle_identifier='com.capturedisplay.macapp',
 )
