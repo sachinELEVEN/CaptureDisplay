@@ -5,12 +5,13 @@ import sys
 import importlib
 utils = importlib.import_module("utils")
 get_resource_path = utils.get_resource_path
+append_to_logs = utils.append_to_logs
 
 # Keep track of the last used file name
 file_name_memory = None
 
 def save_copied_text_to_file():
-    print("save_copied_text_to_file")
+    append_to_logs("save_copied_text_to_file")
     global file_name_memory
     
     # Get today's date and time
@@ -46,7 +47,7 @@ def save_copied_text_to_file():
         file.write(f"**Content:**\n")
         file.write(f"```\n{copied_content}\n```\n")
 
-    print(f"Content saved to {file_name_memory}")
+    append_to_logs(f"Content saved to {file_name_memory}")
 
 # Example usage
 save_copied_text_to_file()

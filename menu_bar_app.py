@@ -16,6 +16,8 @@ set_output_monitor = fast_screen_recording.set_output_monitor
 sleep_awake_app = fast_screen_recording.sleep_awake_app
 sleep_status = fast_screen_recording.sleep_status
 start_time = None
+utils = importlib.import_module("utils")
+append_to_logs = utils.append_to_logs
 
 
 class MonitorSelectorApp(rumps.App):
@@ -51,10 +53,10 @@ class MonitorSelectorApp(rumps.App):
         # This below screen recording method also needs to run on the main thread that is why we are running it using rumps.timer
         screen_rec_and_mouse_click_listener()
         if self.menu_update_pending():
-            print("refreshing menu because of a pending refresh")
+            append_to_logs("refreshing menu because of a pending refresh")
             self.refresh_menu()
         elapsed_time = time.time() - start_time
-        # print(f"FPS: {1 / elapsed_time:.4f}")
+        # append_to_logs(f"FPS: {1 / elapsed_time:.4f}")
         start_time = time.time()
 
     def get_monitors(self):
@@ -131,19 +133,19 @@ class MonitorSelectorApp(rumps.App):
         self.menu.add(rumps.MenuItem("Quit", callback=self.quit_app))
 
     def sleep_awake_action(self,sender):
-        print("Sleep awake action invoked from menu bar")
+        append_to_logs("Sleep awake action invoked from menu bar")
         sleep_awake_app()
         #Do not update the last_sleep_awake_status status here, we want the menu bar refresh logic to set that so it the menu bar refreshes
         self.refresh_menu() 
 
     def select_input_monitor(self, sender):
-        print("Input monitor is", sender.title)
+        append_to_logs("Input monitor is", sender.title)
         self.input_monitor = sender.title.split(" ")[0]  # Get monitor name without (Selected)
         set_input_monitor(self.input_monitor)
         self.refresh_menu()  # Refresh the menu after selection
 
     def select_output_monitor(self, sender):
-        print("Output monitor is", sender.title)
+        append_to_logs("Output monitor is", sender.title)
         self.output_monitor = sender.title.split(" ")[0]  # Get monitor name without (Selected)
         set_output_monitor(self.output_monitor)
         self.refresh_menu()  # Refresh the menu after selection

@@ -13,6 +13,7 @@ one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
 utils = importlib.import_module("utils")
 get_resource_path = utils.get_resource_path
+append_to_logs = utils.append_to_logs
 
 # To store the last click time and position for detecting double-clicks
 click_buffer = None
@@ -47,19 +48,19 @@ def set_input_monitor(id):
     global input_monitor, input_monitor_old
     if sleep_status():
         #if system is in sleep mode we cache the value of input_monitor in input_monitor_old, we probably could have made this whole thing a little better but its fine
-        print("system in sleep mode: set_input_monitor_old to ",id)
+        append_to_logs("system in sleep mode: set_input_monitor_old to ",id)
         input_monitor_old = id
     else:
-        print("set_input_monitor to ",id)
+        append_to_logs("set_input_monitor to ",id)
         input_monitor = id
 
 def set_output_monitor(id):
     global output_monitor, output_monitor_old
     if sleep_status():
-        print("system in sleep mode: set_input_monitor_old to ",id)
+        append_to_logs("system in sleep mode: set_input_monitor_old to ",id)
         output_monitor_old = id
     else:
-        print("set_input_monitor to ",id)
+        append_to_logs("set_input_monitor to ",id)
         output_monitor = id
     
 
@@ -79,9 +80,9 @@ def sleep_awake_app():
         output_monitor = output_monitor_old
         is_screen_augmentation_paused = False
         screen_destroyed = False
-        print(f"restarting screen augmentation at input monitor {input_monitor}, and output monitor {output_monitor}")
+        append_to_logs(f"restarting screen augmentation at input monitor {input_monitor}, and output monitor {output_monitor}")
     else:
-        print("Pausing screen augmentation")
+        append_to_logs("Pausing screen augmentation")
         input_monitor_old = input_monitor
         input_monitor = None
         output_monitor_old = output_monitor
@@ -99,7 +100,7 @@ def toggle_region_of_interest_hiding_approach():
 #First top left corner should be provided only then bottom right can be provided
 def window_show_everything():
     global pt_top_left, pt_bottom_right
-    print("showing entire screen")
+    append_to_logs("showing entire screen")
     #resetting the points
     pt_top_left = -1
     pt_bottom_right = -1
@@ -107,23 +108,23 @@ def window_show_everything():
 #Do we need to check if this points are in bounds or not?? i dont think so because our blur region will probably be not be on the frame
 def window_pt_top_left():
     global pt_top_left,pt_bottom_right, input_monitor
-    print("window_pt_top_left")
+    append_to_logs("window_pt_top_left")
     pt_top_left =  get_cursor_info()["position"]
     input_monitor_bounds = QZ.CGDisplayBounds(int(input_monitor))
     pt_top_left = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,pt_top_left)
-    print("window_pt_top_left is ",pt_top_left)
+    append_to_logs("window_pt_top_left is ",pt_top_left)
 
 
 def window_pt_bottom_right():
     global pt_top_left,pt_bottom_right,input_monitor
     if pt_top_left == -1:
-        print("pt_top_left needs to be set first")
+        append_to_logs("pt_top_left needs to be set first")
         return   
-    print("window_pt_bottom_right")
+    append_to_logs("window_pt_bottom_right")
     pt_bottom_right =  get_cursor_info()["position"]
     input_monitor_bounds = QZ.CGDisplayBounds(int(input_monitor))
     pt_bottom_right = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,pt_bottom_right)
-    print("window_pt_bottom_right is ",pt_bottom_right)
+    append_to_logs("window_pt_bottom_right is ",pt_bottom_right)
     
 
 
@@ -132,27 +133,27 @@ def zoom_increase():
     global zoom_level_to_use, left_click_status
 
     if not left_click_status:
-        print("Zoom mode is disabled- double click to enable it")
+        append_to_logs("Zoom mode is disabled- double click to enable it")
         return
    
     if zoom_level_to_use < max_zoom_level:
-        print("zoom increased to",zoom_level_to_use)
+        append_to_logs("zoom increased to",zoom_level_to_use)
         zoom_level_to_use +=  0.5
     else:
-        print("max zoom level reached",zoom_level_to_use)
+        append_to_logs("max zoom level reached",zoom_level_to_use)
 
 def zoom_decrease():
     global zoom_level_to_use, left_click_status
 
     if not left_click_status:
-        print("Zoom mode is disabled- double click to enable it")
+        append_to_logs("Zoom mode is disabled- double click to enable it")
         return
     
     if zoom_level_to_use > min_zoom_level:
-        print("zoom decreased to",zoom_level_to_use)
+        append_to_logs("zoom decreased to",zoom_level_to_use)
         zoom_level_to_use -= 0.5
     else:
-        print("min zoom level reached",zoom_level_to_use)
+        append_to_logs("min zoom level reached",zoom_level_to_use)
 
 
 
@@ -183,9 +184,9 @@ class ScreenCapture:
                 max_displays, None, None)
             if err:
                 return False
-            # print(active_displays,number_of_active_displays)
+            # append_to_logs(active_displays,number_of_active_displays)
             # Get the desired monitor's bounds
-            # print("active displays",number_of_active_displays,"and",active_displays)
+            # append_to_logs("active displays",number_of_active_displays,"and",active_displays)
             if input_monitor_index < number_of_active_displays and output_monitor_index < number_of_active_displays:
                 input_monitor_id = active_displays[input_monitor_index]  # Choose which monitor to capture
                 output_monitor_id = active_displays[output_monitor_index] #monitor to which we will display the output- should ideally be the virtual monitor
@@ -302,7 +303,7 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
 
     # Ensure that the coordinates are within the frame boundaries.
     if top_left_x < 0 or top_left_y < 0 or bottom_right_x > frame.shape[1] or bottom_right_y > frame.shape[0]:
-        # print("The overlay image is out of frame bounds. Not adding cursor")
+        # append_to_logs("The overlay image is out of frame bounds. Not adding cursor")
         return frame
 
     # Extract the region of interest (ROI) from the frame.
@@ -342,8 +343,8 @@ def is_cursor_within_bounds(position,input_monitor_bounds):
     bound_y1 = input_monitor_bounds.origin.y
     bound_x2 = input_monitor_bounds.origin.x + input_monitor_bounds.size.width
     bound_y2 = input_monitor_bounds.origin.y + input_monitor_bounds.size.height
-    # print(position)
-    # print(bound_x1,bound_y1, "and", bound_x2,bound_y2)
+    # append_to_logs(position)
+    # append_to_logs(bound_x1,bound_y1, "and", bound_x2,bound_y2)
     return bound_x1 <= cursor_x <= bound_x2 and bound_y1 <= cursor_y <= bound_y2
 
 #cursor position and input_monitor_bounds and normalizes them to 0,0 origin, this is done because zooming, drawing rectangles only works for positive coordinates
@@ -353,7 +354,7 @@ def normalize_coordinate_to_0_0_origin(cursor_position,input_monitor_bounds):
     input_monitor_bounds.origin.x = input_monitor_bounds.origin.x + x_offset
     input_monitor_bounds.origin.y = input_monitor_bounds.origin.y + y_offset
 
-    # print(cursor_position)
+    # append_to_logs(cursor_position)
     cursor_position = (cursor_position[0] + x_offset,
                   cursor_position[1] + y_offset)
    
@@ -373,7 +374,7 @@ def blur_except_region(frame,input_monitor_bounds):
     top_left = result1[0]
     result2 = normalize_coordinate_to_0_0_origin(bottom_right,input_monitor_bounds)
     bottom_right = result2[0]
-    # print("Normalized cropped section coordinates are",top_left,bottom_right)
+    # append_to_logs("Normalized cropped section coordinates are",top_left,bottom_right)
     # input_monitor_bounds = result[1]
 
     # Create a mask with the same dimensions as the frame, initialized to zeros (black)
@@ -464,12 +465,12 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     result = normalize_coordinate_to_0_0_origin(position,input_monitor_bounds)
     position = result[0]
     input_monitor_bounds = result[1]
-    # print("Normalised and unnormalised are",input_monitor_bounds,input_monitor_bounds_unnormalized)
-    # print("Normalised->",position,input_monitor_bounds)
+    # append_to_logs("Normalised and unnormalised are",input_monitor_bounds,input_monitor_bounds_unnormalized)
+    # append_to_logs("Normalised->",position,input_monitor_bounds)
     cursor_in_bounds = False
     #Validate cursor position- basically we need to check if cursor is on the same monitor as we are interested in or not
     if not is_cursor_within_bounds(position,input_monitor_bounds):
-        print("Cursor is not within bounds")
+        append_to_logs("Cursor is not within bounds")
         #Making speed 0 ensures we do not perform any zooming in the augmented frames, so input and output frame will be same with no additional frames being generated
         speed = 0
         # return
@@ -487,7 +488,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     frame_num = -1
     show_processed_video_preview = True
     if speed < speed_threshold:
-        # print(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
+        # append_to_logs(f"Zooming in at Frame {frame_num}: Position {position}, Speed {speed:.2f} pixels/second")
 
         # Set the frame position to the one where we want to zoom in
         # video.set(cv2.CAP_PROP_POS_FRAMES, frame_num)
@@ -515,13 +516,13 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             # zoom_steps = min(int(speed/good_cursor_speed),1)
             zoom_steps = 1
             if prev_zoom_level != target_zoom_level:
-                print("Compared zoomed level",prev_zoom_level, "and", target_zoom_level)
+                append_to_logs("Compared zoomed level",prev_zoom_level, "and", target_zoom_level)
                 good_cursor_speed = 100#in pixels per frame
                 zoom_steps = max(int(speed/good_cursor_speed),1)
                 zoom_steps = 5 #when left click zoom is enabled
-            # print("Zooming animation steps->",zoom_steps," zoom level",target_zoom_level)
+            # append_to_logs("Zooming animation steps->",zoom_steps," zoom level",target_zoom_level)
             zoom_levels = smooth_zoom(prev_zoom_level, target_zoom_level, steps=zoom_steps)
-            # print(zoom_levels)
+            # append_to_logs(zoom_levels)
             #Frame needs to be processed here before we display it
             if use_blur_effect:
                 only_show_region_of_interest_frame = blur_except_region(frame,input_monitor_bounds_unnormalized)
@@ -553,11 +554,11 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 #     break
 
             # Update the previous zoom level for the next iteration
-            # print("setting prev_zoom_level to ",target_zoom_level)
+            # append_to_logs("setting prev_zoom_level to ",target_zoom_level)
             prev_zoom_level = target_zoom_level
 
         else:
-            print(f"Received null frame while trying to augment the frame {frame_num}")
+            append_to_logs(f"Received null frame while trying to augment the frame {frame_num}")
 
 
 #Displays the frame at the correct display
@@ -569,7 +570,7 @@ def display_frame_at_required_monitor(frame,output_monitor_bounds):
         
     
     if cv2.waitKey(1) & 0xFF == ord('q'):
-        print("key entered")
+        append_to_logs("key entered")
 
 #Cursor clicks methods
         
@@ -581,7 +582,7 @@ def process_click(click_type, position):
         click_type (str): The type of click (e.g., "Left Click", "Double Click").
         position (tuple): The position (x, y) of the click.
     """
-    print(f"{click_type} at {position}")
+    append_to_logs(f"{click_type} at {position}")
 
 def on_click(x, y, button, pressed):
     """
@@ -615,7 +616,7 @@ def on_click(x, y, button, pressed):
                 if not sleep_status():
                     left_click_status = not left_click_status
                 else:
-                    print("zoom mode cannot be enabled/disabled in sleep mode")
+                    append_to_logs("zoom mode cannot be enabled/disabled in sleep mode")
                 if left_click_status:
                     zoom_level_to_use = default_zoom_level
                 click_buffer = None
@@ -648,7 +649,7 @@ def scaleAccordingToInputDisplayFactor(frame_size,input_monitor_bounds,point_to_
     x_scale_factor = frame_size[0]/input_monitor_bounds.size.width
     y_scale_factor = frame_size[1]/input_monitor_bounds.size.height
     point_to_scale = (point_to_scale[0] * int(x_scale_factor),point_to_scale[1] * int(y_scale_factor))
-    # print(point_to_scale)
+    # append_to_logs(point_to_scale)
     return point_to_scale
 
 # This is used if you want to run the screen recording by calling this function on the main thread, but this will occupy the main thread, preventing anyother even from getting executed. Hence when we now use the menu bar app we call the screen_rec_and_mouse_click_listener which is called multiple times and does not occupy the main thread because screen_rec_and_mouse_click_listener does not contain any infinite loop
@@ -660,9 +661,9 @@ def screen_rec_and_mouse_click_listener_deprecated():
     listener.start()
 
     
-    print("Starting to screen screen recording loop")
+    append_to_logs("Starting to screen screen recording loop")
     while True:
-        # print("hello")
+        # append_to_logs("hello")
         start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
         result = screen_capture.get_monitor_screen_image(1,2)
@@ -675,19 +676,19 @@ def screen_rec_and_mouse_click_listener_deprecated():
         input_monitor_bounds.size.width,input_monitor_bounds.size.height  = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,input_monitor_bounds.size)
         #should we scale output display factor as well? - not doing it for not seeing any weird results there as of now
         output_monitor_bounds = result[2]
-        # print("after scaling",input_monitor_bounds)
+        # append_to_logs("after scaling",input_monitor_bounds)
         # break
         # Calculate the time taken to capture the frame
         
-        # print(f"FPS: {60 * 1 / elapsed_time:.4f}")
-        # print(input_monitor_bounds)
+        # append_to_logs(f"FPS: {60 * 1 / elapsed_time:.4f}")
+        # append_to_logs(input_monitor_bounds)
 
         #Augmentation of the frame
        
-        # print("Cursor info is",cursor_info)
+        # append_to_logs("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
         elapsed_time = time.time() - start_time
-        print(f"FPS: {  1 / elapsed_time:.4f}")
+        append_to_logs(f"FPS: {  1 / elapsed_time:.4f}")
         # display_frame_at_required_monitor(frame,output_monitor_bounds)
 
         #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
@@ -705,7 +706,7 @@ def setup():
     if initialization_done:
         return
     
-    print("initializing screen_rec_and_mouse_click_listener")
+    append_to_logs("initializing screen_rec_and_mouse_click_listener")
     screen_capture = ScreenCapture()
     # Start listening for mouse events in a separate thread
     mouse_event_listener = mouse.Listener(on_click=on_click)
@@ -717,7 +718,7 @@ def screen_rec_and_mouse_click_listener():
 
     setup()
 
-    # print("Starting to screen screen recording loop")
+    # append_to_logs("Starting to screen screen recording loop")
     if True:#replaced while True
 
         if is_screen_augmentation_paused and screen_destroyed==False:
@@ -725,16 +726,16 @@ def screen_rec_and_mouse_click_listener():
             destroy_cv2_windows()
             screen_destroyed = True
             return
-        # print("hello")
+        # append_to_logs("hello")
         # start_time = time.time()  # Start the timer
         #This basically takes a ss of the screen and converts into a frame which can then be used by OpenCV for further analysis
         if input_monitor is None:
-            # print("Please select input monitor from the menu bar")
+            # append_to_logs("Please select input monitor from the menu bar")
             cv2.waitKey(1)
             return
 
         if output_monitor is None:
-            # print("Please select output monitor from the menu bar")
+            # append_to_logs("Please select output monitor from the menu bar")
             cv2.waitKey(1)
             return
 
@@ -748,19 +749,19 @@ def screen_rec_and_mouse_click_listener():
         input_monitor_bounds.size.width,input_monitor_bounds.size.height  = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,input_monitor_bounds.size)
         #should we scale output display factor as well? - not doing it for not seeing any weird results there as of now
         output_monitor_bounds = result[2]
-        # print("after scaling",input_monitor_bounds)
+        # append_to_logs("after scaling",input_monitor_bounds)
         # break
         # Calculate the time taken to capture the frame
         
-        # print(f"FPS: {60 * 1 / elapsed_time:.4f}")
-        # print(input_monitor_bounds)
+        # append_to_logs(f"FPS: {60 * 1 / elapsed_time:.4f}")
+        # append_to_logs(input_monitor_bounds)
 
         #Augmentation of the frame
        
-        # print("Cursor info is",cursor_info)
+        # append_to_logs("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
         # elapsed_time = time.time() - start_time
-        # print(f"FPS: {  1 / elapsed_time:.4f}") Here FPS should be calculated from Menu bar app's event loop and not from here for this function
+        # append_to_logs(f"FPS: {  1 / elapsed_time:.4f}") Here FPS should be calculated from Menu bar app's event loop and not from here for this function
         # display_frame_at_required_monitor(frame,output_monitor_bounds)
 
         #we dont want too many reading to be done because then zoom abruption will be higher simply because you are sampling at a super high frequency
@@ -773,5 +774,5 @@ def screen_rec_and_mouse_click_listener():
     # cv2.destroyAllWindows()
 
 def destroy_cv2_windows():
-    print("destroying cv2 windows")
+    append_to_logs("destroying cv2 windows")
     cv2.destroyAllWindows()

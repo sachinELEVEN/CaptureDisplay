@@ -25,3 +25,30 @@ def modify_path(path, part_to_remove):
     modified_path = re.sub(rf'/{re.escape(part_to_remove)}', '', normalized_path, count=1)
     
     return modified_path
+
+
+def append_to_logs(text_to_append, text2=""):
+        logs_folder = os.path.join(
+            os.path.expanduser("~"),
+            "Library",
+            "Application Support",
+            'CaptureDisplayX'
+        )
+        log_file_path = os.path.join(logs_folder, "CaptureDisplayX.logs")
+
+        text_to_append += str(text2)
+
+        try:
+            # Create the logs folder if it doesn't exist
+            os.makedirs(logs_folder, exist_ok=True)
+
+            # Create the log file path if it doesn't exist
+            open(log_file_path, 'a').close()
+
+            # Open the file in append mode ('a+')
+            with open(log_file_path, 'a+') as file:
+                # Append the provided text to the file
+                file.write(text_to_append + '\n')
+            print(f'Logged {log_file_path}: ', text_to_append)
+        except Exception as e:
+            print(f'Error appending text to {log_file_path}: {str(e)}')

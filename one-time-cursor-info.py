@@ -3,6 +3,10 @@ import math
 from Quartz import CGEventCreate, CGEventGetLocation
 from pynput import mouse
 from threading import Timer
+import importlib
+
+utils = importlib.import_module("utils")
+append_to_logs = utils.append_to_logs
 
 # Store the previous cursor position and time for speed calculation
 previous_position = None
@@ -48,10 +52,10 @@ def get_cursor_info():
     if previous_position is not None and previous_time is not None:
         time_diff = current_time - previous_time
         speed = calculate_speed(previous_position, current_position, time_diff)
-        # print(f"Cursor Position: {current_position}, Speed: {speed:.2f} px/s")
+        # append_to_logs(f"Cursor Position: {current_position}, Speed: {speed:.2f} px/s")
         cursor_info = {"position": current_position, "speed": speed}
     else:
-        #  print(f"Cursor Position: {current_position}")
+        #  append_to_logs(f"Cursor Position: {current_position}")
          cursor_info = {"position": current_position, "speed": 0}
             
     # Update previous position and time

@@ -14,6 +14,8 @@ sleep_awake_app = fast_screen_recording.sleep_awake_app
 sleep_status = fast_screen_recording.sleep_status
 toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_of_interest_hiding_approach
 save_copied_text_to_file = save_copied_text_to_file.save_copied_text_to_file
+utils = importlib.import_module("utils")
+append_to_logs = utils.append_to_logs
 
 # Dictionary to store shortcut combinations and their corresponding functions.
 # For example: {('tab', 'z'): 'my_function'}
@@ -36,10 +38,10 @@ current_keys = set()
 
 # Define the functions that will be triggered.
 def my_function():
-    print("Tab+Z was pressed!")
+    append_to_logs("Tab+Z was pressed!")
 
 def quit_app():
-    print("user quitted the app")
+    append_to_logs("user quitted the app")
     #forceful termination without calling and exit handler, try-catch-finally, does not raise any exception, simply terminates
     os._exit(0) #we need to terminate the main thread, and not the keyboard thread
     # Feature	sys.exit()	os._exit()
@@ -84,7 +86,7 @@ def on_press(key):
                 if sleep_status() == False or function_name == 'sleep_awake_app':
                     function_map[function_name]()
                 else:
-                    print("keyboard shortcut ignored because sleep mode is on",function_name)
+                    append_to_logs("keyboard shortcut ignored because sleep mode is on",function_name)
 
 def on_release(key):
     try:
@@ -104,7 +106,7 @@ def listen_keyboard_events():
     # Start listening for keyboard events.
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         while True:
-            # print("Listening for keyboard shortcuts...")
+            append_to_logs("Listening for keyboard shortcuts...")
             time.sleep(millisToSeconds(10))
         # listener.join()
 
