@@ -45,5 +45,8 @@ app = BUNDLE(
     coll,
     name='CaptureDisplayX.app',
     icon='./assets/CaptureDisplayX.icns',
-    bundle_identifier='com.capturedisplayX2.macapp',
+    info_plist={
+        'com.apple.security.input-method': True,
+    },
+    bundle_identifier='com.capturedisplay.macapp',
 )
