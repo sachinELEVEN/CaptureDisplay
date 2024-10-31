@@ -23,7 +23,7 @@ def save_copied_text_to_file():
     os.path.expanduser("~"),
     "Library",
     "Application Support",
-    'CaptureDisplayX'
+    'CaptureDisplayX77'
 )
 
     # Ensure the 'sharable' folder exists

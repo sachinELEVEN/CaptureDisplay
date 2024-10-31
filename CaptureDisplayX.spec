@@ -20,7 +20,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='CaptureDisplayX',
+    name='CaptureDisplayX77',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -39,14 +39,14 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='CaptureDisplayX',
+    name='CaptureDisplayX77',
 )
 app = BUNDLE(
     coll,
-    name='CaptureDisplayX.app',
-    icon='./assets/capturedisplayx.icns',
+    name='CaptureDisplayX77.app',
+    icon='./assets/CaptureDisplayX.icns',
     info_plist={
         'com.apple.security.input-method': True,
     },
-    bundle_identifier='com.CaptureDisplayX.macapp',
+    bundle_identifier='com.CaptureDisplayX77.macapp',
 )
