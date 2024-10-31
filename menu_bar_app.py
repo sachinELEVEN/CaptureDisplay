@@ -20,7 +20,7 @@ start_time = None
 
 class MonitorSelectorApp(rumps.App):
     def __init__(self):
-        super(MonitorSelectorApp, self).__init__("Capture Display", icon='/Users/sachinjeph/Desktop/CaptureDisplay/assets/capturedisplay.ico')
+        super(MonitorSelectorApp, self).__init__("Capture Display", icon='/Users/sachinjeph/Desktop/CaptureDisplay/assets/CaptureDisplayX.ico')
         self.input_monitor = None
         self.output_monitor = None
         self.last_sleep_awake_status = None

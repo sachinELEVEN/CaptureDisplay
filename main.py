@@ -9,7 +9,7 @@ menu_bar_app = importlib.import_module("menu_bar_app")
 menu_bar_app = menu_bar_app.menu_bar_app
 
 def start_application():
-    print("Starting CaptureDisplay")
+    print("Starting CaptureDisplayX")
 
     #Listen keyboard events on a different thread
     print("Starting keyboard_listener_thread thread")
@@ -28,7 +28,7 @@ def start_application():
     menu_bar_app()
 
     keyboard_listener_thread.join()
-    print("Terminating CaptureDisplay")
+    print("Terminating CaptureDisplayX")
 
 if __name__ == "__main__":
     start_application()

@@ -44,6 +44,6 @@ coll = COLLECT(
 app = BUNDLE(
     coll,
     name='CaptureDisplayX.app',
-    icon='./assets/capturedisplay.icns',
-    bundle_identifier='com.capturedisplayX.macapp',
+    icon='./assets/CaptureDisplayX.icns',
+    bundle_identifier='com.capturedisplayX2.macapp',
 )

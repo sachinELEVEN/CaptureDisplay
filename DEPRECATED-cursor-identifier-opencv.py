@@ -3,8 +3,8 @@ import os
 import numpy as np
 
 # Path to the input video and the folder containing cursor templates
-standard_cursor_vid = "/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-cursor-movement.mp4"
-standard_and_type_cursor_vid = "/Users/sachinjeph/Desktop/CaptureDisplay/assets/standard-and-type-cursor-movement.mp4"
+standard_cursor_vid = "/Users/sachinjeph/Desktop/CaptureDisplayX/assets/standard-cursor-movement.mp4"
+standard_and_type_cursor_vid = "/Users/sachinjeph/Desktop/CaptureDisplayX/assets/standard-and-type-cursor-movement.mp4"
 
 video_path = standard_cursor_vid
 #Order of template in the cursor png folder should be from most likely to least likely, so standard cursor should be at the beginning
