@@ -106,19 +106,23 @@ def window_show_everything():
 
 #Do we need to check if this points are in bounds or not?? i dont think so because our blur region will probably be not be on the frame
 def window_pt_top_left():
-    global pt_top_left,pt_bottom_right
+    global pt_top_left,pt_bottom_right, input_monitor
     print("window_pt_top_left")
     pt_top_left =  get_cursor_info()["position"]
+    input_monitor_bounds = QZ.CGDisplayBounds(int(input_monitor))
+    pt_top_left = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,pt_top_left)
     print("window_pt_top_left is ",pt_top_left)
 
 
 def window_pt_bottom_right():
-    global pt_top_left,pt_bottom_right
+    global pt_top_left,pt_bottom_right,input_monitor
     if pt_top_left == -1:
         print("pt_top_left needs to be set first")
         return   
     print("window_pt_bottom_right")
     pt_bottom_right =  get_cursor_info()["position"]
+    input_monitor_bounds = QZ.CGDisplayBounds(int(input_monitor))
+    pt_bottom_right = scaleAccordingToInputDisplayFactor((screen_capture.screen_width,screen_capture.screen_height),input_monitor_bounds,pt_bottom_right)
     print("window_pt_bottom_right is ",pt_bottom_right)
     
 
