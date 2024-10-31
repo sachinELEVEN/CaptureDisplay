@@ -70,7 +70,8 @@ def on_press(key):
     try:
         # Normalize the key name.
         key_name = key.char if hasattr(key, 'char') else key.name
-    except AttributeError:
+    except AttributeError as e:
+        append_to_logs("Got error on press",e)
         return
 
     # Add the key to the set of currently pressed keys.
@@ -106,7 +107,7 @@ def listen_keyboard_events():
     # Start listening for keyboard events.
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
         while True:
-            append_to_logs("Listening for keyboard shortcuts...")
+            # append_to_logs("Listening for keyboard shortcuts...")
             time.sleep(millisToSeconds(10))
         # listener.join()
 

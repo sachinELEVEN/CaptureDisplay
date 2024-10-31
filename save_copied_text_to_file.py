@@ -50,4 +50,4 @@ def save_copied_text_to_file():
     append_to_logs(f"Content saved to {file_name_memory}")
 
 # Example usage
-save_copied_text_to_file()
+# save_copied_text_to_file()
