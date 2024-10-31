@@ -18,7 +18,12 @@ def save_copied_text_to_file():
     current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     # Directory for saving the files
-    directory = get_resource_path('./capture-display-notes')
+    directory = os.path.join(
+    os.path.expanduser("~"),
+    "Library",
+    "Application Support",
+    'CaptureDisplayX'
+)
 
     # Ensure the 'sharable' folder exists
     os.makedirs(directory, exist_ok=True)

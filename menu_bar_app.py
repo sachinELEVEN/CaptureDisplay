@@ -161,7 +161,12 @@ class MonitorSelectorApp(rumps.App):
     
     def open_notes_folder(self,sender):
         # Get the path to the notes folder in the current directory
-        notes_path = get_resource_path('./capture-display-notes')
+        notes_path = os.path.join(
+    os.path.expanduser("~"),
+    "Library",
+    "Application Support",
+    'CaptureDisplayX'
+)
         
         # Create the notes folder if it doesn't exist
         if not os.path.exists(notes_path):
