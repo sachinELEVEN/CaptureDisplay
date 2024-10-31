@@ -20,7 +20,7 @@ exe = EXE(
     a.scripts,
     [],
     exclude_binaries=True,
-    name='CaptureDisplay',
+    name='CaptureDisplayX',
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,
@@ -39,11 +39,11 @@ coll = COLLECT(
     strip=False,
     upx=True,
     upx_exclude=[],
-    name='CaptureDisplay',
+    name='CaptureDisplayX',
 )
 app = BUNDLE(
     coll,
-    name='CaptureDisplay.app',
+    name='CaptureDisplayX.app',
     icon='./assets/capturedisplay.icns',
-    bundle_identifier='com.capturedisplay.macapp',
+    bundle_identifier='com.capturedisplayX.macapp',
 )
