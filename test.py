@@ -35,3 +35,4 @@ for x, y, number in coordinates:
 
 # Start the Tkinter event loop
 root.mainloop()
+ 
