@@ -604,6 +604,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 #overlay the pen_frame_layer
                 #put this in try catch and on error reset the pen_frame_layer so that it gets recomputed
                 try:
+                    print("overlay pen frame")
                     frame_with_pen_layer_overlay = cv2.addWeighted(frame_with_cursor, 1, pen_frame_layer, 1, 0)
                 # frame_with_pen_mode = draw_pen_mode(frame_with_cursor)
                 except Exception as e:
@@ -843,9 +844,17 @@ def screen_rec_and_mouse_click_listener():
         # append_to_logs(f"FPS: {60 * 1 / elapsed_time:.4f}")
         # append_to_logs(input_monitor_bounds)
         is_tab_pressed = is_key_pressed('alt')
-        if pen_mode_enabled and is_tab_pressed:
-            #we should probably add a condition so that we do not draw when cursor is out of bounds but ignoring that for now
-            pen_mode_coordinates_curr_set.add((cursor_info_unscaled["position"][0],cursor_info_unscaled["position"][1],time.time()))
+        if pen_mode_enabled:
+
+            if is_tab_pressed:
+                #we should probably add a condition so that we do not draw when cursor is out of bounds but ignoring that for now
+                pen_mode_coordinates_curr_set.add((cursor_info_unscaled["position"][0],cursor_info_unscaled["position"][1],time.time()))
+            else:
+                #clear the current coordinate set
+                if len(pen_mode_coordinates_curr_set)>1:#we compare it with 1 because we need at least 2 points to draw a line
+                    pen_mode_coordinates_set_list.append(pen_mode_coordinates_curr_set)
+                pen_mode_coordinates_curr_set = set()
+
             
             if pen_frame_layer is None:
                 print("Creating pen frame layer")
@@ -854,17 +863,14 @@ def screen_rec_and_mouse_click_listener():
                 pen_frame_layer = draw_pen_mode(pen_frame_layer)
             else:
                 #modifying existing pen_frame_layer
-                print("modifying pen_frame_layer")
-                pen_frame_layer = draw_pen_mode(pen_frame_layer,only_draw_recent_line=True)
-               
-                
+                # print("modifying pen_frame_layer")
+                pen_frame_layer = draw_pen_mode(pen_frame_layer,only_draw_recent_line=True)       
         else:
             #clear the current coordinate set
             if len(pen_mode_coordinates_curr_set)>1:#we compare it with 1 because we need at least 2 points to draw a line
                 pen_mode_coordinates_set_list.append(pen_mode_coordinates_curr_set)
             pen_mode_coordinates_curr_set = set()
-            if pen_mode_enabled == False:
-                pen_frame_layer = None
+            pen_frame_layer = None
         #Augmentation of the frame
        
         # append_to_logs("Cursor info is",cursor_info)
