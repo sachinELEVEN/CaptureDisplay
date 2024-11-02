@@ -315,8 +315,8 @@ def draw_pen_mode(frame, only_draw_recent_line=False, draw_lines=True, color=(0,
         full_list = pen_mode_coordinates_set_list
         full_list.append(pen_mode_coordinates_curr_set)
 
-    
-    print("Draw lines using: ",len(full_list)," Draw mode is only_draw_recent_line:",only_draw_recent_line)
+    if len(full_list)>0:
+        print("Draw lines using: ",len(full_list)," Draw mode is only_draw_recent_line:",only_draw_recent_line)
     # print(full_list)
     for coordinates in full_list:
         # Draw lines if draw_lines is True
@@ -604,7 +604,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 #overlay the pen_frame_layer
                 #put this in try catch and on error reset the pen_frame_layer so that it gets recomputed
                 try:
-                    print("overlay pen frame")
+                    # print("overlay pen frame")
                     frame_with_pen_layer_overlay = cv2.addWeighted(frame_with_cursor, 1, pen_frame_layer, 1, 0)
                 # frame_with_pen_mode = draw_pen_mode(frame_with_cursor)
                 except Exception as e:
@@ -855,7 +855,8 @@ def screen_rec_and_mouse_click_listener():
                     pen_mode_coordinates_set_list.append(pen_mode_coordinates_curr_set)
                 pen_mode_coordinates_curr_set = set()
 
-            
+            #please note when you switch monitor we preserve the drawing wrt to the original input monitor's coordinates, so you may not see the previous drawings on new monitor but when you switch back to the old input monitor you will see your drawings there remain intact
+            #so our drawings are preserved wrt input monitor coordinates across all monitors, allowing you to draw different stuff on different input monitors
             if pen_frame_layer is None:
                 print("Creating pen frame layer")
                 # Step 1: Create the base layer with dots
