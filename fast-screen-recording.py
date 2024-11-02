@@ -307,7 +307,9 @@ def draw_pen_mode(frame, input_monitor_bounds, only_draw_recent_line=False, draw
    
     
     if only_draw_recent_line:
-        full_list = pen_mode_coordinates_curr_set if len(pen_mode_coordinates_curr_set) >= 2 else []
+        full_list = []
+        if len(pen_mode_coordinates_curr_set) >= 2:
+            full_list.append(pen_mode_coordinates_curr_set)
     else:  
         #create a combined list where you append pen_mode_coordinates_curr_set at the end of full_list  
         full_list = pen_mode_coordinates_set_list
@@ -315,7 +317,7 @@ def draw_pen_mode(frame, input_monitor_bounds, only_draw_recent_line=False, draw
 
     
     print("Draw lines using: ",len(full_list)," Draw mode is only_draw_recent_line:",only_draw_recent_line)
-    print(full_list)
+    # print(full_list)
     for coordinates in full_list:
         # Draw lines if draw_lines is True
         # Sort coordinates by time (third element in each tuple)
@@ -833,6 +835,7 @@ def screen_rec_and_mouse_click_listener():
         # append_to_logs(input_monitor_bounds)
         is_tab_pressed = is_key_pressed('alt')
         if pen_mode_enabled and is_tab_pressed:
+            #we should probably add a condition so that we do not draw when cursor is out of bounds but ignoring that for now
             pen_mode_coordinates_curr_set.add((cursor_info_unscaled["position"][0],cursor_info_unscaled["position"][1],time.time()))
             
             if pen_frame_layer is None:
@@ -843,7 +846,7 @@ def screen_rec_and_mouse_click_listener():
             else:
                 #modifying existing pen_frame_layer
                 print("modifying pen_frame_layer")
-                pen_frame_layer = draw_pen_mode(pen_frame_layer,input_monitor_bounds_unscaled,only_draw_recent_line=False)
+                pen_frame_layer = draw_pen_mode(pen_frame_layer,input_monitor_bounds_unscaled,only_draw_recent_line=True)
                
                 
         else:
