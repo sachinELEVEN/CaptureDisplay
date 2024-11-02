@@ -12,6 +12,7 @@ window_pt_bottom_right = fast_screen_recording.window_pt_bottom_right
 window_show_everything = fast_screen_recording.window_show_everything
 sleep_awake_app = fast_screen_recording.sleep_awake_app
 sleep_status = fast_screen_recording.sleep_status
+update_current_keys = fast_screen_recording.update_current_keys
 toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_of_interest_hiding_approach
 save_copied_text_to_file = save_copied_text_to_file.save_copied_text_to_file
 utils = importlib.import_module("utils")
@@ -76,6 +77,7 @@ def on_press(key):
 
     # Add the key to the set of currently pressed keys.
     current_keys.add(key_name)
+    update_current_keys(current_keys)
 
     # Check for any shortcut that matches the currently pressed keys.
     for shortcut, function_name in shortcut_actions.items():
@@ -99,6 +101,7 @@ def on_release(key):
     # Remove the key from the set of currently pressed keys.
     if key_name in current_keys:
         current_keys.remove(key_name)
+        update_current_keys(current_keys)
 
 def millisToSeconds(millis):
     return (1/1000) * millis

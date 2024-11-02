@@ -44,6 +44,21 @@ output_monitor_old = None
 is_screen_augmentation_paused = False
 screen_destroyed = False
 
+pen_mode_dot_coordinates = set()
+pen_mode_enabled = True
+
+current_keys = set()
+
+def update_current_keys(key_set):
+    global current_keys
+    current_keys = key_set
+
+def is_key_pressed(key_name):
+    if key_name in current_keys:
+        # print(f"is_key_pressed: {key_name}: yes")
+        return True
+    return False                                                                                                                                        
+
 def set_input_monitor(id):
     global input_monitor, input_monitor_old
     if sleep_status():
@@ -272,6 +287,35 @@ class ScreenCapture:
 
         return final_output
 
+# Function to draw on the frame using given coordinates
+def draw_pen_mode(frame, coordinates, draw_lines=True, color=(0, 255, 0), thickness=20):
+    """
+    Draws lines or dots on a frame using specified coordinates.
+    
+    Parameters:
+        frame (numpy.ndarray): The frame on which to draw.
+        coordinates (list of tuple): A list of (x, y) coordinates.
+        draw_lines (bool): If True, draws lines between points; otherwise, draws dots.
+        color (tuple): The color of the lines or dots.
+        thickness (int): Thickness of lines or size of dots.
+    """
+    # Draw lines if draw_lines is True
+    # Sort coordinates by time (third element in each tuple)
+    # convert to a list since set does not maintain order and we need order to draw lines
+    # print("inside",coordinates[0])
+    sorted_coordinates = sorted(coordinates, key=lambda coord: coord[2])
+
+    if draw_lines and len(sorted_coordinates) > 1:
+        for i in range(1, len(sorted_coordinates)):
+            # Draw a line between each consecutive pair of points
+            cv2.line(frame, (int(sorted_coordinates[i - 1][0]),int(sorted_coordinates[i - 1][1])),  (int(sorted_coordinates[i][0]),int(sorted_coordinates[i][1])), color, thickness)
+    else:
+        # Draw dots if draw_lines is False or only one point is present
+        for point in coordinates:
+            cv2.circle(frame, (int(point[0]),int(point[1])), thickness, color, -1)
+    
+    return frame
+
 def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
     """
     Overlays an image onto a given frame at specified coordinates.
@@ -456,7 +500,7 @@ def dim_except_region(frame, input_monitor_bounds):
 
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
-    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect
+    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_dot_coordinates
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -530,10 +574,15 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 only_show_region_of_interest_frame = dim_except_region(frame,input_monitor_bounds_unnormalized)
             #Add cursor overlay on it
             frame_with_cursor = overlay_image_on_frame(only_show_region_of_interest_frame,"./assets/mac-cursor-4x/default@4x.png",cursor_x-20,cursor_y-20)
+            
+            #Add pen mode drawings- this looks like a wrong approach because we are redrawing at all the points again on every frame, without keeping anything from our memory
+            if pen_mode_enabled:
+                frame_with_pen_mode = draw_pen_mode(frame_with_cursor,pen_mode_dot_coordinates)
+
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
-                zoomed_frame = zoom_at(frame_with_cursor, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
+                zoomed_frame = zoom_at(frame_with_pen_mode, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
                 if show_processed_video_preview:
                     # Optionally, draw a rectangle around the detected cursor
                     # cv2.rectangle(zoomed_frame, (int(0), int(0)), (int(0) + 50, int(0) + 50), (0, 255, 0), 2)
@@ -714,7 +763,7 @@ def setup():
     initialization_done = True
 
 def screen_rec_and_mouse_click_listener():
-    global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed
+    global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed, pen_mode_enabled, pen_mode_dot_coordinates
 
     setup()
 
@@ -755,6 +804,9 @@ def screen_rec_and_mouse_click_listener():
         
         # append_to_logs(f"FPS: {60 * 1 / elapsed_time:.4f}")
         # append_to_logs(input_monitor_bounds)
+        is_tab_pressed = is_key_pressed('alt')
+        if pen_mode_enabled and is_tab_pressed:
+            pen_mode_dot_coordinates.add((cursor_info["position"][0],cursor_info["position"][1],time.time()))
 
         #Augmentation of the frame
        
