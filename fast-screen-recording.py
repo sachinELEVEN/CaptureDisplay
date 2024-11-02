@@ -291,7 +291,7 @@ class ScreenCapture:
         return final_output
 
 # Function to draw on the frame using given coordinates
-def draw_pen_mode(frame, input_monitor_bounds, only_draw_recent_line=False, draw_lines=True, color=(0, 255, 0), thickness=5):
+def draw_pen_mode(frame, only_draw_recent_line=False, draw_lines=True, color=(0, 255, 0), thickness=5):
     """
     Draws lines or dots on a frame using specified coordinates.
     
@@ -324,9 +324,10 @@ def draw_pen_mode(frame, input_monitor_bounds, only_draw_recent_line=False, draw
         # convert to a list since set does not maintain order and we need order to draw lines
         # print("inside",coordinates[0])
         sorted_coordinates = sorted(coordinates, key=lambda coord: coord[2])
-        #need to scale the coordinate here
+        #need to scale and normalize the coordinate here (in that order, we should always scale first and then normalize(x,y translation))
         for i, coordinate in enumerate(sorted_coordinates):
-            sorted_coordinates[i] = scaleAccordingToInputDisplayFactor((screen_capture.screen_width, screen_capture.screen_height), input_monitor_bounds, coordinate)
+            sorted_coordinates[i] = scaleAccordingToInputDisplayFactor((screen_capture.screen_width, screen_capture.screen_height), QZ.CGDisplayBounds(int(input_monitor)), coordinate)
+            sorted_coordinates[i] = normalize_coordinate_to_0_0_origin(sorted_coordinates[i],QZ.CGDisplayBounds(int(input_monitor)))[0]
 
         if draw_lines and len(sorted_coordinates) > 1:
             for i in range(1, len(sorted_coordinates)):
@@ -601,6 +602,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             #Add pen mode drawings- this looks like a wrong approach because we are redrawing at all the points again on every frame, without keeping anything from our memory
             if pen_mode_enabled and pen_frame_layer is not None:
                 #overlay the pen_frame_layer
+                #put this in try catch and on error reset the pen_frame_layer so that it gets recomputed
                 frame_with_pen_layer_overlay = cv2.addWeighted(frame_with_cursor, 1, pen_frame_layer, 1, 0)
                 # frame_with_pen_mode = draw_pen_mode(frame_with_cursor)
             else:
@@ -842,11 +844,11 @@ def screen_rec_and_mouse_click_listener():
                 print("Creating pen frame layer")
                 # Step 1: Create the base layer with dots
                 pen_frame_layer = np.zeros((screen_capture.screen_height, screen_capture.screen_width, 3), dtype=np.uint8)
-                pen_frame_layer = draw_pen_mode(pen_frame_layer,input_monitor_bounds_unscaled)
+                pen_frame_layer = draw_pen_mode(pen_frame_layer)
             else:
                 #modifying existing pen_frame_layer
                 print("modifying pen_frame_layer")
-                pen_frame_layer = draw_pen_mode(pen_frame_layer,input_monitor_bounds_unscaled,only_draw_recent_line=True)
+                pen_frame_layer = draw_pen_mode(pen_frame_layer,only_draw_recent_line=True)
                
                 
         else:
