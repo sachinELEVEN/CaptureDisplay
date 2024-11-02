@@ -603,8 +603,15 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             if pen_mode_enabled and pen_frame_layer is not None:
                 #overlay the pen_frame_layer
                 #put this in try catch and on error reset the pen_frame_layer so that it gets recomputed
-                frame_with_pen_layer_overlay = cv2.addWeighted(frame_with_cursor, 1, pen_frame_layer, 1, 0)
+                try:
+                    frame_with_pen_layer_overlay = cv2.addWeighted(frame_with_cursor, 1, pen_frame_layer, 1, 0)
                 # frame_with_pen_mode = draw_pen_mode(frame_with_cursor)
+                except Exception as e:
+                    #this generally happens when the input monitor is changed because at that point the dimensions of frame_with_cursor is according to the new input monitor but pen_frame_layer's dimensions are still according to the old monitor, so it gives a dimension mismatch exception, so in that case we just recalculate the pen_frame_layer according to the new input layer
+                    print("Exception in drawing mode, will reset the pen_frame_layer:",e)
+                    pen_frame_layer = None
+                    #for this frame calculation we will not overlay any pen layer
+                    frame_with_pen_layer_overlay = frame_with_cursor
             else:
                 frame_with_pen_layer_overlay = frame_with_cursor
             # Apply zoom for each interpolated zoom level
