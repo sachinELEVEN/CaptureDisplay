@@ -8,7 +8,9 @@ import importlib
 from pynput import mouse
 from threading import Timer
 import copy
+from settings_file_manager import SettingsManager
 
+settings_manager = SettingsManager()
 one_time_cursor_info = importlib.import_module("one-time-cursor-info")
 get_cursor_info = one_time_cursor_info.get_cursor_info
 utils = importlib.import_module("utils")
@@ -76,6 +78,8 @@ def set_input_monitor(id):
     else:
         append_to_logs("set_input_monitor to ",id)
         input_monitor = id
+    
+    settings_manager.set_setting("input_monitor", f"{id}")
 
 def set_output_monitor(id):
     global output_monitor, output_monitor_old
@@ -85,6 +89,8 @@ def set_output_monitor(id):
     else:
         append_to_logs("set_input_monitor to ",id)
         output_monitor = id
+
+    settings_manager.set_setting("output_monitor", f"{id}")
     
 
 #####KEYBOARD SHORTCUT METHODS ABOVE
