@@ -44,9 +44,18 @@ class SettingsManager:
                     value = "[" + ", ".join(value) + "]"
                 file.write(f"{key}={value}\n")
 
-    def get_setting(self, key, default=None):
+    def get_setting(self, key, default=None, save_to_file_if_not_exists=True):
         settings = self._load_settings()
-        return settings.get(key, default)
+        result_with_default = settings.get(key,default)
+        result_with_none_default = settings.get(key, None)
+        if save_to_file_if_not_exists and result_with_none_default is None and default is not None:
+            #this mean the key is not present in file as it result with a none, and the default supplied to us is not none, so we will save that to the config file
+            append_to_logs("Tried to get a setting which was not present, saving the default value in the file, so user can override later on")
+            settings[key] = default
+            self._write_settings(settings)
+
+        return result_with_default
+
 
     def set_setting(self, key, value):
         # Ensure the settings file exists by opening in append mode
