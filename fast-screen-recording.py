@@ -49,6 +49,7 @@ screen_destroyed = False
 pen_mode_coordinates_set_list = []
 pen_mode_coordinates_curr_set = set()
 pen_mode_enabled = True
+#the reason for having rgb is a little stupid is that the settings manager can only understand strings so if we persist (r,g,b) as string we will need to add additional logic to convert it to a tupple of ints, so we avoid this using this simpler logic for now
 pen_thickness = int(settings_manager.get_setting("pen_thickness",5))
 pen_color_r = int(settings_manager.get_setting("pen_color_r",0))
 pen_color_g = int(settings_manager.get_setting("pen_color_g",255))
