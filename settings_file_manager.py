@@ -45,6 +45,7 @@ class SettingsManager:
                 file.write(f"{key}={value}\n")
 
     def get_setting(self, key, default=None, save_to_file_if_not_exists=True):
+        append_to_logs(f"Settings.get_setting {key} and default is {default}")
         settings = self._load_settings()
         result_with_default = settings.get(key,default)
         result_with_none_default = settings.get(key, None)
@@ -58,6 +59,7 @@ class SettingsManager:
 
 
     def set_setting(self, key, value):
+        append_to_logs(f"Settings.set_setting {key} with value {value}")
         # Ensure the settings file exists by opening in append mode
         open(self.file_path, 'a').close()
 
