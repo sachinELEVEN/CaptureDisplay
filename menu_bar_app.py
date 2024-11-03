@@ -111,6 +111,7 @@ class MonitorSelectorApp(rumps.App):
             ('ctrl', 'v      '): 'Save copied text to a markdown file',
             ('ctrl', 'p      '): 'Sleep/awake',
             ('ctrl', 'q      '): 'Quit',
+            ('ctrl', 'o      '): 'Enable/disable pen mode. Use option + trackpad to draw',
         }
 
         for keys, description in shortcuts.items():

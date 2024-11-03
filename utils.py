@@ -28,7 +28,7 @@ def modify_path(path, part_to_remove):
 
 
 def append_to_logs(*args):
-    return
+    # return
     logs_folder = os.path.join(
         os.path.expanduser("~"),
         "Library",

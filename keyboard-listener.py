@@ -7,6 +7,7 @@ fast_screen_recording = importlib.import_module("fast-screen-recording")
 save_copied_text_to_file = importlib.import_module("save_copied_text_to_file")
 zoom_increase = fast_screen_recording.zoom_increase
 zoom_decrease = fast_screen_recording.zoom_decrease
+pen_mode_toggle = fast_screen_recording.pen_mode_toggle
 window_pt_top_left = fast_screen_recording.window_pt_top_left
 window_pt_bottom_right = fast_screen_recording.window_pt_bottom_right
 window_show_everything = fast_screen_recording.window_show_everything
@@ -32,6 +33,7 @@ shortcut_actions = {
     ('ctrl', 'b'): 'toggle_region_of_interest_hiding_approach',
     ('ctrl', 'v'): 'save_copied_text_to_file',
     ('ctrl', 'p'): 'sleep_awake_app',
+    ('ctrl', 'o'): 'pen_mode_toggle',
 }
 
 # Track the currently pressed keys.
@@ -62,7 +64,8 @@ function_map = {
     'window_show_everything':window_show_everything,
     'toggle_region_of_interest_hiding_approach':toggle_region_of_interest_hiding_approach,
     'save_copied_text_to_file':save_copied_text_to_file,
-    'sleep_awake_app':sleep_awake_app
+    'sleep_awake_app':sleep_awake_app,
+    'pen_mode_toggle':pen_mode_toggle
 
 }
 

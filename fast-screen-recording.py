@@ -52,13 +52,18 @@ pen_frame_layer = None
 
 current_keys = set()
 
+def pen_mode_toggle():
+    global pen_mode_enabled
+    pen_mode_enabled = not pen_mode_enabled
+    append_to_logs("pen mode status is:",pen_mode_enabled,)
+
 def update_current_keys(key_set):
     global current_keys
     current_keys = key_set
 
 def is_key_pressed(key_name):
     if key_name in current_keys:
-        # print(f"is_key_pressed: {key_name}: yes")
+        # append_to_logs(f"is_key_pressed: {key_name}: yes")
         return True
     return False                                                                                                                                        
 
@@ -316,13 +321,13 @@ def draw_pen_mode(frame, only_draw_recent_line=False, draw_lines=True, color=(0,
         full_list.append(pen_mode_coordinates_curr_set)
 
     if len(full_list)>0:
-        print("Draw lines using: ",len(full_list)," Draw mode is only_draw_recent_line:",only_draw_recent_line)
-    # print(full_list)
+        append_to_logs("Draw lines using: ",len(full_list)," Draw mode is only_draw_recent_line:",only_draw_recent_line)
+    # append_to_logs(full_list)
     for coordinates in full_list:
         # Draw lines if draw_lines is True
         # Sort coordinates by time (third element in each tuple)
         # convert to a list since set does not maintain order and we need order to draw lines
-        # print("inside",coordinates[0])
+        # append_to_logs("inside",coordinates[0])
         sorted_coordinates = sorted(coordinates, key=lambda coord: coord[2])
         #need to scale and normalize the coordinate here (in that order, we should always scale first and then normalize(x,y translation))
         for i, coordinate in enumerate(sorted_coordinates):
@@ -604,12 +609,12 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 #overlay the pen_frame_layer
                 #put this in try catch and on error reset the pen_frame_layer so that it gets recomputed
                 try:
-                    # print("overlay pen frame")
+                    # append_to_logs("overlay pen frame")
                     frame_with_pen_layer_overlay = cv2.addWeighted(frame_with_cursor, 1, pen_frame_layer, 1, 0)
                 # frame_with_pen_mode = draw_pen_mode(frame_with_cursor)
                 except Exception as e:
                     #this generally happens when the input monitor is changed because at that point the dimensions of frame_with_cursor is according to the new input monitor but pen_frame_layer's dimensions are still according to the old monitor, so it gives a dimension mismatch exception, so in that case we just recalculate the pen_frame_layer according to the new input layer
-                    print("Exception in drawing mode, will reset the pen_frame_layer:",e)
+                    append_to_logs("Exception in drawing mode, will reset the pen_frame_layer:",e)
                     pen_frame_layer = None
                     #for this frame calculation we will not overlay any pen layer
                     frame_with_pen_layer_overlay = frame_with_cursor
@@ -858,13 +863,13 @@ def screen_rec_and_mouse_click_listener():
             #please note when you switch monitor we preserve the drawing wrt to the original input monitor's coordinates, so you may not see the previous drawings on new monitor but when you switch back to the old input monitor you will see your drawings there remain intact
             #so our drawings are preserved wrt input monitor coordinates across all monitors, allowing you to draw different stuff on different input monitors
             if pen_frame_layer is None:
-                print("Creating pen frame layer")
+                append_to_logs("Creating pen frame layer")
                 # Step 1: Create the base layer with dots
                 pen_frame_layer = np.zeros((screen_capture.screen_height, screen_capture.screen_width, 3), dtype=np.uint8)
                 pen_frame_layer = draw_pen_mode(pen_frame_layer)
             else:
                 #modifying existing pen_frame_layer
-                # print("modifying pen_frame_layer")
+                # append_to_logs("modifying pen_frame_layer")
                 pen_frame_layer = draw_pen_mode(pen_frame_layer,only_draw_recent_line=True)       
         else:
             #clear the current coordinate set
