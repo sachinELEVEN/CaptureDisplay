@@ -327,7 +327,8 @@ def draw_pen_mode(frame, only_draw_recent_line=False, draw_lines=True, color=(0,
         full_list.append(pen_mode_coordinates_curr_set)
 
     if len(full_list)>0:
-        append_to_logs("Draw lines using: ",len(full_list)," Draw mode is only_draw_recent_line:",only_draw_recent_line)
+        pass
+        # append_to_logs("Draw lines using: ",len(full_list)," Draw mode is only_draw_recent_line:",only_draw_recent_line)
     # append_to_logs(full_list)
     for coordinates in full_list:
         # Draw lines if draw_lines is True
@@ -549,7 +550,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     cursor_in_bounds = False
     #Validate cursor position- basically we need to check if cursor is on the same monitor as we are interested in or not
     if not is_cursor_within_bounds(position,input_monitor_bounds):
-        append_to_logs("Cursor is not within bounds")
+        # append_to_logs("Cursor is not within bounds")
         #Making speed 0 ensures we do not perform any zooming in the augmented frames, so input and output frame will be same with no additional frames being generated
         speed = 0
         # return

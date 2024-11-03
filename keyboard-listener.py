@@ -2,6 +2,7 @@ from pynput import keyboard
 import time
 import importlib
 import os
+from settings_file_manager import SettingsManager
 
 fast_screen_recording = importlib.import_module("fast-screen-recording")
 save_copied_text_to_file = importlib.import_module("save_copied_text_to_file")
@@ -18,22 +19,32 @@ toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_
 save_copied_text_to_file = save_copied_text_to_file.save_copied_text_to_file
 utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
+settings_manager = SettingsManager()
+
+
+def get_shortcut(default_shortcut,action_name):
+    #I dont think this conversion from tupple to list and vice-versa is required but leaving this as is for now
+    #convert tupple to a list here
+    default_shortcut_key_combination = list(default_shortcut)
+    final_shortcut_combination = settings_manager.get_setting(action_name, default=default_shortcut_key_combination)
+    append_to_logs(f"Shortcut for {action_name} is {final_shortcut_combination}")
+    return tuple(final_shortcut_combination)
 
 # Dictionary to store shortcut combinations and their corresponding functions.
 # For example: {('tab', 'z'): 'my_function'}
 shortcut_actions = {
-    ('ctrl', 'z'): 'my_function',
-    ('ctrl', 'z'): 'my_function',
-    ('ctrl', 'q'): 'quit_app',
-    ('ctrl', '='): 'zoom_increase',
-    ('ctrl', '-'): 'zoom_decrease',
-    ('ctrl', '9'): 'window_pt_top_left',#window_pt_top_left window_pt_bottom_right represents the window we want to show the user
-    ('ctrl', '0'): 'window_pt_bottom_right',
-    ('9', '0'): 'window_show_everything',
-    ('ctrl', 'b'): 'toggle_region_of_interest_hiding_approach',
-    ('ctrl', 'v'): 'save_copied_text_to_file',
-    ('ctrl', 'p'): 'sleep_awake_app',
-    ('ctrl', 'o'): 'pen_mode_toggle',
+    get_shortcut(('ctrl', 'z'), 'my_function'): 'my_function',
+    get_shortcut(('ctrl', 'z'), 'my_function'): 'my_function',
+    get_shortcut(('ctrl', 'q'),'quit_app'): 'quit_app',
+    get_shortcut(('ctrl', '='),'zoom_increase'): 'zoom_increase',
+    get_shortcut(('ctrl', '-'),'zoom_decrease'): 'zoom_decrease',
+    get_shortcut(('ctrl', '9'),'window_pt_top_left'): 'window_pt_top_left',#window_pt_top_left window_pt_bottom_right represents the window we want to show the user
+    get_shortcut(('ctrl', '0'),'window_pt_bottom_right'): 'window_pt_bottom_right',
+    get_shortcut(('9', '0'),'window_show_everything'): 'window_show_everything',
+    get_shortcut(('ctrl', 'b'),'toggle_region_of_interest_hiding_approach'): 'toggle_region_of_interest_hiding_approach',
+    get_shortcut(('ctrl', 'v'),'save_copied_text_to_file'): 'save_copied_text_to_file',
+    get_shortcut(('ctrl', 'p'),'sleep_awake_app'): 'sleep_awake_app',
+    get_shortcut(('ctrl', 'o'),'pen_mode_toggle'): 'pen_mode_toggle',
 }
 
 # Track the currently pressed keys.
