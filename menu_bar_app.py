@@ -75,6 +75,11 @@ class MonitorSelectorApp(rumps.App):
 
         return monitor_names
 
+    def get_shortcut(self,action_name):
+        #the output of result is like this ['ctrl','o'] which does not look good in ui, so we show it as a single string
+        result = settings_manager.get_setting(action_name)
+        return " ".join(result)
+
     def update_menu(self):
         """Refresh the menu with current monitor selections."""
         # Clear the current menu
@@ -104,16 +109,16 @@ class MonitorSelectorApp(rumps.App):
         shortcuts_menu = rumps.MenuItem("Shortcuts")
         shortcuts = {
             'Double click': 'Enable/disable zoom mode',
-            ('ctrl', '+      '): 'Zoom in when in zoom mode',
-            ('ctrl', '-       '): 'Zoom out when in zoom mode',
-            ('ctrl', '(       '): 'Top left corner of the screen section to be visible',
-            ('ctrl', ')       '): 'Bottom right corner of the screen section to be visible',
-            ('(', ')           '): 'Show entire screen',
-            ('ctrl', 'b      '): 'Switch between blur and complete blackout',
-            ('ctrl', 'v      '): 'Save copied text to a markdown file',
-            ('ctrl', 'p      '): 'Sleep/awake',
-            ('ctrl', 'q      '): 'Quit',
-            ('ctrl', 'o      '): 'Enable/disable pen mode. Use option + trackpad to draw',
+            (self.get_shortcut('zoom_increase'),'     '): 'Zoom in when in zoom mode',
+            (self.get_shortcut('zoom_decrease'),'      '): 'Zoom out when in zoom mode',
+            (self.get_shortcut('window_pt_top_left'),'     '): 'Top left corner of the screen section to be visible',
+            (self.get_shortcut('window_pt_bottom_right'),'      '): 'Bottom right corner of the screen section to be visible',
+            (self.get_shortcut('window_show_everything'),'         '): 'Show entire screen',
+            (self.get_shortcut('toggle_region_of_interest_hiding_approach'),'      '): 'Switch between blur and complete blackout',
+            (self.get_shortcut('save_copied_text_to_file'),'      '): 'Save copied text to a markdown file',
+            (self.get_shortcut('sleep_awake_app'),'      '): 'Sleep/awake',
+            (self.get_shortcut('quit_app'), '      '): 'Quit',
+            (self.get_shortcut('pen_mode_toggle'), '       '): 'Enable/disable pen mode. Use option + trackpad to draw',
         }
 
         for keys, description in shortcuts.items():
