@@ -49,6 +49,10 @@ screen_destroyed = False
 pen_mode_coordinates_set_list = []
 pen_mode_coordinates_curr_set = set()
 pen_mode_enabled = True
+pen_thickness = int(settings_manager.get_setting("pen_thickness",5))
+pen_color_r = int(settings_manager.get_setting("pen_color_r",0))
+pen_color_g = int(settings_manager.get_setting("pen_color_g",255))
+pen_color_b = int(settings_manager.get_setting("pen_color_b",0))
 #when moving across monitors pen_frame_layer will get destorted because the underlying frame with change, so you need to disable and re-enable pen mode, so pen_frame_layer is recalculated
 pen_frame_layer = None
 
@@ -873,11 +877,11 @@ def screen_rec_and_mouse_click_listener():
                 append_to_logs("Creating pen frame layer")
                 # Step 1: Create the base layer with dots
                 pen_frame_layer = np.zeros((screen_capture.screen_height, screen_capture.screen_width, 3), dtype=np.uint8)
-                pen_frame_layer = draw_pen_mode(pen_frame_layer)
+                pen_frame_layer = draw_pen_mode(pen_frame_layer,color=(pen_color_r,pen_color_g,pen_color_b),thickness=pen_thickness)
             else:
                 #modifying existing pen_frame_layer
                 # append_to_logs("modifying pen_frame_layer")
-                pen_frame_layer = draw_pen_mode(pen_frame_layer,only_draw_recent_line=True)       
+                pen_frame_layer = draw_pen_mode(pen_frame_layer,only_draw_recent_line=True,color=(pen_color_r,pen_color_g,pen_color_b),thickness=pen_thickness)       
         else:
             #clear the current coordinate set
             if len(pen_mode_coordinates_curr_set)>1:#we compare it with 1 because we need at least 2 points to draw a line
