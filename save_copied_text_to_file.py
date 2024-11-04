@@ -104,17 +104,31 @@ def save_content_as_pdf(frame=None, save_text=True):
     pdf.setFillColor(colors.black)
     pdf.rect(0, 0, width, height, fill=True, stroke=False)
 
-    # Add the timestamp
+    # Add the timestamp on the left side
     pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.white)
+    pdf.setFillColor(colors.darkgrey)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     pdf.drawString(padding, text_y_position, f"Time: {timestamp}")
+
+    # Load and place the icon image on the top right side of the page
+    icon_path = get_resource_path("./assets/CaptureDisplay.png")
+    if os.path.exists(icon_path):
+        icon_width = 20
+        icon_height = 20
+        pdf.drawImage(icon_path, width - padding - icon_width, text_y_position - icon_height + 10, width=icon_width, height=icon_height)
+
+    # Move the y-position down for content
+    text_y_position -= padding + 2
+
+    # Add a separator line below the timestamp and icon
+    pdf.setStrokeColor(colors.darkgrey)
+    pdf.setLineWidth(1)
+    pdf.line(padding, text_y_position, width - padding, text_y_position)
     text_y_position -= padding
 
     # Add copied text if available, with line-by-line formatting and rectangle background
     if copied_text:
-        pdf.drawString(padding, text_y_position, "Content:")
-        pdf.setFillColor(colors.darkgray)
+        # pdf.drawString(padding, text_y_position, "Content:")
         text_y_position -= padding
         text_object = pdf.beginText(padding, text_y_position)
         text_object.setFont("Helvetica", 10)
@@ -145,6 +159,15 @@ def save_content_as_pdf(frame=None, save_text=True):
                 
                 text_y_position = height - padding
                 current_page_start_y = text_y_position
+
+                # Re-draw the timestamp, icon, and separator line for the new page
+                # pdf.drawString(padding, text_y_position, f"Time: {timestamp}")
+                if os.path.exists(icon_path):
+                    pdf.drawImage(icon_path, width - padding - icon_width, text_y_position - icon_height + 10, width=icon_width, height=icon_height)
+                text_y_position -= padding + 2
+                # text_y_position -= padding + 0
+                # pdf.line(padding, text_y_position, width - padding, text_y_position)
+                # text_y_position -= padding
 
             # Add the line of text
             pdf.drawString(padding, text_y_position, line)
