@@ -106,7 +106,7 @@ def save_content_as_pdf(frame=None, save_text=True):
 
     # Add the timestamp
     pdf.setFont("Helvetica", 12)
-    pdf.setFillColor(colors.darkgrey)
+    pdf.setFillColor(colors.white)
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     pdf.drawString(padding, text_y_position, f"Time: {timestamp}")
     text_y_position -= padding
@@ -114,6 +114,7 @@ def save_content_as_pdf(frame=None, save_text=True):
     # Add copied text if available, with line-by-line formatting and rectangle background
     if copied_text:
         pdf.drawString(padding, text_y_position, "Content:")
+        pdf.setFillColor(colors.darkgray)
         text_y_position -= padding
         text_object = pdf.beginText(padding, text_y_position)
         text_object.setFont("Helvetica", 10)
