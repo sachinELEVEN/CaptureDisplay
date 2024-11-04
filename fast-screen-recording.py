@@ -259,7 +259,7 @@ class ScreenCapture:
 
         input_monitor_bounds = QZ.CGDisplayBounds(input_monitor_id)
         #this can crash when input monitor is not there
-        if display_output_mode: 
+        if display_output_mode and output_monitor_id is not None: 
             output_monitor_bounds = QZ.CGDisplayBounds(output_monitor_id)
         else:
             output_monitor_bounds = None
@@ -872,14 +872,16 @@ def screen_rec_and_mouse_click_listener():
             cv2.waitKey(1)
             return
 
-        if display_output_mode and output_monitor is None:
-            # append_to_logs("Please select output monitor from the menu bar")
-            cv2.waitKey(1)
-            return
+        
 
-        result = screen_capture.get_monitor_screen_image(int(input_monitor),int(output_monitor) if display_output_mode else None,display_ids_provided=True)
+        result = screen_capture.get_monitor_screen_image(int(input_monitor),int(output_monitor) if (display_output_mode and output_monitor is not None) else None, display_ids_provided=True)
         frame = result[0]
 
+        if display_output_mode and output_monitor is None:
+            # append_to_logs("Please select output monitor from the menu bar")
+            last_frame_displayed = frame
+            cv2.waitKey(1)
+            return
         if display_output_mode==False:
             #this will be our last frame we took in input, so last_frame_displayed should be this even though we are not displaying it technically, but its the last frame our pipeline saw, so this will be used in case user want to take a screen shot 
             last_frame_displayed = frame
