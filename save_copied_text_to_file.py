@@ -12,6 +12,7 @@ from reportlab.lib import colors
 from reportlab.pdfbase.ttfonts import TTFont
 from reportlab.lib.units import inch
 from PyPDF2 import PdfWriter, PdfReader
+import cv2
 
 utils = importlib.import_module("utils")
 get_resource_path = utils.get_resource_path
@@ -177,8 +178,13 @@ def save_content_as_pdf(frame=None, save_text=True):
         # draw_background_rectangle(pdf, padding, current_page_start_y, max_text_width, current_page_start_y - text_y_position + 14)
         text_y_position -= padding
 
-    # Add frame image if available
+   # Add frame image if available
     if frame is not None:
+        # Convert the frame from BGR to RGB if needed
+        if frame.shape[2] == 3:  # Check if the frame has 3 color channels
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        
+        # Convert the frame to a PIL image
         temp_image_path = os.path.join(folder_path, "temp_image.png")
         image = Image.fromarray(frame)
         image.save(temp_image_path)
