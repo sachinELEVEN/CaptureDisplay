@@ -109,16 +109,17 @@ class MonitorSelectorApp(rumps.App):
         shortcuts_menu = rumps.MenuItem("Shortcuts")
         shortcuts = {
             'Double click': 'Enable/disable zoom mode',
-            (self.get_shortcut('zoom_increase'),'     '): 'Zoom in when in zoom mode',
-            (self.get_shortcut('zoom_decrease'),'      '): 'Zoom out when in zoom mode',
-            (self.get_shortcut('window_pt_top_left'),'     '): 'Top left corner of the screen section to be visible',
+            (self.get_shortcut('zoom_increase'),'      '): 'Zoom in when in zoom mode',
+            (self.get_shortcut('zoom_decrease'),'       '): 'Zoom out when in zoom mode',
+            (self.get_shortcut('window_pt_top_left'),'      '): 'Top left corner of the screen section to be visible',
             (self.get_shortcut('window_pt_bottom_right'),'      '): 'Bottom right corner of the screen section to be visible',
             (self.get_shortcut('window_show_everything'),'         '): 'Show entire screen',
             (self.get_shortcut('toggle_region_of_interest_hiding_approach'),'      '): 'Switch between blur and complete blackout',
-            (self.get_shortcut('save_copied_text_to_file'),'      '): 'Save copied text to a markdown file',
+            (self.get_shortcut('save_copied_text_to_file'),'      '): 'Save copied text to the notes pdf file',
+            (self.get_shortcut('take_screenshot'),'      '): 'Take screenshot and save it to the notes pdf file',
             (self.get_shortcut('sleep_awake_app'),'      '): 'Sleep/awake',
             (self.get_shortcut('quit_app'), '      '): 'Quit',
-            (self.get_shortcut('pen_mode_toggle'), '       '): 'Enable/disable pen mode. Use option + trackpad to draw',
+            (self.get_shortcut('pen_mode_toggle'), '      '): 'Enable/disable pen mode. Use option + trackpad to draw',
         }
 
         for keys, description in shortcuts.items():

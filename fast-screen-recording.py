@@ -16,6 +16,8 @@ get_cursor_info = one_time_cursor_info.get_cursor_info
 utils = importlib.import_module("utils")
 get_resource_path = utils.get_resource_path
 append_to_logs = utils.append_to_logs
+save_copied_text_to_file = importlib.import_module("save_copied_text_to_file")
+save_content_as_pdf = save_copied_text_to_file.save_content_as_pdf
 
 # To store the last click time and position for detecting double-clicks
 click_buffer = None
@@ -57,7 +59,14 @@ pen_color_b = int(settings_manager.get_setting("pen_color_b",0))
 #when moving across monitors pen_frame_layer will get destorted because the underlying frame with change, so you need to disable and re-enable pen mode, so pen_frame_layer is recalculated
 pen_frame_layer = None
 
+last_frame_displayed = None
+
 current_keys = set()
+
+def take_screenshot():
+    global last_frame_displayed
+    save_content_as_pdf(last_frame_displayed,save_text=False)
+    append_to_logs("Adding screenshot to notes")
 
 def pen_mode_toggle():
     global pen_mode_enabled
@@ -541,7 +550,7 @@ def dim_except_region(frame, input_monitor_bounds):
 
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
-    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_frame_layer
+    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_frame_layer, last_frame_displayed
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -643,6 +652,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                         cv2.rectangle(zoomed_frame, (int(cursor_x), int(cursor_y)), (int(cursor_x) + 50, int(cursor_y) + 50), (0, 255, 0), 2)
                     
                     #Frame needs to be processed here before we display it
+                    last_frame_displayed = zoomed_frame
                     display_frame_at_required_monitor(zoomed_frame,output_monitor_bounds)
                     # cv2.imshow("Zoomed Frame", zoomed_frame)
 
