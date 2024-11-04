@@ -137,7 +137,7 @@ class MonitorSelectorApp(rumps.App):
         # Add separator and quit option
         self.menu.add(rumps.separator)
         display_output_mode_label_suffix = ". This will have no effect as no output monitor is selected" if self.output_monitor is None else ""
-        display_output_mode_label = f"Disable Output Display{display_output_mode_label_suffix}" if display_output_mode_status() else f"Enable Output Display{display_output_mode_label_suffix}"
+        display_output_mode_label = f"Disable Output Mode{display_output_mode_label_suffix}" if display_output_mode_status() else f"Enable Output Mode{display_output_mode_label_suffix}"
         self.menu.add(rumps.MenuItem(display_output_mode_label, callback=self.display_output_mode_toggle))
 
         # Add separator and quit option
