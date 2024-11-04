@@ -17,7 +17,7 @@ class SettingsManager:
 
         self.file_path = file_path
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        print("Settings manager initialized")
+        append_to_logs("Settings manager initialized")
         
     def _load_settings(self):
         settings = {}
@@ -78,11 +78,11 @@ class SettingsManager:
 # )
 
 # settings_manager = SettingsManager(settings_file_path)
-# print("Settings manager initialized")
+# append_to_logs("Settings manager initialized")
 
 # Get a setting with a default value if the key doesn't exist
 # result = settings_manager.get_setting("some_key", default="default_value")
-# print("Retrieved value:", result)
+# append_to_logs("Retrieved value:", result)
 
 # # Set or update a setting
 # settings_manager.set_setting("some_key", ["value1", "value2", "value3"])

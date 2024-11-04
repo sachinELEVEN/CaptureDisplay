@@ -161,7 +161,7 @@ class MonitorSelectorApp(rumps.App):
     def try_load_input_output_monitors_from_settings(self):
         retrieved_input_monitor = settings_manager.get_setting('input_monitor')
         retrieved_output_monitor = settings_manager.get_setting('output_monitor')
-        print("Retrieved I/O monitors: ",retrieved_input_monitor,retrieved_output_monitor)
+        append_to_logs("Retrieved I/O monitors: ",retrieved_input_monitor,retrieved_output_monitor)
 
         #Need to validate the monitors, the monitor id can change when user's monitor configuration changes, or user makes manual edit to the app.settings file
         
@@ -173,7 +173,7 @@ class MonitorSelectorApp(rumps.App):
         (err, active_displays, number_of_active_displays) = CGGetActiveDisplayList(
             max_displays, None, None)
         if err:
-            print("Error retrieving system monitor information, could not validate monitor information in the app.settings")
+            append_to_logs("Error retrieving system monitor information, could not validate monitor information in the app.settings")
             return False
         
         append_to_logs("system monitor setup information: ",active_displays,number_of_active_displays)
@@ -182,11 +182,11 @@ class MonitorSelectorApp(rumps.App):
         for active_display in active_displays:
             if str(active_display) == str(retrieved_input_monitor):
                 self.input_monitor = retrieved_input_monitor
-                print("Input monitor validated and set to ",self.input_monitor)
+                append_to_logs("Input monitor validated and set to ",self.input_monitor)
             
             if str(active_display) == str(retrieved_output_monitor):
                 self.output_monitor = retrieved_output_monitor
-                print("Output monitor validated and set to ",self.output_monitor)
+                append_to_logs("Output monitor validated and set to ",self.output_monitor)
 
         #Update the app with I/O monitor information if applicable
 
@@ -202,7 +202,7 @@ class MonitorSelectorApp(rumps.App):
 
     def show_monitor_selection_alert(self):
         if self.try_load_input_output_monitors_from_settings() == False:
-            print("Failed to retrieve I/O monitor from app.settings")
+            append_to_logs("Failed to retrieve I/O monitor from app.settings")
             if self.input_monitor is None or self.output_monitor is None:
                 rumps.alert(f"Capture Display\n\nSelect your Input and Output Display from the menu bar. \n\n\n Input Display- The screen where your content is.\n\nOutput Display- The screen you’ll need to share with others during the call.\n\n Capture Display will monitor the input display, apply enhancements, and present the final result on the output display. Simply share the output display screen with others during the call.")
 
