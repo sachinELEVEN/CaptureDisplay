@@ -16,6 +16,8 @@ set_input_monitor = fast_screen_recording.set_input_monitor
 set_output_monitor = fast_screen_recording.set_output_monitor
 sleep_awake_app = fast_screen_recording.sleep_awake_app
 sleep_status = fast_screen_recording.sleep_status
+display_output_mode_toggle = fast_screen_recording.display_output_mode_toggle
+display_output_mode_status = fast_screen_recording.display_output_mode_status
 start_time = None
 utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
@@ -120,6 +122,8 @@ class MonitorSelectorApp(rumps.App):
             (self.get_shortcut('sleep_awake_app'),'      '): 'Sleep/awake',
             (self.get_shortcut('quit_app'), '      '): 'Quit',
             (self.get_shortcut('pen_mode_toggle'), '      '): 'Enable/disable pen mode. Use option + trackpad to draw',
+            (self.get_shortcut('display_output_mode_toggle'), '      '): 'Enable/disable output screen. Use this when you want to take notes. Notes can be screenshots of your input monitor or copied text',
+            
         }
 
         for keys, description in shortcuts.items():
@@ -132,6 +136,12 @@ class MonitorSelectorApp(rumps.App):
 
         # Add separator and quit option
         self.menu.add(rumps.separator)
+        display_output_mode_label_suffix = ". This will have no effect as no output monitor is selected" if self.output_monitor is None else ""
+        display_output_mode_label = f"Disable Output Display{display_output_mode_label_suffix}" if display_output_mode_status() else f"Enable Output Display{display_output_mode_label_suffix}"
+        self.menu.add(rumps.MenuItem(display_output_mode_label, callback=self.display_output_mode_toggle))
+
+        # Add separator and quit option
+        self.menu.add(rumps.separator)
 
         sleep_awake_menu_label = "Awake" if sleep_status() else "Sleep"      
         self.menu.add(rumps.MenuItem(sleep_awake_menu_label, callback=self.sleep_awake_action))
@@ -141,6 +151,11 @@ class MonitorSelectorApp(rumps.App):
         # if self.input_monitor is not None or self.output_monitor is not None or self.last_sleep_awake_status is not None:
         self.menu.add(rumps.MenuItem("Quit", callback=self.quit_app))
 
+    def display_output_mode_toggle(self,sender):
+        append_to_logs("display_output_mode_toggle called from menu bar")
+        display_output_mode_toggle()
+        self.refresh_menu()
+    
     def sleep_awake_action(self,sender):
         append_to_logs("Sleep awake action invoked from menu bar")
         sleep_awake_app()
@@ -162,7 +177,8 @@ class MonitorSelectorApp(rumps.App):
     def try_load_input_output_monitors_from_settings(self):
         retrieved_input_monitor = settings_manager.get_setting('input_monitor')
         retrieved_output_monitor = settings_manager.get_setting('output_monitor')
-        append_to_logs("Retrieved I/O monitors: ",retrieved_input_monitor,retrieved_output_monitor)
+        retrieved_display_output_mode = True if settings_manager.get_setting("display_output_mode","enabled")=="enabled" else False
+        append_to_logs("Retrieved I/O monitors: ",retrieved_input_monitor,retrieved_output_monitor,retrieved_display_output_mode)
 
         #Need to validate the monitors, the monitor id can change when user's monitor configuration changes, or user makes manual edit to the app.settings file
         
@@ -198,7 +214,7 @@ class MonitorSelectorApp(rumps.App):
            
         self.refresh_menu()
         
-        return self.input_monitor is not None and self.output_monitor is not None
+        return self.input_monitor is not None and (self.output_monitor is not None or retrieved_display_output_mode==False)
 
 
     def show_monitor_selection_alert(self):

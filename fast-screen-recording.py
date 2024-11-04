@@ -60,13 +60,31 @@ pen_color_b = int(settings_manager.get_setting("pen_color_b",0))
 pen_frame_layer = None
 
 last_frame_displayed = None
+#If display_output_mode is false then no output will be shown in the output monitor. This is generally done when you just want to screen record the input monitor and take text and screenshot notes, without having to output something to output monitor
+display_output_mode = True if settings_manager.get_setting("display_output_mode","enabled")=="enabled" else False
 
 current_keys = set()
 
+def display_output_mode_toggle():
+    global display_output_mode, output_monitor_bounds
+    display_output_mode = not display_output_mode
+    if display_output_mode == False:
+        output_monitor_bounds = None
+        destroy_cv2_windows()
+    settings_manager.set_setting("display_output_mode", "enabled "if display_output_mode else "disabled")
+    append_to_logs("Display output mode is toggled to ",display_output_mode)
+
+def display_output_mode_status():
+    global display_output_mode
+    return display_output_mode
+
 def take_screenshot():
     global last_frame_displayed
-    save_content_as_pdf(last_frame_displayed,save_text=False)
-    append_to_logs("Adding screenshot to notes")
+    if last_frame_displayed is not None:
+        save_content_as_pdf(last_frame_displayed,save_text=False)
+        append_to_logs("Adding screenshot to notes")
+    else:
+        append_to_logs("Tried to take a screenshot but last frame was null")
 
 def pen_mode_toggle():
     global pen_mode_enabled
@@ -216,7 +234,7 @@ class ScreenCapture:
     #Captures a particular monitor
     #if display_ids_provided it means the input_monitor_index is actually input_monitor_id and same for output_monitor_index is output_monitor_id
     def get_monitor_screen_image(self, input_monitor_index=0,output_monitor_index=0,display_ids_provided=False):
-
+        global display_output_mode
         if display_ids_provided==False:
             # maximum number of displays to return
             max_displays = 100
@@ -240,7 +258,11 @@ class ScreenCapture:
             output_monitor_id = output_monitor_index
 
         input_monitor_bounds = QZ.CGDisplayBounds(input_monitor_id)
-        output_monitor_bounds = QZ.CGDisplayBounds(output_monitor_id)
+        #this can crash when input monitor is not there
+        if display_output_mode: 
+            output_monitor_bounds = QZ.CGDisplayBounds(output_monitor_id)
+        else:
+            output_monitor_bounds = None
 
         # Capture only the specified monitor using its bounds
         core_graphics_image = QZ.CGWindowListCreateImage(
@@ -676,6 +698,10 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
 #Displays the frame at the correct display
 def display_frame_at_required_monitor(frame,output_monitor_bounds):
     # If you want to display the frame using OpenCV (for testing purposes):
+    if output_monitor_bounds is None:
+        append_to_logs("Failed to output the frame because output monitor bounds is null. Probably toggling of display_output_mode happened recently")
+        return
+
     window_name = "Screen Capture"
     cv2.imshow(window_name, frame)
     cv2.moveWindow(window_name,int(output_monitor_bounds.origin.x),int(output_monitor_bounds.origin.y))
@@ -826,7 +852,7 @@ def setup():
     initialization_done = True
 
 def screen_rec_and_mouse_click_listener():
-    global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_mode_coordinates_set_list, pen_frame_layer
+    global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_mode_coordinates_set_list, pen_frame_layer, display_output_mode, last_frame_displayed
 
     setup()
 
@@ -846,13 +872,20 @@ def screen_rec_and_mouse_click_listener():
             cv2.waitKey(1)
             return
 
-        if output_monitor is None:
+        if display_output_mode and output_monitor is None:
             # append_to_logs("Please select output monitor from the menu bar")
             cv2.waitKey(1)
             return
 
-        result = screen_capture.get_monitor_screen_image(int(input_monitor),int(output_monitor),display_ids_provided=True)
+        result = screen_capture.get_monitor_screen_image(int(input_monitor),int(output_monitor) if display_output_mode else None,display_ids_provided=True)
         frame = result[0]
+
+        if display_output_mode==False:
+            #this will be our last frame we took in input, so last_frame_displayed should be this even though we are not displaying it technically, but its the last frame our pipeline saw, so this will be used in case user want to take a screen shot 
+            last_frame_displayed = frame
+            return
+
+
         input_monitor_bounds = result[1]
 
         input_monitor_bounds_unscaled = copy.deepcopy(input_monitor_bounds)
