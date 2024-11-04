@@ -214,7 +214,8 @@ def wrap_text(text, max_width, pdf_canvas):
     for word in words:
         # Test if adding the next word would exceed the width
         test_line = f"{current_line} {word}".strip()
-        if pdf_canvas.stringWidth(test_line, "Helvetica", 10) <= max_width:
+        #reduce the max_width by 60 so that there is some spacing on the right hand side of the last point
+        if pdf_canvas.stringWidth(test_line, "Helvetica", 10) <= (max_width-60):
             current_line = test_line
         else:
             wrapped_lines.append(current_line)
