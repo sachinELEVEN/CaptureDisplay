@@ -64,7 +64,6 @@ def save_copied_text_to_file():
 # save_copied_text_to_file()
 
 
-file_name_memory = None  # Global variable to store the filename for appending
 
 def save_content_as_pdf(frame=None, save_text=True):
     global file_name_memory
@@ -101,26 +100,57 @@ def save_content_as_pdf(frame=None, save_text=True):
     padding = 40
     text_y_position = height - padding
 
+    # Set the background color
+    pdf.setFillColor(colors.black)
+    pdf.rect(0, 0, width, height, fill=True, stroke=False)
+
     # Add the timestamp
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     pdf.setFont("Helvetica", 12)
+    pdf.setFillColor(colors.darkgrey)
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     pdf.drawString(padding, text_y_position, f"Time: {timestamp}")
     text_y_position -= padding
 
-    # Add copied text if available, with wrapping
+    # Add copied text if available, with line-by-line formatting and rectangle background
     if copied_text:
         pdf.drawString(padding, text_y_position, "Content:")
         text_y_position -= padding
         text_object = pdf.beginText(padding, text_y_position)
         text_object.setFont("Helvetica", 10)
-        text_object.setFillColor(colors.black)
+        text_object.setFillColor(colors.darkgrey)
         text_object.setLeading(14)
         max_text_width = width - padding * 2
-        for line in copied_text.splitlines():
-            wrapped_lines = wrap_text(line, max_text_width, pdf)
-            for wrapped_line in wrapped_lines:
-                text_object.textLine(wrapped_line)
-        pdf.drawText(text_object)
+
+        # Split text into lines and wrap if necessary
+        lines = copied_text.splitlines()
+        wrapped_lines = []
+        for line in lines:
+            wrapped_lines.extend(wrap_text(line, max_text_width, pdf))
+
+        # Draw rectangles per page for the wrapped text lines
+        box_padding = 5
+        current_page_start_y = text_y_position
+        for line in wrapped_lines:
+            # Check if the line fits on the current page, otherwise create a new page
+            if text_y_position < padding:
+                # Draw the rectangle for the previous page
+                # draw_background_rectangle(pdf, padding, current_page_start_y, max_text_width, height - current_page_start_y - padding)
+                
+                # Move to new page
+                pdf.showPage()
+                pdf.setFillColor(colors.black)
+                pdf.rect(0, 0, width, height, fill=True, stroke=False)
+                pdf.setFillColor(colors.darkgrey)
+                
+                text_y_position = height - padding
+                current_page_start_y = text_y_position
+
+            # Add the line of text
+            pdf.drawString(padding, text_y_position, line)
+            text_y_position -= 14
+
+        # Draw the rectangle background for the last page's text
+        # draw_background_rectangle(pdf, padding, current_page_start_y, max_text_width, current_page_start_y - text_y_position + 14)
         text_y_position -= padding
 
     # Add frame image if available
@@ -138,7 +168,7 @@ def save_content_as_pdf(frame=None, save_text=True):
             image_height = int(image_height * scale_factor)
 
         # Insert the image into the PDF and delete the temporary file
-        pdf.drawImage(temp_image_path, padding, text_y_position - image_height, width=image_width, height=image_height) 
+        pdf.drawImage(temp_image_path, padding, text_y_position - image_height, width=image_width, height=image_height)
         os.remove(temp_image_path)
 
     # Finalize and save the temporary PDF
@@ -168,6 +198,14 @@ def wrap_text(text, max_width, pdf_canvas):
     if current_line:
         wrapped_lines.append(current_line)
     return wrapped_lines
+
+def draw_background_rectangle(pdf, x, y_start, width, height):
+    """
+    Draws a light grey rectangle as a background for text content.
+    """
+    pdf.setFillColor(colors.lightgrey)
+    pdf.rect(x - 5, y_start - height, width + 10, height, fill=True, stroke=False)
+    pdf.setFillColor(colors.darkgrey)
 
 def append_pdf(temp_pdf_path, target_pdf_path):
     """
