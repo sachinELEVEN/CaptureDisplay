@@ -720,7 +720,7 @@ def process_click(click_type, position):
         click_type (str): The type of click (e.g., "Left Click", "Double Click").
         position (tuple): The position (x, y) of the click.
     """
-    append_to_logs(f"{click_type} at {position}")
+    # append_to_logs(f"{click_type} at {position}")
 
 def on_click(x, y, button, pressed):
     """

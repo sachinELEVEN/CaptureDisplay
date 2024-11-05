@@ -6,6 +6,7 @@ import os
 import subprocess
 import sys
 from settings_file_manager import SettingsManager
+from datetime import datetime
 
 utils = importlib.import_module("utils")
 get_resource_path = utils.get_resource_path
@@ -192,6 +193,15 @@ class MonitorSelectorApp(rumps.App):
         set_output_monitor(self.output_monitor)
         self.refresh_menu()  # Refresh the menu after selection
 
+    def is_license_expired(self):
+        target_date = datetime(2025, 1, 31)
+        current_date = datetime.now()
+        if current_date > target_date:
+            append_to_logs("License Information: License is expired. Please download the newer version of CaptureDisplay")
+        else:
+            append_to_logs("License Information: Capture Display License is valid")
+        return current_date > target_date
+    
     def try_load_input_output_monitors_from_settings(self):
         retrieved_input_monitor = settings_manager.get_setting('input_monitor')
         retrieved_output_monitor = settings_manager.get_setting('output_monitor')
@@ -236,6 +246,10 @@ class MonitorSelectorApp(rumps.App):
 
 
     def show_monitor_selection_alert(self):
+
+        if self.is_license_expired():
+            self.quit_app()
+
         if self.try_load_input_output_monitors_from_settings() == False:
             append_to_logs("Failed to retrieve I/O monitor from app.settings")
             if self.input_monitor is None or self.output_monitor is None:
