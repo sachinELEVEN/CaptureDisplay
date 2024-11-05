@@ -576,7 +576,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
-    show_rectangle_overlay = True
+    show_rectangle_overlay = False
     input_monitor_bounds_unnormalized = copy.deepcopy(input_monitor_bounds)
     result = normalize_coordinate_to_0_0_origin(position,input_monitor_bounds)
     position = result[0]
