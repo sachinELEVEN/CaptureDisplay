@@ -107,7 +107,7 @@ def on_press(key):
             # Execute the corresponding function.
             # when in sleep mode- all keyboard shortcuts other than sleep shortcut will be turned off
             if function_name in function_map:
-                #note you cant even put the app to sleep is display mode is false, this is intentional because it will be hard to know if the app went to sleep when display mode is turned off
+                #note you cant even put the app to sleep is display mode is false, this is intentional because it will be hard to know if the app went to sleep when display mode is turned off unless user explicitly puts the app to sleep mode from the menu bar
                 if sleep_status() == False or function_name == 'sleep_awake_app':
                     if display_output_mode_status() == True or function_name == 'display_output_mode_toggle' or function_name == 'take_screenshot' or function_name == 'save_copied_text_to_file':
                         function_map[function_name]()

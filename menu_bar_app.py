@@ -30,6 +30,7 @@ class MonitorSelectorApp(rumps.App):
         self.input_monitor = None
         self.output_monitor = None
         self.last_sleep_awake_status = None
+        self.last_display_mode_status = None
         #setting self.quit_button to None which is the default quit button provided by rumps, because we will have our own quit button
         self.quit_button = None 
         self.monitor_list = self.get_monitors()
@@ -44,6 +45,10 @@ class MonitorSelectorApp(rumps.App):
         
         if self.last_sleep_awake_status != sleep_status():
             self.last_sleep_awake_status = sleep_status()
+            return True
+        
+        if self.last_display_mode_status != display_output_mode_status():
+            self.last_display_mode_status = display_output_mode_status()
             return True
 
     def start_loop_function_timer(self):
