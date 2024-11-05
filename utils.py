@@ -33,9 +33,9 @@ def append_to_logs(*args):
         os.path.expanduser("~"),
         "Library",
         "Application Support",
-        'CaptureDisplayX77'
+        'CaptureDisplay'
     )
-    log_file_path = os.path.join(logs_folder, "CaptureDisplayX77.logs")
+    log_file_path = os.path.join(logs_folder, "CaptureDisplay.logs")
 
     # Join all arguments with a space or any other separator
     text_to_append = " ".join(map(str, args))

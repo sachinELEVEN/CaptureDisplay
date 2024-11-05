@@ -254,7 +254,7 @@ class MonitorSelectorApp(rumps.App):
     os.path.expanduser("~"),
     "Library",
     "Application Support",
-    'CaptureDisplayX77'
+    'CaptureDisplay'
 )
         
         # Create the notes folder if it doesn't exist

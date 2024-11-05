@@ -11,7 +11,7 @@ utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
 
 def start_application():
-    append_to_logs("Starting CaptureDisplayX77")
+    append_to_logs("Starting CaptureDisplay")
 
     #Listen keyboard events on a different thread
     append_to_logs("Starting keyboard_listener_thread thread")
@@ -30,7 +30,7 @@ def start_application():
     menu_bar_app()
  
     keyboard_listener_thread.join()
-    append_to_logs("Terminating CaptureDisplayX77")
+    append_to_logs("Terminating CaptureDisplay")
 
 if __name__ == "__main__":
     start_application()

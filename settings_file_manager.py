@@ -11,7 +11,7 @@ class SettingsManager:
             os.path.expanduser("~"),
             "Library",
             "Application Support",
-            "CaptureDisplayX77",
+            "CaptureDisplay",
             "app.settings"
         )
 
@@ -73,7 +73,7 @@ class SettingsManager:
 #     os.path.expanduser("~"),
 #     "Library",
 #     "Application Support",
-#     "CaptureDisplayX77",
+#     "CaptureDisplay",
 #     "app.settings"
 # )
 

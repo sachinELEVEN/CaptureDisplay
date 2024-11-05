@@ -35,7 +35,7 @@ def save_copied_text_to_file():
     os.path.expanduser("~"),
     "Library",
     "Application Support",
-    'CaptureDisplayX77'
+    'CaptureDisplay'
 )
 
     # Ensure the 'sharable' folder exists
@@ -74,7 +74,7 @@ def save_content_as_pdf(frame=None, save_text=True):
         os.path.expanduser("~"),
         "Library",
         "Application Support",
-        "CaptureDisplayX77"
+        "CaptureDisplay"
     )
     os.makedirs(folder_path, exist_ok=True)
     
