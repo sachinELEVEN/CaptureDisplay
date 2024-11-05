@@ -751,10 +751,10 @@ def on_click(x, y, button, pressed):
             if time_diff < double_click_threshold:
                 # It's a double click, process it and clear the buffer
                 process_click("Double Click", click_position)
-                if not sleep_status():
+                if not sleep_status() and display_output_mode_status():
                     left_click_status = not left_click_status
                 else:
-                    append_to_logs("zoom mode cannot be enabled/disabled in sleep mode")
+                    append_to_logs("zoom mode cannot be enabled/disabled in sleep mode or when display_output_mode is off")
                 if left_click_status:
                     zoom_level_to_use = default_zoom_level
                 click_buffer = None
