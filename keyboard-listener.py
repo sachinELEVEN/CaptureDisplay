@@ -14,6 +14,7 @@ window_pt_bottom_right = fast_screen_recording.window_pt_bottom_right
 window_show_everything = fast_screen_recording.window_show_everything
 sleep_awake_app = fast_screen_recording.sleep_awake_app
 sleep_status = fast_screen_recording.sleep_status
+display_output_mode_status = fast_screen_recording.display_output_mode_status
 update_current_keys = fast_screen_recording.update_current_keys
 toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_of_interest_hiding_approach
 display_output_mode_toggle = fast_screen_recording.display_output_mode_toggle
@@ -106,10 +107,14 @@ def on_press(key):
             # Execute the corresponding function.
             # when in sleep mode- all keyboard shortcuts other than sleep shortcut will be turned off
             if function_name in function_map:
+                #note you cant even put the app to sleep is display mode is false, this is intentional because it will be hard to know if the app went to sleep when display mode is turned off
                 if sleep_status() == False or function_name == 'sleep_awake_app':
-                    function_map[function_name]()
+                    if display_output_mode_status() == True or function_name == 'display_output_mode_toggle' or function_name == 'take_screenshot' or function_name == 'save_copied_text_to_file':
+                        function_map[function_name]()
+                    else:
+                        append_to_logs("keyboard shortcut ignored because display_output_mode is false:",function_name)
                 else:
-                    append_to_logs("keyboard shortcut ignored because sleep mode is on",function_name)
+                    append_to_logs("keyboard shortcut ignored because sleep mode is on:",function_name)
 
 def on_release(key):
     try:
