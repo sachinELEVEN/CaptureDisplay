@@ -114,7 +114,21 @@ class MonitorSelectorApp(rumps.App):
 
         # Add Shortcuts section
         shortcuts_menu = rumps.MenuItem("Shortcuts")
-        shortcuts = {
+
+        if sleep_status():
+            shortcuts = {
+                "Sleep mode is enabled. Only the following shortcut is available":"",
+                (self.get_shortcut('sleep_awake_app'),'      '): 'Sleep/awake',
+            }
+        elif display_output_mode_status()==False:
+            shortcuts = {
+            "Output Mode is Disabled. Only the following shortcuts are available":"",
+            (self.get_shortcut('save_copied_text_to_file'),'      '): 'Save copied text to the notes pdf file',
+            (self.get_shortcut('take_screenshot'),'      '): 'Take screenshot and save it to the notes pdf file',
+            (self.get_shortcut('display_output_mode_toggle'), '      '): 'Enable/disable output screen. Use this when you want to take notes. Notes can be screenshots of your input monitor or copied text',
+        }
+        else:
+            shortcuts = {
             'Double click': 'Enable/disable zoom mode',
             (self.get_shortcut('zoom_increase'),'      '): 'Zoom in when in zoom mode',
             (self.get_shortcut('zoom_decrease'),'       '): 'Zoom out when in zoom mode',
@@ -128,7 +142,6 @@ class MonitorSelectorApp(rumps.App):
             (self.get_shortcut('quit_app'), '      '): 'Quit',
             (self.get_shortcut('pen_mode_toggle'), '      '): 'Enable/disable pen mode. Use option + trackpad to draw',
             (self.get_shortcut('display_output_mode_toggle'), '      '): 'Enable/disable output screen. Use this when you want to take notes. Notes can be screenshots of your input monitor or copied text',
-            
         }
 
         for keys, description in shortcuts.items():
