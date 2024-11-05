@@ -702,7 +702,7 @@ def display_frame_at_required_monitor(frame,output_monitor_bounds):
         append_to_logs("Failed to output the frame because output monitor bounds is null. Probably toggling of display_output_mode happened recently")
         return
 
-    window_name = "Screen Capture"
+    window_name = "Capture Display"
     cv2.imshow(window_name, frame)
     cv2.moveWindow(window_name,int(output_monitor_bounds.origin.x),int(output_monitor_bounds.origin.y))
         
