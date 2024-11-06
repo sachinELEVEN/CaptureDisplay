@@ -59,11 +59,55 @@
             color: #ffcc00;
             margin-bottom: 10px;
         }
+        
+        p {
+            font-size: 1.8em;
+            line-height: 1.6;
+            margin: 10px 0;
+            margin-bottom: 40px;
+        }
+
         .feature p {
             font-size: 1.8em;
             line-height: 1.6;
             margin: 10px 0;
         }
+        .shortcut-list {
+            font-size: 1.8em;
+            line-height: 1.6;
+            margin-top: 15px;
+            padding-left: 20px;
+        }
+         .shortcut-list li {
+            margin-bottom: 8px;
+        }
+        h4 {
+            font-size: 2.9em;
+            color: #ffcc00;
+            margin-top: 30px;
+            margin-bottom: 10px;
+        }
+
+        .shortcut-table {
+        width: 100%;
+        margin-top: 15px;
+        border-collapse: collapse;
+        font-size: 1.8em;
+        }
+        .shortcut-table th, .shortcut-table td {
+            padding: 10px;
+            text-align: left;
+            border: 1px solid #333;
+        }
+        .shortcut-table th {
+            background-color: #333;
+            color: #ffcc00;
+            font-size: 1em;
+        }
+        .shortcut-table td {
+            color: #998787;
+        }
+
         .image-container {
             flex: 1;
             text-align: center;
@@ -173,6 +217,60 @@
             <p>Access every feature with customizable shortcuts for a seamless experience. Adjust the shortcuts as needed, giving you total control over every action in CaptureDisplay.</p>
         </div>
     </div>
+    
+    <!-- Shortcuts List -->
+    <h4>Available Shortcuts</h4>
+    <p>All these shortcuts can be overridden from settings file</p>
+    <table class="shortcut-table">
+        <tr>
+            <th>Action</th>
+            <th>Shortcut</th>
+        </tr>
+        <tr>
+            <td>Zoom in when in zoom mode</td>
+            <td>Ctrl +</td>
+        </tr>
+        <tr>
+            <td>Zoom out when in zoom mode</td>
+            <td>Ctrl -</td>
+        </tr>
+        <tr>
+            <td>Top left corner of the screen section to be visible</td>
+            <td>Ctrl (</td>
+        </tr>
+        <tr>
+            <td>Bottom right corner of the screen section to be visible</td>
+            <td>Ctrl )</td>
+        </tr>
+        <tr>
+            <td>Show entire screen</td>
+            <td>( )</td>
+        </tr>
+        <tr>
+            <td>Switch between blur and complete blackout</td>
+            <td>Ctrl B</td>
+        </tr>
+        <tr>
+            <td>Save copied text to the notes pdf file</td>
+            <td>Ctrl V</td>
+        </tr>
+        <tr>
+            <td>Take screenshot and save it to the notes pdf file</td>
+            <td>Ctrl K</td>
+        </tr>
+        <tr>
+            <td>Sleep/awake</td>
+            <td>Ctrl P</td>
+        </tr>
+        <tr>
+            <td>Quit</td>
+            <td>Ctrl Q</td>
+        </tr>
+        <tr>
+            <td>Enable/disable pen mode (Use Option + Trackpad to draw)</td>
+            <td>Ctrl O</td>
+        </tr>
+    </table>
 </div>
 
 </body>
