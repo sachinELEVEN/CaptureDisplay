@@ -44,13 +44,7 @@
             font-size: 2em;
             margin-top: 10px;
         }
-        .feature {
-            display: flex;
-            align-items: center;
-            margin: 40px 0;
-            border-bottom: 1px solid #333;
-            padding-bottom: 20px;
-        }
+        
         .feature:nth-child(even) {
             flex-direction: row-reverse;
         }
@@ -67,11 +61,7 @@
             margin-bottom: 40px;
         }
 
-        .feature p {
-            font-size: 1.8em;
-            line-height: 1.6;
-            margin: 10px 0;
-        }
+       
         .shortcut-list {
             font-size: 1.8em;
             line-height: 1.6;
@@ -108,17 +98,37 @@
             color: #998787;
         }
 
-        .image-container {
-            flex: 1;
-            text-align: center;
-            margin: 0 20px;
+        .feature {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            gap: 20px; /* Space between image and text */
+            /* padding-bottom: 20px; */
+            margin-bottom: 60px;
         }
-        .image-container img {
-            width: 100%;
-            max-width: 500px;
-            border-radius: 8px;
+
+        .image-container {
+            flex: 1.5; /* Gives more space to the image */
+            max-width: 800px; /* Controls maximum size */
+            text-align: center;
+            /* margin-bottom: 20px;
+            margin-top: 20px; */
+            margin-right: 40px;
+        }
+
+        .feature p {
+            flex: 1; /* Allows text to adjust size relative to image */
+            font-size: 1.8em; /* Adjust font size if needed */
+            line-height: 1.6;
             margin: 10px 0;
         }
+
+        .image-container img {
+            width: 100%;
+            max-width: 100%; /* Allows full use of container width */
+            border-radius: 8px;
+        }
+        
         .text-container {
             flex: 1;
         }
