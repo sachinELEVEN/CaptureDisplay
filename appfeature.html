@@ -12,56 +12,80 @@
             margin: 0;
             padding: 0;
         }
+
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: left;
+            margin-top: 20px;
+        }
+        
+        .header-image {
+            width: 100px; /* Control the width here */
+            height: auto; /* Maintain aspect ratio */
+            margin-right: 20px;
+        }
+
         .container {
             max-width: 1200px;
             margin: 0 auto;
             padding: 20px;
         }
         h1, h2 {
-            color: #133bed;
+            color: #ffcc00;
             text-align: center;
         }
         h1 {
-            font-size: 8.8em;
+            font-size: 4em;
             margin-top: 20px;
         }
-
         h2 {
-            font-size: 5.8em;
-            margin-top: 20px;
+            font-size: 2em;
+            margin-top: 10px;
         }
         .feature {
+            display: flex;
+            align-items: center;
             margin: 40px 0;
             border-bottom: 1px solid #333;
             padding-bottom: 20px;
         }
+        .feature:nth-child(even) {
+            flex-direction: row-reverse;
+        }
         .feature h3 {
-            font-size: 3.0em;
+            font-size: 2.9em;
             color: #ffcc00;
             margin-bottom: 10px;
         }
         .feature p {
-            font-size: 2.1em;
+            font-size: 1.8em;
             line-height: 1.6;
             margin: 10px 0;
         }
-        .feature img {
-            width: 100%;
-            max-width: 600px;
-            border-radius: 8px;
-            margin-top: 10px;
-        }
         .image-container {
+            flex: 1;
             text-align: center;
-            margin-top: 20px;
+            margin: 0 20px;
+        }
+        .image-container img {
+            width: 100%;
+            max-width: 500px;
+            border-radius: 8px;
+            margin: 10px 0;
+        }
+        .text-container {
+            flex: 1;
         }
         /* Responsive design */
         @media (max-width: 768px) {
-            h2 {
-                font-size: 1.5em;
+            .feature {
+                flex-direction: column;
+                text-align: center;
             }
-            .feature h3 {
-                font-size: 1.3em;
+            .text-container {
+                margin-top: 20px;
             }
         }
     </style>
@@ -69,62 +93,84 @@
 <body>
 
 <div class="container">
-    <h1>CaptureDisplay</h1>
-    <h2>Enhance Your Screen Sharing Experience</h2>
-
-    <div class="feature">
-        <h3>Real-time Screen Augmentation</h3>
-        <p>Take control of what you share in Google Meet or Zoom calls. Use CaptureDisplay to annotate, create notes, and capture screenshots on the go, all while keeping your content relevant and engaging.</p>
-    </div>
-
-    <div class="feature">
-        <h3>Enlarged Cursor</h3>
-        <p>Ensure everyone on the call sees exactly where you're pointing. The enlarged cursor feature makes navigation and highlights clearer for your audience. The cursor auto-follows as you navigate, so everyone stays in sync.</p>
-        <div class="image-container">
-            <img src="./marketing/4enlargedcursor.png" alt="Enlarged Cursor in Action">
+    <div class="header-container">
+        <img src="./marketing/mac-icon-big.png" alt="CaptureDisplay logo" class="header-image">
+        <div>
+            <h1>CaptureDisplay</h1>
+            <h2>Enhance Your Screen Sharing Experience</h2>
         </div>
     </div>
 
     <div class="feature">
-        <h3>Screen Content Hiding</h3>
-        <p>Show only what matters by hiding specific areas of the screen. Switch between <strong>blur</strong> and <strong>blackout</strong> modes with ease using shortcuts, so you can focus attention on what's important without distractions.</p>
+        <div class="image-container">
+            <img src="./marketing/4enlargedcursor.png" alt="Enlarged Cursor in Action">
+        </div>
+        <div class="text-container">
+            <h3>Real-time Screen Augmentation</h3>
+            <p>Take control of what you share in Google Meet or Zoom calls. Use CaptureDisplay to annotate, create notes, and capture screenshots on the go, all while keeping your content relevant and engaging.</p>
+        </div>
+    </div>
+
+    <div class="feature">
+        <div class="image-container">
+            <img src="./marketing/4enlargedcursor.png" alt="Enlarged Cursor in Action">
+        </div>
+        <div class="text-container">
+            <h3>Enlarged Cursor</h3>
+            <p>Ensure everyone on the call sees exactly where you're pointing. The enlarged cursor feature makes navigation and highlights clearer for your audience. The cursor auto-follows as you navigate, so everyone stays in sync.</p>
+        </div>
+    </div>
+
+    <div class="feature">
         <div class="image-container">
             <img src="./marketing/1Aall-screen-view-multiple-windows.png" alt="Full Screen View">
             <img src="./marketing/1CBlurmode.png" alt="Blur Mode">
             <img src="./marketing/1BBlackoutmode.png" alt="Blackout Mode">
         </div>
+        <div class="text-container">
+            <h3>Screen Content Hiding</h3>
+            <p>Show only what matters by hiding specific areas of the screen. Switch between <strong>blur</strong> and <strong>blackout</strong> modes with ease using shortcuts, so you can focus attention on what's important without distractions.</p>
+        </div>
     </div>
 
     <div class="feature">
-        <h3>Zoom In/Out Mode</h3>
-        <p>Quickly zoom in and out with a double-click, and fine-tune your view with customizable shortcuts. Perfect for when you need to bring the details into focus. The screen will automatically follow your cursor when you are zoomed into your content</p>
         <div class="image-container">
             <img src="./marketing/5Zoomedscreen.png" alt="Zoomed Screen Mode">
         </div>
-    </div>
-
-    <div class="feature">
-        <h3>Pen Mode</h3>
-        <p>Highlight important information or draw directly on the screen to clarify points for viewers. Pen mode allows easy annotation, making sure your focus is easily understood by everyone in the meeting.</p>
-        <div class="image-container">
-            <img src="./marketing/6penmode.png" alt="Pen Mode in Action">
+        <div class="text-container">
+            <h3>Zoom In/Out Mode</h3>
+            <p>Quickly zoom in and out with a double-click, and fine-tune your view with customizable shortcuts. Perfect for when you need to bring the details into focus. The screen will automatically follow your cursor when you are zoomed into your content.</p>
         </div>
     </div>
 
     <div class="feature">
-        <h3>Note Taking Made Easy</h3>
-        <p>Capture screenshots, URLs, and text snippets, then save them directly to a notes PDF file using shortcuts. Ideal for sharing after meetings or preserving important information during research. Organize everything in one place effortlessly and share the pdf file to other members afterwards with anyone you want.</p>
+        <div class="image-container">
+            <img src="./marketing/6penmode.png" alt="Pen Mode in Action">
+        </div>
+        <div class="text-container">
+            <h3>Pen Mode</h3>
+            <p>Highlight important information or draw directly on the screen to clarify points for viewers. Pen mode allows easy annotation, making sure your focus is easily understood by everyone in the meeting.</p>
+        </div>
+    </div>
+
+    <div class="feature">
         <div class="image-container">
             <img src="./marketing/3Notesselectedtext.png" alt="Selected Text for Notes">
             <img src="./marketing/3Notespdf.png" alt="Notes PDF">
         </div>
+        <div class="text-container">
+            <h3>Note Taking Made Easy</h3>
+            <p>Capture screenshots, URLs, and text snippets, then save them directly to a notes PDF file using shortcuts. Ideal for sharing after meetings or preserving important information during research. Organize everything in one place effortlessly and share the pdf file with others afterwards.</p>
+        </div>
     </div>
 
     <div class="feature">
-        <h3>Shortcut Driven Functionality</h3>
-        <p>Access every feature with customizable shortcuts for a seamless experience. Adjust the shortcuts as needed, giving you total control over every action in CaptureDisplay.</p>
         <div class="image-container">
             <img src="./marketing/2Shortcutlist.png" alt="Supported Shortcut List">
+        </div>
+        <div class="text-container">
+            <h3>Shortcut Driven Functionality</h3>
+            <p>Access every feature with customizable shortcuts for a seamless experience. Adjust the shortcuts as needed, giving you total control over every action in CaptureDisplay.</p>
         </div>
     </div>
 </div>
