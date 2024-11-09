@@ -7,6 +7,7 @@ import subprocess
 import sys
 from settings_file_manager import SettingsManager
 from datetime import datetime
+import requests
 
 utils = importlib.import_module("utils")
 get_resource_path = utils.get_resource_path
@@ -39,7 +40,27 @@ class MonitorSelectorApp(rumps.App):
         self.start_loop_function_timer()
         self.show_monitor_selection_alert()
         self.update_menu()
+        self.capture_display_launched()
         
+    
+    def capture_display_launched(self,api_url="http://localhost:3000/capturedisplay_launched"):
+        try:
+            # Send a GET request to the Node.js server endpoint
+            response = requests.get(api_url)
+
+            # Check if the request was successful
+            if response.status_code == 200:
+                # Parse JSON response
+                data = response.json()
+                # print("API Response:", data)
+                return None
+            else:
+                # print(f"Failed to call API. Status code: {response.status_code}")
+                return None
+
+        except requests.exceptions.RequestException as e:
+            print("Error making request:", e)
+            return None
         
 
     def menu_update_pending(self):
