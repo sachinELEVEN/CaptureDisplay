@@ -36,19 +36,19 @@ codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --times
 # ---------------------------------------
 # Step 3: Convert the application bundle to a DMG (macOS disk image)
 # ---------------------------------------
-# echo "Creating DMG installer..."
-# sleep 5
+echo "Creating DMG installer..."
+sleep 5
 
-# #Visit https://github.com/create-dmg/create-dmg for more information on create-dmg
-# # Create the DMG
-# # Ensure you have 'create-dmg' installed. If not, install using 'brew install create-dmg'
-# create-dmg  --volname "CaptureDisplay" --volicon "/Users/sachinjeph/Desktop/CaptureDisplay/assets/CaptureDisplayX.ico" --icon-size 100 --app-drop-link 425 120 "./dist/CaptureDisplay.dmg" "./dist/CaptureDisplay.app/"
+#Visit https://github.com/create-dmg/create-dmg for more information on create-dmg
+# Create the DMG
+# Ensure you have 'create-dmg' installed. If not, install using 'brew install create-dmg'
+create-dmg  --volname "CaptureDisplay" --volicon "/Users/sachinjeph/Desktop/CaptureDisplay/assets/CaptureDisplayX.ico" --icon-size 100 --app-drop-link 425 120 "./dist/CaptureDisplay.dmg" "./dist/CaptureDisplay.app/"
 # # ---------------------------------------
 # # Step 4: Signing the CaptureDisplay.dmg
 # # ---------------------------------------
-# #Signing the dmg
-# echo "Signing DMG..."
-# codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
+#Signing the dmg
+echo "Signing DMG..."
+codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
 
 # echo "Packaging and signing complete. You can find the DMG installer in the dist/ directory."
 
@@ -60,13 +60,13 @@ codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --times
 # #Here you will be asked to create an app specific password which you can generate from account.appleid.com, its simple
 # #Once your keychain profile is ready it will be there in keychain
 # #NOT NOTARIZING CAPTUREDISPALY BECAUSE I WAS ONLY ABLE TO NOTARIZE THE APP IN ONEFILE MODE WHICH IS SLOW ON EVERY LAUNCH DUE TO DECODING OF FILES ON LAUNCH
-# # echo "Notarising DMG..."
+echo "Notarising DMG..."
 # # #Notarisation step- takes some time so thats why they are commented
-# # xcrun notarytool submit "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay" --wait
+xcrun notarytool submit "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay" --wait
 # # #Staple the dmg, this allows for app verification without internet access on user's side
-# # xcrun stapler staple "./dist/CaptureDisplay.dmg"
+xcrun stapler staple "./dist/CaptureDisplay.dmg"
 # #Validate stapler step
-# #xcrun stapler validate "./dist/CaptureDisplay.dmg"
+xcrun stapler validate "./dist/CaptureDisplay.dmg"
 # #To verify if a dmg is notarised or not
 # # spctl -a -vvv -t install "./dist/CaptureDisplay.dmg"
 # #To see history of your notarization request run the below command
