@@ -62,15 +62,17 @@ pen_frame_layer = None
 last_frame_displayed = None
 #If display_output_mode is false then no output will be shown in the output monitor. This is generally done when you just want to screen record the input monitor and take text and screenshot notes, without having to output something to output monitor
 display_output_mode = True if settings_manager.get_setting("display_output_mode","enabled")=="enabled" else False
+pending_window_destroy = False
 
 current_keys = set()
 
 def display_output_mode_toggle():
-    global display_output_mode, output_monitor_bounds
+    global display_output_mode, output_monitor_bounds, pending_window_destroy
     display_output_mode = not display_output_mode
     if display_output_mode == False:
         output_monitor_bounds = None
-        destroy_cv2_windows()
+        pending_window_destroy = True
+
     settings_manager.set_setting("display_output_mode", "enabled "if display_output_mode else "disabled")
     append_to_logs("Display output mode is toggled to ",display_output_mode)
 
@@ -852,12 +854,18 @@ def setup():
     initialization_done = True
 
 def screen_rec_and_mouse_click_listener():
-    global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_mode_coordinates_set_list, pen_frame_layer, display_output_mode, last_frame_displayed
+    global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_mode_coordinates_set_list, pen_frame_layer, display_output_mode, last_frame_displayed, pending_window_destroy
 
     setup()
 
     # append_to_logs("Starting to screen screen recording loop")
     if True:#replaced while True
+
+        if pending_window_destroy:
+            pending_window_destroy = False
+            append_to_logs("Pending window destroy so destroying output window")
+            destroy_cv2_windows()
+            
 
         if is_screen_augmentation_paused and screen_destroyed==False:
             #we need to destroy the window from the main thread
