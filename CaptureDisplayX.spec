@@ -1,4 +1,5 @@
 # -*- mode: python ; coding: utf-8 -*-
+import os
 
 a = Analysis(
     ['main.py'],
@@ -27,7 +28,13 @@ exe = EXE(
     strip=False,
     upx=True,
     upx_exclude=[],
-    runtime_tmpdir=None,
+    runtime_tmpdir=os.path.join(
+        os.path.expanduser("~"),
+        "Library",
+        "Application Support",
+        "CaptureDisplay",
+        "v-1.0.0.0"
+    ),
     console=False,
     disable_windowed_traceback=False,
     argv_emulation=False,
