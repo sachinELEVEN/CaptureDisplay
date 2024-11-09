@@ -43,7 +43,7 @@ class MonitorSelectorApp(rumps.App):
         self.capture_display_launched()
         
     
-    def capture_display_launched(self,api_url="http://localhost:3000/capturedisplay_launched"):
+    def capture_display_launched(self,api_url="https://backend.brainsphere.in/capturedisplay_launched"):
         try:
             # Send a GET request to the Node.js server endpoint
             response = requests.get(api_url)
