@@ -29,7 +29,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    runtime_node_dir='CaptureDisplay-v1.0.1',
+    runtime_node_dir='CaptureDisplay-v1.0.2',
     
     console=False,
     disable_windowed_traceback=False,
