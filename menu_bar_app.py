@@ -30,7 +30,7 @@ menu_bar_icon_path = get_resource_path("./assets/CaptureDisplayX.ico")
 
 class MonitorSelectorApp(rumps.App):
     def __init__(self):
-        super(MonitorSelectorApp, self).__init__("Capture Display", icon='/Users/sachinjeph/Desktop/CaptureDisplay/assets/CaptureDisplayX.ico')
+        super(MonitorSelectorApp, self).__init__("Capture Display", icon=menu_bar_icon_path)
         self.input_monitor = None
         self.output_monitor = None
         self.last_sleep_awake_status = None
