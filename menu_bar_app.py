@@ -25,6 +25,8 @@ utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
 settings_manager = SettingsManager()
 
+menu_bar_icon_path = get_resource_path("./assets/CaptureDisplayX.ico")
+
 
 class MonitorSelectorApp(rumps.App):
     def __init__(self):
