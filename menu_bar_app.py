@@ -7,7 +7,6 @@ import subprocess
 import sys
 from settings_file_manager import SettingsManager
 from datetime import datetime
-import requests
 
 utils = importlib.import_module("utils")
 get_resource_path = utils.get_resource_path
@@ -23,6 +22,7 @@ display_output_mode_status = fast_screen_recording.display_output_mode_status
 start_time = None
 utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
+notify_server = utils.notify_server
 settings_manager = SettingsManager()
 
 menu_bar_icon_path = get_resource_path("./assets/CaptureDisplayX.ico")
@@ -45,24 +45,8 @@ class MonitorSelectorApp(rumps.App):
         self.capture_display_launched()
         
     
-    def capture_display_launched(self,api_url="https://backend.brainsphere.in/capturedisplay_launched"):
-        try:
-            # Send a GET request to the Node.js server endpoint
-            response = requests.get(api_url)
-
-            # Check if the request was successful
-            if response.status_code == 200:
-                # Parse JSON response
-                data = response.json()
-                # print("API Response:", data)
-                return None
-            else:
-                # print(f"Failed to call API. Status code: {response.status_code}")
-                return None
-
-        except requests.exceptions.RequestException as e:
-            print("Error making request:", e)
-            return None
+    def capture_display_launched(self):
+        notify_server("app_launched")
         
 
     def menu_update_pending(self):
@@ -197,23 +181,27 @@ class MonitorSelectorApp(rumps.App):
         append_to_logs("display_output_mode_toggle called from menu bar")
         display_output_mode_toggle()
         self.refresh_menu()
+        notify_server("display_output_mode_toggle called from menu bar")
     
     def sleep_awake_action(self,sender):
         append_to_logs("Sleep awake action invoked from menu bar")
         sleep_awake_app()
         #Do not update the last_sleep_awake_status status here, we want the menu bar refresh logic to set that so it the menu bar refreshes
         self.refresh_menu() 
+        notify_server("Sleep awake action invoked from menu bar")
 
     def select_input_monitor(self, sender):
         append_to_logs("Input monitor is", sender.title)
         self.input_monitor = sender.title.split(" ")[0]  # Get monitor name without (Selected)
         set_input_monitor(self.input_monitor)
+        notify_server("input_monitor_set from menu bar")
         self.refresh_menu()  # Refresh the menu after selection
 
     def select_output_monitor(self, sender):
         append_to_logs("Output monitor is", sender.title)
         self.output_monitor = sender.title.split(" ")[0]  # Get monitor name without (Selected)
         set_output_monitor(self.output_monitor)
+        notify_server("output_monitor_set from menu bar")
         self.refresh_menu()  # Refresh the menu after selection
 
     def is_license_expired(self):
@@ -221,6 +209,7 @@ class MonitorSelectorApp(rumps.App):
         current_date = datetime.now()
         if current_date > target_date:
             append_to_logs("License Information: License is expired. Please download the newer version of CaptureDisplay")
+            notify_server("license expired")
         else:
             append_to_logs("License Information: Capture Display License is valid")
         return current_date > target_date
@@ -300,6 +289,8 @@ class MonitorSelectorApp(rumps.App):
         
         # Open the folder in Finder on macOS
         subprocess.run(['open', notes_path])
+
+        notify_server("notes opened from menu bar")
 
 # should be run on the main thread since it's a UI event loop
 def menu_bar_app():

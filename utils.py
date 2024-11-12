@@ -1,6 +1,7 @@
 import os
 import sys
 import re
+import requests
 
 def get_resource_path(relative_path):
         #Paths change after creating an artifact using pyinstaller.
@@ -54,3 +55,23 @@ def append_to_logs(*args):
         print(f'Logged {log_file_path}: ', text_to_append)
     except Exception as e:
         print(f'Error appending text to {log_file_path}: {str(e)}')
+
+
+def notify_server(message_type,api_url="https://backend.brainsphere.in/capturedisplay_launched"):
+        try:
+            # Send a GET request to the Node.js server endpoint
+            response = requests.get(api_url)
+
+            # Check if the request was successful
+            if response.status_code == 200:
+                # Parse JSON response
+                # data = response.json()
+                # print("API Response:", data)
+                return None
+            else:
+                # print(f"Failed to call API. Status code: {response.status_code}")
+                return None
+
+        except requests.exceptions.RequestException as e:
+            # print("Error making request:", e)
+            return None

@@ -22,6 +22,7 @@ take_screenshot = fast_screen_recording.take_screenshot
 save_copied_text_to_file = save_copied_text_to_file.save_content_as_pdf
 utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
+notify_server = utils.notify_server
 settings_manager = SettingsManager()
 
 
@@ -112,6 +113,7 @@ def on_press(key):
                 if sleep_status() == False or function_name == 'sleep_awake_app':
                     if (sleep_status() == True and function_name == 'sleep_awake_app') or display_output_mode_status() == True or function_name == 'display_output_mode_toggle' or function_name == 'take_screenshot' or function_name == 'save_copied_text_to_file':
                         function_map[function_name]()
+                        notify_server(f"shortcut={function_name}")
                     else:
                         append_to_logs("keyboard shortcut ignored because display_output_mode is false:",function_name)
                 else:
