@@ -57,21 +57,26 @@ def append_to_logs(*args):
         print(f'Error appending text to {log_file_path}: {str(e)}')
 
 
-def notify_server(message_type,api_url="https://backend.brainsphere.in/capturedisplay_launched"):
-        try:
-            # Send a GET request to the Node.js server endpoint
-            response = requests.get(api_url)
+def notify_server(message_type, api_url="https://backend.brainsphere.in/capture_display_events"):
+    # Ensure message_type is a string
+    if not isinstance(message_type, str):
+        # print("Error: message_type must be a string")
+        return None
 
-            # Check if the request was successful
-            if response.status_code == 200:
-                # Parse JSON response
-                # data = response.json()
-                # print("API Response:", data)
-                return None
-            else:
-                # print(f"Failed to call API. Status code: {response.status_code}")
-                return None
+    try:
+        # Send a GET request to the Node.js server endpoint with message_type as a query parameter
+        response = requests.get(api_url, params={"event_name": message_type,"credentials":"35ge344tgon232@1!.#3EW"})
 
-        except requests.exceptions.RequestException as e:
-            # print("Error making request:", e)
+        # Check if the request was successful
+        if response.status_code == 200:
+            # Parse JSON response
+            # data = response.json()
+            # print("API Response:", data)
             return None
+        else:
+            # print(f"Failed to call API. Status code: {response.status_code}")
+            return None
+
+    except requests.exceptions.RequestException as e:
+        # print("Error making request:", e)
+        return None
