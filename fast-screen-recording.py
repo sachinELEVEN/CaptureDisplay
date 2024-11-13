@@ -72,6 +72,11 @@ current_keys_with_history_for_certain_time = []
 current_keys_history_for_iterations = 100
 show_pressed_keys_on_screen = True
 
+def show_pressed_keys_on_screen_toggle():
+    global show_pressed_keys_on_screen
+    show_pressed_keys_on_screen = not show_pressed_keys_on_screen
+    append_to_logs("show_pressed_keys_on_screen set to",show_pressed_keys_on_screen)
+
 def display_output_mode_toggle():
     global display_output_mode, output_monitor_bounds, pending_window_destroy
     display_output_mode = not display_output_mode

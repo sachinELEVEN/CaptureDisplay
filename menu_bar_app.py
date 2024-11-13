@@ -150,6 +150,7 @@ class MonitorSelectorApp(rumps.App):
             (self.get_shortcut('quit_app'), '      '): 'Quit',
             (self.get_shortcut('pen_mode_toggle'), '      '): 'Enable/disable pen mode. Use option + trackpad to draw',
             (self.get_shortcut('display_output_mode_toggle'), '      '): 'Enable/disable output screen. Use this when you want to take notes. Notes can be screenshots of your input monitor or copied text',
+            (self.get_shortcut('show_pressed_keys_on_screen_toggle'), '       '): 'Enable/disable showing typed text on screen. This is helpful while giving tutorials or onboarding people',
         }
 
         for keys, description in shortcuts.items():

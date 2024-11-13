@@ -20,6 +20,7 @@ toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_
 display_output_mode_toggle = fast_screen_recording.display_output_mode_toggle
 add_last_pressed_key_to_current_keys_with_history = fast_screen_recording.add_last_pressed_key_to_current_keys_with_history
 take_screenshot = fast_screen_recording.take_screenshot
+show_pressed_keys_on_screen_toggle = fast_screen_recording.show_pressed_keys_on_screen_toggle
 save_copied_text_to_file = save_copied_text_to_file.save_content_as_pdf
 utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
@@ -53,6 +54,7 @@ shortcut_actions = {
     get_shortcut(('ctrl', 'o'),'pen_mode_toggle'): 'pen_mode_toggle',
     get_shortcut(('ctrl', 'k'),'take_screenshot'):'take_screenshot',
     get_shortcut(('ctrl', 'd'),'display_output_mode_toggle'):'display_output_mode_toggle',
+    get_shortcut(('ctrl', 'i'),'show_pressed_keys_on_screen_toggle'):'show_pressed_keys_on_screen_toggle',
 }
 
 # Track the currently pressed keys.
@@ -86,7 +88,8 @@ function_map = {
     'sleep_awake_app':sleep_awake_app,
     'pen_mode_toggle':pen_mode_toggle,
     'take_screenshot':take_screenshot,
-    'display_output_mode_toggle':display_output_mode_toggle
+    'display_output_mode_toggle':display_output_mode_toggle,
+    'show_pressed_keys_on_screen_toggle':show_pressed_keys_on_screen_toggle
 
 }
 
