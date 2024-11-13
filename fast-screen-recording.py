@@ -871,7 +871,7 @@ def setup():
 
     logo_watermark_path = settings_manager.get_setting("logo_watermark_path_png","")
     if logo_watermark_path == "":
-        print("logo_watermark_path was not provided using the CaptureDisplay logo as the watermark")
+        append_to_logs("logo_watermark_path was not provided using the CaptureDisplay logo as the watermark")
         logo_watermark_path = cursor_img_path
 
     initialization_done = True
