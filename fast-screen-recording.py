@@ -69,7 +69,7 @@ pending_window_destroy = False
 current_keys = set()
 current_keys_with_history_for_certain_time = {}
 #for this many iterations current_keys_with_history_for_certain_time will maintain the record of key in its map
-current_keys_history_for_iterations = 10
+current_keys_history_for_iterations = 200
 show_pressed_keys_on_screen = True
 
 def display_output_mode_toggle():
@@ -484,7 +484,7 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, overlay_wi
     return frame
 
 
-def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, color=(255, 255, 255), position=(50, 50), spacing=100):
+def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, color=(255, 255, 255), position=(50,100), spacing=100):
     """
     Displays each character from a dictionary on a given frame in large, bold text, sorted by the integer value associated with each character.
 
@@ -503,9 +503,13 @@ def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, co
     # Loop through each character and display it on the frame
     x, y = position
     for char, _ in sorted_characters:
+
+        if char == "space":
+            char = ' '
+
         cv2.putText(
             frame,                # Frame to draw on
-            char,                 # Character to display
+            char,              # Character to display
             (x, y),               # Position to place the character
             cv2.FONT_HERSHEY_SIMPLEX, # Font type
             font_scale,           # Font scale for size
@@ -514,7 +518,8 @@ def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, co
             lineType=cv2.LINE_AA  # Anti-aliased line for better quality
         )
         # Update x-position for the next character, moving right by 'spacing' pixels
-        x += spacing
+
+        x += spacing + spacing*int(len(char)/2)
     
     return frame
 
