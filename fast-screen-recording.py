@@ -497,7 +497,7 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, overlay_wi
 
 import cv2
 
-def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, color=(255, 255, 255), position=(50, 100), spacing=100):
+def display_characters_on_frame(frame, characters, font_scale=3, thickness=8, color=(255, 255, 255), position=(50, 100), spacing=100):
     """
     Displays each character from a list of tuples on a given frame in large, bold text, sorted by the integer value associated with each character.
 
@@ -527,7 +527,7 @@ def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, co
             frame,                # Frame to draw on
             char,                 # Character to display
             (x, y),               # Position to place the character
-            cv2.FONT_HERSHEY_SIMPLEX, # Font type
+            cv2.FONT_HERSHEY_DUPLEX, # Font type
             font_scale,           # Font scale for size
             color,                # Color of the text
             thickness,            # Thickness of the text
