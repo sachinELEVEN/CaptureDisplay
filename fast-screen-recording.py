@@ -67,6 +67,7 @@ display_output_mode = True if settings_manager.get_setting("display_output_mode"
 pending_window_destroy = False
 
 current_keys = set()
+show_pressed_keys_on_screen = True
 
 def display_output_mode_toggle():
     global display_output_mode, output_monitor_bounds, pending_window_destroy
@@ -447,6 +448,43 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, overlay_wi
 
     return frame
 
+import cv2
+
+def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, color=(255, 255, 255), position=(50, 50), spacing=100):
+    """
+    Displays each character from a set on a given frame in large, bold text.
+
+    :param frame: The background frame (numpy array).
+    :param characters: A set of characters to display.
+    :param font_scale: Font scale for the text.
+    :param thickness: Thickness of the text.
+    :param color: Color of the text in BGR format (default is white).
+    :param position: Starting position (top-left corner) for the first character.
+    :param spacing: Spacing between characters (in pixels).
+    :return: The frame with the characters overlaid.
+    """
+    # Sort characters to display them in a consistent order
+    characters = sorted(characters)
+    
+    # Loop through each character and display it on the frame
+    x, y = position
+    for char in characters:
+        cv2.putText(
+            frame,                # Frame to draw on
+            char,                 # Character to display
+            (x, y),               # Position to place the character
+            cv2.FONT_HERSHEY_SIMPLEX, # Font type
+            font_scale,           # Font scale for size
+            color,                # Color of the text
+            thickness,            # Thickness of the text
+            lineType=cv2.LINE_AA  # Anti-aliased line for better quality
+        )
+        # Update x-position for the next character, moving right by 'spacing' pixels
+        x += spacing
+    
+    return frame
+
+
 #Augments the frame by adjusting the zoom level about the cursor based on the cursor movement and returns a list of frames
     
 # Zoomed video preview
@@ -586,7 +624,7 @@ def dim_except_region(frame, input_monitor_bounds):
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
     global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_frame_layer, last_frame_displayed
-    global logo_watermark_path, cursor_img_path
+    global logo_watermark_path, cursor_img_path, show_pressed_keys_on_screen,current_keys
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -685,6 +723,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             # Apply zoom for each interpolated zoom level
             # Need to do this only when zoom level has changed
             for zoom in zoom_levels:
+                # display_characters_on_frame
                 zoomed_frame = zoom_at(frame_with_pen_layer_overlay, zoom=zoom, angle=angle, coord=(cursor_x, cursor_y))
                 if show_processed_video_preview:
                     # Optionally, draw a rectangle around the detected cursor
@@ -692,9 +731,14 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                     if show_rectangle_overlay and cursor_in_bounds:
                         cv2.rectangle(zoomed_frame, (int(cursor_x), int(cursor_y)), (int(cursor_x) + 50, int(cursor_y) + 50), (0, 255, 0), 2)
                     
+                    if show_pressed_keys_on_screen:
+                        zoomed_frame_with_chars = display_characters_on_frame(zoomed_frame,current_keys)
+                    else:
+                        zoomed_frame_with_chars = zoomed_frame
+
                     #Frame needs to be processed here before we display it
-                    last_frame_displayed = zoomed_frame
-                    display_frame_at_required_monitor(zoomed_frame,output_monitor_bounds)
+                    last_frame_displayed = zoomed_frame_with_chars
+                    display_frame_at_required_monitor(zoomed_frame_with_chars,output_monitor_bounds)
                     # cv2.imshow("Zoomed Frame", zoomed_frame)
 
                 # Write the zoomed frame to the output video
