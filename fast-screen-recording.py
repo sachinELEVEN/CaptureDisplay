@@ -67,7 +67,7 @@ display_output_mode = True if settings_manager.get_setting("display_output_mode"
 pending_window_destroy = False
 
 current_keys = set()
-current_keys_with_history_for_certain_time = {}
+current_keys_with_history_for_certain_time = []
 #for this many iterations current_keys_with_history_for_certain_time will maintain the record of key in its map
 current_keys_history_for_iterations = 200
 show_pressed_keys_on_screen = True
@@ -101,34 +101,43 @@ def pen_mode_toggle():
 
 def add_keys_to_current_keys_with_history():
     global show_pressed_keys_on_screen
-    if show_pressed_keys_on_screen == False:
+    if not show_pressed_keys_on_screen:
         return
     
-    global current_keys, current_keys_with_history_for_certain_time,current_keys_history_for_iterations
-    # For each character in current_keys, add it to the map with value 1000
+    global current_keys, current_keys_with_history_for_certain_time, current_keys_history_for_iterations
+    
+    # Clear the list to avoid duplications- we want duplication
+    #current_keys_with_history_for_certain_time.clear()
+    
+    # For each character in current_keys, add it to the list as a tuple (key, value)
     for key in current_keys:
-        current_keys_with_history_for_certain_time[key] = current_keys_history_for_iterations
+        current_keys_with_history_for_certain_time.append((key, current_keys_history_for_iterations))
+    
     return current_keys_with_history_for_certain_time
 
+
 def decrement_value_current_keys_with_history():
-    global current_keys_with_history_for_certain_time,show_pressed_keys_on_screen
+    global current_keys_with_history_for_certain_time, show_pressed_keys_on_screen
     
-    if show_pressed_keys_on_screen == False:
+    if not show_pressed_keys_on_screen:
         return
-    # List of keys to remove after decrementing
-    keys_to_remove = []
     
-    # Decrement each key's value by 1, and mark for removal if it becomes 0
-    for key in current_keys_with_history_for_certain_time:
-        current_keys_with_history_for_certain_time[key] -= 1
-        if current_keys_with_history_for_certain_time[key] == 0:
-            keys_to_remove.append(key)
+    # New list to store tuples with non-zero values after decrement
+    updated_keys_with_history = []
     
-    # Remove keys with value 0
-    for key in keys_to_remove:
-        del current_keys_with_history_for_certain_time[key]
+    # Iterate through each (key, value) tuple
+    for key, value in current_keys_with_history_for_certain_time:
+        # Decrement the value
+        new_value = value - 1
+        # Only keep tuples where the new value is greater than 0
+        if new_value > 0:
+            updated_keys_with_history.append((key, new_value))
+    
+    # Update the global list with only the tuples that have non-zero values
+    current_keys_with_history_for_certain_time = updated_keys_with_history
     
     return current_keys_with_history_for_certain_time
+
 
 def update_current_keys(key_set):
     global current_keys
@@ -484,12 +493,14 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, overlay_wi
     return frame
 
 
-def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, color=(255, 255, 255), position=(50,100), spacing=100):
+import cv2
+
+def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, color=(255, 255, 255), position=(50, 100), spacing=100):
     """
-    Displays each character from a dictionary on a given frame in large, bold text, sorted by the integer value associated with each character.
+    Displays each character from a list of tuples on a given frame in large, bold text, sorted by the integer value associated with each character.
 
     :param frame: The background frame (numpy array).
-    :param characters: A dictionary where keys are characters and values are integers.
+    :param characters: A list of tuples where each tuple has a character in the first position and an integer value in the second position.
     :param font_scale: Font scale for the text.
     :param thickness: Thickness of the text.
     :param color: Color of the text in BGR format (default is white).
@@ -498,18 +509,18 @@ def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, co
     :return: The frame with the characters overlaid.
     """
     # Sort the characters based on their corresponding integer values (ascending order)
-    sorted_characters = sorted(characters.items(), key=lambda item: item[1])
+    sorted_characters = sorted(characters, key=lambda item: item[1])
 
     # Loop through each character and display it on the frame
     x, y = position
     for char, _ in sorted_characters:
-
-        if char == "space":
-            char = ' '
+        # Replace "space" with an actual space character
+        # if char == "space":
+        #     char = ' '
 
         cv2.putText(
             frame,                # Frame to draw on
-            char,              # Character to display
+            char,                 # Character to display
             (x, y),               # Position to place the character
             cv2.FONT_HERSHEY_SIMPLEX, # Font type
             font_scale,           # Font scale for size
@@ -517,11 +528,12 @@ def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, co
             thickness,            # Thickness of the text
             lineType=cv2.LINE_AA  # Anti-aliased line for better quality
         )
+        
         # Update x-position for the next character, moving right by 'spacing' pixels
-
-        x += spacing + spacing*int(len(char)/2)
+        x += spacing + spacing * int(len(char) / 2)
     
     return frame
+
 
 
 #Augments the frame by adjusting the zoom level about the cursor based on the cursor movement and returns a list of frames
