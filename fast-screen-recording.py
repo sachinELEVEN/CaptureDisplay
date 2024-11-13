@@ -58,7 +58,6 @@ pen_color_g = int(settings_manager.get_setting("pen_color_g",255))
 pen_color_b = int(settings_manager.get_setting("pen_color_b",0))
 #when moving across monitors pen_frame_layer will get destorted because the underlying frame with change, so you need to disable and re-enable pen mode, so pen_frame_layer is recalculated
 pen_frame_layer = None
-logo_watermark_layer = None
 logo_watermark_path = None
 cursor_img_path = "./assets/mac-cursor-4x/default@4x.png"
 
@@ -405,6 +404,10 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, is_image_p
     """
     if is_image_path_absolute == False:
         image_path = get_resource_path(image_path)
+    # image_path = "/Users/sachinjeph/Desktop/next_iphone.png"
+    # image_path = "/Users/sachinjeph/Desktop/CaptureDisplay/./assets/mac-cursor-4x/default@4x.png"
+    #the image size cannot be too big
+    # image_path = "/Users/sachinjeph/Desktop/ss-1.png"
     top_left_x = int(top_left_x)
     top_left_y = int(top_left_y)
     # Load the overlay image from the given path.
@@ -578,7 +581,7 @@ def dim_except_region(frame, input_monitor_bounds):
 
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
-    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_frame_layer, last_frame_displayed, logo_watermark_layer
+    global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_frame_layer, last_frame_displayed
     global logo_watermark_path, cursor_img_path
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
@@ -653,16 +656,8 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 only_show_region_of_interest_frame = dim_except_region(frame,input_monitor_bounds_unnormalized)
             
             #Add logo watermark overlay
-            if logo_watermark_layer is not None and logo_watermark_path is not None:
-                try:
-                    frame_with_logo_watermark_layer_overlay = overlay_image_on_frame(only_show_region_of_interest_frame,logo_watermark_path,input_monitor_bounds.origin.x + input_monitor_bounds.size.width - 100,input_monitor_bounds.origin.y + input_monitor_bounds.size.height - 100,is_image_path_absolute=cursor_img_path != logo_watermark_path)
-                except Exception as e:
-                    print("Exception in apply logo_watermark_layer on top of main frame, will reset the logo_watermark_layer:",e)
-                    logo_watermark_layer = None
-                    #for this frame calculation we will not overlay any pen layer
-                    frame_with_logo_watermark_layer_overlay = only_show_region_of_interest_frame
-            else:
-                frame_with_logo_watermark_layer_overlay = only_show_region_of_interest_frame 
+            if  logo_watermark_path is not None:
+                frame_with_logo_watermark_layer_overlay = overlay_image_on_frame(only_show_region_of_interest_frame,logo_watermark_path,input_monitor_bounds.origin.x + input_monitor_bounds.size.width - 100,input_monitor_bounds.origin.y + input_monitor_bounds.size.height - 100,is_image_path_absolute=cursor_img_path != logo_watermark_path)
 
             #Add cursor overlay on it
             frame_with_cursor = overlay_image_on_frame(frame_with_logo_watermark_layer_overlay,"./assets/mac-cursor-4x/default@4x.png",cursor_x-20,cursor_y-20)
@@ -879,7 +874,6 @@ def setup():
 
 def screen_rec_and_mouse_click_listener():
     global screen_capture, mouse_event_listener, input_monitor, output_monitor, is_screen_augmentation_paused, screen_destroyed, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_mode_coordinates_set_list, pen_frame_layer, display_output_mode, last_frame_displayed, pending_window_destroy
-    global logo_watermark_layer
     setup()
 
     # append_to_logs("Starting to screen screen recording loop")
@@ -967,11 +961,7 @@ def screen_rec_and_mouse_click_listener():
             pen_mode_coordinates_curr_set = set()
             pen_frame_layer = None
         #Augmentation of the frame
-       
-        #Apply video logo overlay watermark at the bottom right
-        if logo_watermark_layer is None:
-            logo_watermark_layer = np.zeros((screen_capture.screen_height, screen_capture.screen_width, 3), dtype=np.uint8)
-            print("creating logo_watermark_layer")
+
 
         # append_to_logs("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
