@@ -392,26 +392,30 @@ def draw_pen_mode(frame, only_draw_recent_line=False, draw_lines=True, color=(0,
     
     return frame
 
-def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, is_image_path_absolute = False):
+def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, overlay_width=None, overlay_height=None, is_image_path_absolute=False):
     """
-    Overlays an image onto a given frame at specified coordinates.
+    Overlays an image onto a given frame at specified coordinates, with optional resizing.
 
     :param frame: The background frame (numpy array).
     :param image_path: Path to the image to overlay.
     :param top_left_x: X-coordinate of the top-left corner where the image should be placed.
     :param top_left_y: Y-coordinate of the top-left corner where the image should be placed.
+    :param overlay_width: The desired width of the overlay image (only used if is_image_path_absolute is True).
+    :param overlay_height: The desired height of the overlay image (only used if is_image_path_absolute is True).
+    :param is_image_path_absolute: Boolean indicating if image_path is an absolute path.
     :return: The frame with the image overlaid.
     """
-    if is_image_path_absolute == False:
+    if not is_image_path_absolute:
         image_path = get_resource_path(image_path)
-    # image_path = "/Users/sachinjeph/Desktop/next_iphone.png"
-    # image_path = "/Users/sachinjeph/Desktop/CaptureDisplay/./assets/mac-cursor-4x/default@4x.png"
-    #the image size cannot be too big
-    # image_path = "/Users/sachinjeph/Desktop/ss-1.png"
     top_left_x = int(top_left_x)
     top_left_y = int(top_left_y)
+
     # Load the overlay image from the given path.
     overlay = cv2.imread(image_path, cv2.IMREAD_UNCHANGED)
+
+    # Resize overlay image if required
+    if is_image_path_absolute and overlay_width and overlay_height:
+        overlay = cv2.resize(overlay, (overlay_width, overlay_height), interpolation=cv2.INTER_AREA)
 
     # If the overlay image has an alpha channel, we need to split it.
     if overlay.shape[2] == 4:
@@ -428,7 +432,7 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, is_image_p
 
     # Ensure that the coordinates are within the frame boundaries.
     if top_left_x < 0 or top_left_y < 0 or bottom_right_x > frame.shape[1] or bottom_right_y > frame.shape[0]:
-        # append_to_logs("The overlay image is out of frame bounds. Not adding cursor")
+        #append_to_logs("The overlay image is out of frame bounds. Not adding overlay.")
         return frame
 
     # Extract the region of interest (ROI) from the frame.
@@ -657,7 +661,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
             
             #Add logo watermark overlay
             if  logo_watermark_path is not None:
-                frame_with_logo_watermark_layer_overlay = overlay_image_on_frame(only_show_region_of_interest_frame,logo_watermark_path,input_monitor_bounds.origin.x + input_monitor_bounds.size.width - 100,input_monitor_bounds.origin.y + input_monitor_bounds.size.height - 100,is_image_path_absolute=cursor_img_path != logo_watermark_path)
+                frame_with_logo_watermark_layer_overlay = overlay_image_on_frame(only_show_region_of_interest_frame, logo_watermark_path, only_show_region_of_interest_frame.shape[1] - 100, only_show_region_of_interest_frame.shape[0] - 100, 50, 50, is_image_path_absolute=cursor_img_path != logo_watermark_path)
 
             #Add cursor overlay on it
             frame_with_cursor = overlay_image_on_frame(frame_with_logo_watermark_layer_overlay,"./assets/mac-cursor-4x/default@4x.png",cursor_x-20,cursor_y-20)
