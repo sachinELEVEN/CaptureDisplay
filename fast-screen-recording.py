@@ -69,7 +69,7 @@ pending_window_destroy = False
 current_keys = set()
 current_keys_with_history_for_certain_time = []
 #for this many iterations current_keys_with_history_for_certain_time will maintain the record of key in its map
-current_keys_history_for_iterations = 200
+current_keys_history_for_iterations = 100
 show_pressed_keys_on_screen = True
 
 def display_output_mode_toggle():
@@ -99,22 +99,25 @@ def pen_mode_toggle():
     pen_mode_enabled = not pen_mode_enabled
     append_to_logs("pen mode status is:",pen_mode_enabled,)
 
-def add_keys_to_current_keys_with_history():
+def add_last_pressed_key_to_current_keys_with_history(key):
+     
+    if key is None:
+        return
+     
     global show_pressed_keys_on_screen
     if not show_pressed_keys_on_screen:
         return
     
-    global current_keys, current_keys_with_history_for_certain_time, current_keys_history_for_iterations
+    global current_keys_with_history_for_certain_time, current_keys_history_for_iterations
     
     # Clear the list to avoid duplications- we want duplication
     #current_keys_with_history_for_certain_time.clear()
     
     # For each character in current_keys, add it to the list as a tuple (key, value)
-    for key in current_keys:
-        current_keys_with_history_for_certain_time.append((key, current_keys_history_for_iterations))
+    
+    current_keys_with_history_for_certain_time.append((key, current_keys_history_for_iterations))
     
     return current_keys_with_history_for_certain_time
-
 
 def decrement_value_current_keys_with_history():
     global current_keys_with_history_for_certain_time, show_pressed_keys_on_screen
@@ -142,7 +145,6 @@ def decrement_value_current_keys_with_history():
 def update_current_keys(key_set):
     global current_keys
     current_keys = key_set
-    add_keys_to_current_keys_with_history()
 
 def is_key_pressed(key_name):
     if key_name in current_keys:
@@ -514,6 +516,9 @@ def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, co
     # Loop through each character and display it on the frame
     x, y = position
     for char, _ in sorted_characters:
+
+        if char is None:
+            continue
         # Replace "space" with an actual space character
         # if char == "space":
         #     char = ' '

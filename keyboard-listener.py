@@ -18,12 +18,14 @@ display_output_mode_status = fast_screen_recording.display_output_mode_status
 update_current_keys = fast_screen_recording.update_current_keys
 toggle_region_of_interest_hiding_approach = fast_screen_recording.toggle_region_of_interest_hiding_approach
 display_output_mode_toggle = fast_screen_recording.display_output_mode_toggle
+add_last_pressed_key_to_current_keys_with_history = fast_screen_recording.add_last_pressed_key_to_current_keys_with_history
 take_screenshot = fast_screen_recording.take_screenshot
 save_copied_text_to_file = save_copied_text_to_file.save_content_as_pdf
 utils = importlib.import_module("utils")
 append_to_logs = utils.append_to_logs
 notify_server = utils.notify_server
 settings_manager = SettingsManager()
+last_key_pressed = None
 
 
 def get_shortcut(default_shortcut,action_name):
@@ -90,6 +92,8 @@ function_map = {
 
 # Function to check if a shortcut is triggered.
 def on_press(key):
+    global last_key_pressed
+
     try:
         # Normalize the key name.
         key_name = key.char if hasattr(key, 'char') else key.name
@@ -98,7 +102,13 @@ def on_press(key):
         return
 
     # Add the key to the set of currently pressed keys.
+    if key_name == last_key_pressed:
+        return
+    
     current_keys.add(key_name)
+
+    last_key_pressed = key_name
+    add_last_pressed_key_to_current_keys_with_history(key_name)
     update_current_keys(current_keys)
 
     # Check for any shortcut that matches the currently pressed keys.
@@ -120,12 +130,15 @@ def on_press(key):
                     append_to_logs("keyboard shortcut ignored because sleep mode is on:",function_name)
 
 def on_release(key):
+    global last_key_pressed
     try:
         # Normalize the key name.
         key_name = key.char if hasattr(key, 'char') else key.name
     except AttributeError:
         return
 
+    if  key_name == last_key_pressed:
+        last_key_pressed = None
     # Remove the key from the set of currently pressed keys.
     if key_name in current_keys:
         current_keys.remove(key_name)
