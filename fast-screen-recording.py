@@ -67,6 +67,9 @@ display_output_mode = True if settings_manager.get_setting("display_output_mode"
 pending_window_destroy = False
 
 current_keys = set()
+current_keys_with_history_for_certain_time = {}
+#for this many iterations current_keys_with_history_for_certain_time will maintain the record of key in its map
+current_keys_history_for_iterations = 10
 show_pressed_keys_on_screen = True
 
 def display_output_mode_toggle():
@@ -96,9 +99,41 @@ def pen_mode_toggle():
     pen_mode_enabled = not pen_mode_enabled
     append_to_logs("pen mode status is:",pen_mode_enabled,)
 
+def add_keys_to_current_keys_with_history():
+    global show_pressed_keys_on_screen
+    if show_pressed_keys_on_screen == False:
+        return
+    
+    global current_keys, current_keys_with_history_for_certain_time,current_keys_history_for_iterations
+    # For each character in current_keys, add it to the map with value 1000
+    for key in current_keys:
+        current_keys_with_history_for_certain_time[key] = current_keys_history_for_iterations
+    return current_keys_with_history_for_certain_time
+
+def decrement_value_current_keys_with_history():
+    global current_keys_with_history_for_certain_time,show_pressed_keys_on_screen
+    
+    if show_pressed_keys_on_screen == False:
+        return
+    # List of keys to remove after decrementing
+    keys_to_remove = []
+    
+    # Decrement each key's value by 1, and mark for removal if it becomes 0
+    for key in current_keys_with_history_for_certain_time:
+        current_keys_with_history_for_certain_time[key] -= 1
+        if current_keys_with_history_for_certain_time[key] == 0:
+            keys_to_remove.append(key)
+    
+    # Remove keys with value 0
+    for key in keys_to_remove:
+        del current_keys_with_history_for_certain_time[key]
+    
+    return current_keys_with_history_for_certain_time
+
 def update_current_keys(key_set):
     global current_keys
     current_keys = key_set
+    add_keys_to_current_keys_with_history()
 
 def is_key_pressed(key_name):
     if key_name in current_keys:
@@ -448,14 +483,13 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, overlay_wi
 
     return frame
 
-import cv2
 
 def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, color=(255, 255, 255), position=(50, 50), spacing=100):
     """
-    Displays each character from a set on a given frame in large, bold text.
+    Displays each character from a dictionary on a given frame in large, bold text, sorted by the integer value associated with each character.
 
     :param frame: The background frame (numpy array).
-    :param characters: A set of characters to display.
+    :param characters: A dictionary where keys are characters and values are integers.
     :param font_scale: Font scale for the text.
     :param thickness: Thickness of the text.
     :param color: Color of the text in BGR format (default is white).
@@ -463,12 +497,12 @@ def display_characters_on_frame(frame, characters, font_scale=3, thickness=5, co
     :param spacing: Spacing between characters (in pixels).
     :return: The frame with the characters overlaid.
     """
-    # Sort characters to display them in a consistent order
-    characters = sorted(characters)
-    
+    # Sort the characters based on their corresponding integer values (ascending order)
+    sorted_characters = sorted(characters.items(), key=lambda item: item[1])
+
     # Loop through each character and display it on the frame
     x, y = position
-    for char in characters:
+    for char, _ in sorted_characters:
         cv2.putText(
             frame,                # Frame to draw on
             char,                 # Character to display
@@ -624,7 +658,7 @@ def dim_except_region(frame, input_monitor_bounds):
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
     global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_frame_layer, last_frame_displayed
-    global logo_watermark_path, cursor_img_path, show_pressed_keys_on_screen,current_keys
+    global logo_watermark_path, cursor_img_path, show_pressed_keys_on_screen,current_keys_with_history_for_certain_time
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -732,7 +766,7 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                         cv2.rectangle(zoomed_frame, (int(cursor_x), int(cursor_y)), (int(cursor_x) + 50, int(cursor_y) + 50), (0, 255, 0), 2)
                     
                     if show_pressed_keys_on_screen:
-                        zoomed_frame_with_chars = display_characters_on_frame(zoomed_frame,current_keys)
+                        zoomed_frame_with_chars = display_characters_on_frame(zoomed_frame,current_keys_with_history_for_certain_time)
                     else:
                         zoomed_frame_with_chars = zoomed_frame
 
@@ -1010,7 +1044,7 @@ def screen_rec_and_mouse_click_listener():
             pen_frame_layer = None
         #Augmentation of the frame
 
-
+        decrement_value_current_keys_with_history()
         # append_to_logs("Cursor info is",cursor_info)
         perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds)
         # elapsed_time = time.time() - start_time
