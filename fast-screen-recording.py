@@ -59,6 +59,8 @@ pen_color_b = int(settings_manager.get_setting("pen_color_b",0))
 #when moving across monitors pen_frame_layer will get destorted because the underlying frame with change, so you need to disable and re-enable pen mode, so pen_frame_layer is recalculated
 pen_frame_layer = None
 logo_watermark_layer = None
+logo_watermark_path = None
+cursor_img_path = "./assets/mac-cursor-4x/default@4x.png"
 
 last_frame_displayed = None
 #If display_output_mode is false then no output will be shown in the output monitor. This is generally done when you just want to screen record the input monitor and take text and screenshot notes, without having to output something to output monitor
@@ -391,7 +393,7 @@ def draw_pen_mode(frame, only_draw_recent_line=False, draw_lines=True, color=(0,
     
     return frame
 
-def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
+def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y, is_image_path_absolute = False):
     """
     Overlays an image onto a given frame at specified coordinates.
 
@@ -401,7 +403,8 @@ def overlay_image_on_frame(frame, image_path, top_left_x, top_left_y):
     :param top_left_y: Y-coordinate of the top-left corner where the image should be placed.
     :return: The frame with the image overlaid.
     """
-    image_path = get_resource_path(image_path)
+    if is_image_path_absolute == False:
+        image_path = get_resource_path(image_path)
     top_left_x = int(top_left_x)
     top_left_y = int(top_left_y)
     # Load the overlay image from the given path.
@@ -576,6 +579,7 @@ def dim_except_region(frame, input_monitor_bounds):
 
 def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_monitor_bounds):
     global left_click_status, prev_zoom_level, last_in_bounds_cursor_position, use_blur_effect, pen_mode_enabled, pen_mode_coordinates_curr_set, pen_frame_layer, last_frame_displayed, logo_watermark_layer
+    global logo_watermark_path, cursor_img_path
     # Now, iterate through cursor_data and zoom in at cursor positions with speed less than threshold
     position = cursor_info["position"]
     speed = cursor_info["speed"]
@@ -649,9 +653,9 @@ def perform_zoom_augmentation(frame,cursor_info,input_monitor_bounds,output_moni
                 only_show_region_of_interest_frame = dim_except_region(frame,input_monitor_bounds_unnormalized)
             
             #Add logo watermark overlay
-            if logo_watermark_layer is not None:
+            if logo_watermark_layer is not None and logo_watermark_path is not None:
                 try:
-                    frame_with_logo_watermark_layer_overlay = overlay_image_on_frame(only_show_region_of_interest_frame,"./assets/mac-cursor-4x/default@4x.png",input_monitor_bounds.origin.x + input_monitor_bounds.size.width - 100,input_monitor_bounds.origin.y + input_monitor_bounds.size.height - 100)
+                    frame_with_logo_watermark_layer_overlay = overlay_image_on_frame(only_show_region_of_interest_frame,logo_watermark_path,input_monitor_bounds.origin.x + input_monitor_bounds.size.width - 100,input_monitor_bounds.origin.y + input_monitor_bounds.size.height - 100,is_image_path_absolute=cursor_img_path != logo_watermark_path)
                 except Exception as e:
                     print("Exception in apply logo_watermark_layer on top of main frame, will reset the logo_watermark_layer:",e)
                     logo_watermark_layer = None
@@ -855,7 +859,7 @@ def screen_rec_and_mouse_click_listener_deprecated():
 
 
 def setup():
-    global screen_capture, mouse_event_listener,initialization_done
+    global screen_capture, mouse_event_listener,initialization_done,logo_watermark_path, cursor_img_path
 
     if initialization_done:
         return
@@ -865,6 +869,12 @@ def setup():
     # Start listening for mouse events in a separate thread
     mouse_event_listener = mouse.Listener(on_click=on_click)
     mouse_event_listener.start()
+
+    logo_watermark_path = settings_manager.get_setting("logo_watermark_path_png","")
+    if logo_watermark_path == "":
+        print("logo_watermark_path was not provided using the CaptureDisplay logo as the watermark")
+        logo_watermark_path = cursor_img_path
+
     initialization_done = True
 
 def screen_rec_and_mouse_click_listener():
