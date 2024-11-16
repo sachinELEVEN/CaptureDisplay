@@ -58,6 +58,7 @@ def append_to_logs(*args):
 
 
 def notify_server(message_type, api_url="https://backend.brainsphere.in/capture_display_events"):
+    #return
     # Ensure message_type is a string
     if not isinstance(message_type, str):
         # print("Error: message_type must be a string")

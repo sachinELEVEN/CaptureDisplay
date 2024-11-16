@@ -29,7 +29,7 @@ exe = EXE(
     upx=True,
     upx_exclude=[],
     runtime_tmpdir=None,
-    runtime_node_dir='CaptureDisplay-v1.0.3',
+    runtime_node_dir='CaptureDisplay-v1.1.0',
     
     console=False,
     disable_windowed_traceback=False,
@@ -46,5 +46,5 @@ app = BUNDLE(
     info_plist={
         'com.apple.security.input-method': True,
     },
-    bundle_identifier='com.CaptureDisplay.macapp',
+    bundle_identifier='com.CaptureDisplayv3.macapp',
 )
