@@ -29,7 +29,7 @@ def start_application():
     append_to_logs("starting menu_bar_app on main thread")
     menu_bar_app()
  
-    keyboard_listener_thread.join()
+    # keyboard_listener_thread.join()
     append_to_logs("Terminating CaptureDisplay")
 
 if __name__ == "__main__":

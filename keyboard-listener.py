@@ -153,9 +153,11 @@ def millisToSeconds(millis):
 def listen_keyboard_events(): 
     # Start listening for keyboard events.
     with keyboard.Listener(on_press=on_press, on_release=on_release) as listener:
-        while True:
-            # append_to_logs("Listening for keyboard shortcuts...")
-            time.sleep(millisToSeconds(10))
+        append_to_logs("keyboard listener started")
+        listener.join()
+        # while True:
+        #     # append_to_logs("Listening for keyboard shortcuts...")
+        #     time.sleep(millisToSeconds(10))
         # listener.join()
 
 # listen_keyboard_events()
