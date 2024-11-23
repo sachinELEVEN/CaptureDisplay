@@ -27,7 +27,9 @@ cd ..
 # codesign --deep --force --verbose -s "CaptureDisplay" "./dist/CaptureDisplay.app"
 #we must sign with Developer ID Application certificate in order to notarize the app
 #verify codesign -> codesign -vvv --deep --strict ./dist/CaptureDisplay.app
-codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
+codesign -s "CaptureDisplay" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
+#for ntoarzation use below signing key
+#codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.app"
 
 # ---------------------------------------
 # Step 2.1 and last:zip the app and upload it, that is it- NOT ADDED YET- MANUAL ZIP IS SUPER EASY
@@ -48,34 +50,34 @@ create-dmg  --volname "CaptureDisplay" --volicon "/Users/sachinjeph/Desktop/Capt
 # # ---------------------------------------
 #Signing the dmg
 echo "Signing DMG..."
-codesign -s "EC24DE91843FE9267B360FA70CAFAF873E92AC72" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
+codesign -s "CaptureDisplay" -v --deep --force --timestamp --entitlements entitlements.plist -o runtime "./dist/CaptureDisplay.dmg"
 
 # echo "Packaging and signing complete. You can find the DMG installer in the dist/ directory."
 
-# # ---------------------------------------
-# # Step 5: Notarising the DMG (macOS disk image)
-# # ---------------------------------------
-# #For performing notarization you will need a keychain profile, to create it you can run the below command and then on screen steps
-# #xcrun notarytool store-credentials
-# #Here you will be asked to create an app specific password which you can generate from account.appleid.com, its simple
-# #Once your keychain profile is ready it will be there in keychain
-# #NOT NOTARIZING CAPTUREDISPALY BECAUSE I WAS ONLY ABLE TO NOTARIZE THE APP IN ONEFILE MODE WHICH IS SLOW ON EVERY LAUNCH DUE TO DECODING OF FILES ON LAUNCH
-echo "Notarising DMG..."
-# # #Notarisation step- takes some time so thats why they are commented
-xcrun notarytool submit "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay" --wait
-# # #Staple the dmg, this allows for app verification without internet access on user's side
-xcrun stapler staple "./dist/CaptureDisplay.dmg"
-# #Validate stapler step
-xcrun stapler validate "./dist/CaptureDisplay.dmg"
-# #To verify if a dmg is notarised or not
-# # spctl -a -vvv -t install "./dist/CaptureDisplay.dmg"
-# #To see history of your notarization request run the below command
-# # xcrun notarytool history --keychain-profile "CaptureDisplay"
-# #To get the detailed log of notarization step use the below commnad
-# #xcrun notarytool log "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay"
-# #if notarization fails you can see notary logs which has the reasons for failure using the command where this id is the submission id which you would see when you run the initial notarization command
-# #xcrun notarytool log 8e03c9e3-219f-48be-a22d-4ba4846490c3 --keychain-profile "CaptureDisplay"
+# # # ---------------------------------------
+# # # Step 5: Notarising the DMG (macOS disk image)
+# # # ---------------------------------------
+# # #For performing notarization you will need a keychain profile, to create it you can run the below command and then on screen steps
+# # #xcrun notarytool store-credentials
+# # #Here you will be asked to create an app specific password which you can generate from account.appleid.com, its simple
+# # #Once your keychain profile is ready it will be there in keychain
+# # #NOT NOTARIZING CAPTUREDISPALY BECAUSE I WAS ONLY ABLE TO NOTARIZE THE APP IN ONEFILE MODE WHICH IS SLOW ON EVERY LAUNCH DUE TO DECODING OF FILES ON LAUNCH
+# echo "Notarising DMG..."
+# # # #Notarisation step- takes some time so thats why they are commented
+# xcrun notarytool submit "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay" --wait
+# # # #Staple the dmg, this allows for app verification without internet access on user's side
+# xcrun stapler staple "./dist/CaptureDisplay.dmg"
+# # #Validate stapler step
+# xcrun stapler validate "./dist/CaptureDisplay.dmg"
+# # #To verify if a dmg is notarised or not
+# # # spctl -a -vvv -t install "./dist/CaptureDisplay.dmg"
+# # #To see history of your notarization request run the below command
+# # # xcrun notarytool history --keychain-profile "CaptureDisplay"
+# # #To get the detailed log of notarization step use the below commnad
+# # #xcrun notarytool log "./dist/CaptureDisplay.dmg" --keychain-profile "CaptureDisplay"
+# # #if notarization fails you can see notary logs which has the reasons for failure using the command where this id is the submission id which you would see when you run the initial notarization command
+# # #xcrun notarytool log 8e03c9e3-219f-48be-a22d-4ba4846490c3 --keychain-profile "CaptureDisplay"
 
-# #To see the list of certificates
-# #security find-identity -p basic -v
-# #Maybe write some upload script here to upload dmg for customers
+# # #To see the list of certificates
+# # #security find-identity -p basic -v
+# # #Maybe write some upload script here to upload dmg for customers
